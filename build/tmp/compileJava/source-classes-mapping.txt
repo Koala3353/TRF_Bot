@@ -196,8 +196,8 @@ com/general_hello/commands/RPG/Objects/Tools.java
  com.general_hello.commands.RPG.Objects.Tools
 com/general_hello/commands/RPG/Items/Common/AttainHunt/Pig.java
  com.general_hello.commands.RPG.Items.Common.AttainHunt.Pig
-com/general_hello/commands/Database/SQLiteDataSource.java
- com.general_hello.commands.Database.SQLiteDataSource
+com/general_hello/commands/commands/RankingSystem/ViewRank.java
+ com.general_hello.commands.commands.RankingSystem.ViewRank
 com/general_hello/commands/commands/Register/RegisterCommand.java
  com.general_hello.commands.commands.Register.RegisterCommand
 com/general_hello/commands/RPG/Items/Legendary/AttainFish/Kraken.java
@@ -274,8 +274,9 @@ com/general_hello/commands/RPG/Items/Mythical/AttainFish/Octopus.java
  com.general_hello.commands.RPG.Items.Mythical.AttainFish.Octopus
 com/general_hello/commands/commands/GroupOfGames/MiniGames/AlphaBetaChess.java
  com.general_hello.commands.commands.GroupOfGames.MiniGames.AlphaBetaChess
-com/general_hello/commands/Database/DatabaseManager.java
- com.general_hello.commands.Database.DatabaseManager
+com/general_hello/commands/CommandManager.java
+ com.general_hello.commands.CommandManager
+ com.general_hello.commands.CommandManager$1
 com/general_hello/commands/commands/Currency/DailyDrop.java
  com.general_hello.commands.commands.Currency.DailyDrop
 com/general_hello/commands/RPG/Items/Rare/AttainFish/CuttleFish.java
@@ -317,8 +318,8 @@ com/general_hello/commands/commands/Auction/AuctionToChannelStoring.java
  com.general_hello.commands.commands.Auction.AuctionToChannelStoring
 com/general_hello/commands/OtherEvents/OtherEvents.java
  com.general_hello.commands.OtherEvents.OtherEvents
-com/general_hello/commands/commands/Currency/LeaderboardCommand.java
- com.general_hello.commands.commands.Currency.LeaderboardCommand
+com/general_hello/commands/Status.java
+ com.general_hello.commands.Status
 com/general_hello/commands/commands/CommandContext.java
  com.general_hello.commands.commands.CommandContext
 com/general_hello/commands/RPG/Items/Common/Artifacts/SackCloth.java
@@ -381,14 +382,13 @@ com/general_hello/commands/commands/Currency/BegCommand.java
  com.general_hello.commands.commands.Currency.BegCommand
 com/general_hello/commands/commands/GroupOfGames/Games/GuessNumberCommand.java
  com.general_hello.commands.commands.GroupOfGames.Games.GuessNumberCommand
-com/general_hello/commands/commands/Currency/TaxGetter.java
- com.general_hello.commands.commands.Currency.TaxGetter
-com/general_hello/commands/CommandManager.java
- com.general_hello.commands.CommandManager
- com.general_hello.commands.CommandManager$1
-com/general_hello/commands/commands/RankingSystem/ViewRank.java
- com.general_hello.commands.commands.RankingSystem.ViewRank
-com/general_hello/commands/Status.java
- com.general_hello.commands.Status
+com/general_hello/commands/commands/Currency/LeaderboardCommand.java
+ com.general_hello.commands.commands.Currency.LeaderboardCommand
 com/general_hello/commands/Bot.java
  com.general_hello.commands.Bot
+com/general_hello/commands/commands/Currency/TaxGetter.java
+ com.general_hello.commands.commands.Currency.TaxGetter
+com/general_hello/commands/Database/DatabaseManager.java
+ com.general_hello.commands.Database.DatabaseManager
+com/general_hello/commands/Database/SQLiteDataSource.java
+ com.general_hello.commands.Database.SQLiteDataSource

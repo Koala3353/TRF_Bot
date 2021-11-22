@@ -264,7 +264,7 @@ public class SQLiteDataSource implements DatabaseManager {
         }
 
         if (credits > 0) {
-            SQLiteDataSource.totalReceived.put(userId, (credits / 100) + totalReceived);
+            SQLiteDataSource.totalReceived.put(userId, (credits / 10) + totalReceived);
         }
 
         int total = (credits) + DatabaseManager.INSTANCE.getCredits(userId);

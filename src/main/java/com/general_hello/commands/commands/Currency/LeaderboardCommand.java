@@ -73,7 +73,7 @@ public class LeaderboardCommand implements ICommand {
                     Integer credits1 = credits.getCredits();
                     stringBuilder.append(rankShow).append(" <:credit:905976767821525042> **").append(formatter.format(credits1)).append("** - ").append(credits.getDiscordUser().getAsTag()).append("\n");
 
-                    if (y == 20) {
+                    if (y == 15) {
                         break;
                     }
                     x++;
