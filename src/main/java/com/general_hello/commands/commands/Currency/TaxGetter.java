@@ -7,6 +7,7 @@ import com.general_hello.commands.commands.Register.Data;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,5 +34,7 @@ public class TaxGetter {
             }
             x++;
         }
+
+        SQLiteDataSource.totalReceived = new HashMap<>();
     }
 }

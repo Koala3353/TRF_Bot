@@ -7,8 +7,6 @@ import com.general_hello.commands.commands.Currency.DropCommand;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.GroupOfGames.Blackjack.BlackjackGame;
 import com.general_hello.commands.commands.GroupOfGames.Blackjack.GameHandler;
-import com.general_hello.commands.commands.GroupOfGames.MiniGames.ChessStoring;
-import com.general_hello.commands.commands.GroupOfGames.MiniGames.MainChessCode;
 import com.general_hello.commands.commands.Info.InfoUserCommand;
 import com.general_hello.commands.commands.PrefixStoring;
 import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
@@ -17,13 +15,9 @@ import com.general_hello.commands.commands.User.MessageIdToReport;
 import com.general_hello.commands.commands.User.Report;
 import com.general_hello.commands.commands.User.UserPhoneUser;
 import com.general_hello.commands.commands.Utils.UtilNum;
-import com.github.bhlangonijr.chesslib.Board;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -104,7 +98,7 @@ public class OnButtonClick extends ListenerAdapter {
                 break;
             case "rank":
                 try{
-                    User member = event.getUser();
+                    User member = event.getJDA().getUserById(id[2]);
                     ByteArrayOutputStream baos = LevelPointManager.getLevelPointCard(member).getByteArrayOutputStream();
                     event.getMessage().delete().queue();
                     event.getChannel().sendFile(baos.toByteArray(), member.getName() + "-stats.png").queue();
@@ -327,12 +321,19 @@ public class OnButtonClick extends ListenerAdapter {
                     event.getChannel().sendMessage("Failed to notify the author of the message. Due to the person not allowing DM's").queue();
 
                 }
-                event.getGuild().getTextChannelsByName("skyacinths-office", true).get(0).sendMessage(pngUrl).queue();
+                event.getJDA().getTextChannelById(911788233355046912L).sendMessage(pngUrl).queue();
+                event.getJDA().getTextChannelById(876363970108334162L).sendMessage(pngUrl).queue();
+
                 try {
                     report.getMessage().delete().queue();
                 } catch (Exception e) {
                     event.getChannel().sendMessage("Message was deleted already! Failed to delete it!").queue();
                 }
+                Role memberRole = event.getGuild().getRoleById(876371852799389736L);
+                Role muteRole = event.getGuild().getRoleById(902857447809646612L);
+
+                event.getGuild().removeRoleFromMember(author.getId(), memberRole).queue();
+                event.getGuild().addRoleToMember(author.getId(), muteRole).queue();
                 break;
             case "invalidreport":
                  report = MessageIdToReport.messageReport.get(event.getMessage());
@@ -384,15 +385,6 @@ public class OnButtonClick extends ListenerAdapter {
                 event.getChannel().sendMessage("<a:thanks:863989523461177394> Thank you for accepting the rules and data that will be stored.").queue();
                 event.getChannel().sendMessage("<a:question:863989523368247346> For your Ignite Coins balance, may we ask for your first and last, real name? For example, **Nathan Tan** or **John Sy**").queue();
                 Data.progress.put(event.getUser(), 1);
-                break;
-            case "acceptChess":
-                event.getMessage().getActionRows().get(0).updateComponent(event.getUser().getId() + ":acceptChess", event.getButton().asDisabled());
-                event.getChannel().sendMessage(event.getMember().getAsMention() + " accepted the Chess challenge!\nLoading the game " + Emojis.LOADING).queue();
-                MainChessCode.loadBoard(event);
-                Board board = new Board();
-                ChessStoring.userToBoard.put(event.getUser(), board);
-                ChessStoring.userToBoard.put(ChessStoring.userToUser.get(event.getUser()), board);
-                event.getInteraction().editButton(event.getButton().asDisabled()).queue();
                 break;
             case "hit":
                 AtomicBoolean me = new AtomicBoolean(true);

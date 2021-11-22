@@ -47,10 +47,10 @@ public class ViewRank implements ICommand
                 "&level=" + levelI +
                 "&bar_color=%2300ffef";
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setTimestamp(OffsetDateTime.now()).setTitle(ctx.getAuthor().getName() + "'s Rank");
+        EmbedBuilder embedBuilder = new EmbedBuilder().setTimestamp(OffsetDateTime.now()).setTitle(member.getName() + "'s Rank");
         embedBuilder.setImage(urlString);
         ctx.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(
-                Button.of(ButtonStyle.SECONDARY, ctx.getAuthor().getId() + ":rank", "Show rank in another image")
+                Button.of(ButtonStyle.SECONDARY, ctx.getAuthor().getId() + ":rank:" + member.getId(), "Show rank in another image")
         ).queue();
     }
 

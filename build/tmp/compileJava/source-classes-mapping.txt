@@ -44,8 +44,8 @@ com/general_hello/commands/OtherEvents/OnApiRequest.java
  com.general_hello.commands.OtherEvents.OnApiRequest
 com/general_hello/commands/RPG/Types/Level.java
  com.general_hello.commands.RPG.Types.Level
-com/general_hello/commands/OtherEvents/OnButtonClick.java
- com.general_hello.commands.OtherEvents.OnButtonClick
+com/general_hello/commands/Listener.java
+ com.general_hello.commands.Listener
 com/general_hello/commands/commands/Others/EvalCommand.java
  com.general_hello.commands.commands.Others.EvalCommand
 com/general_hello/commands/commands/Utils/Util.java
@@ -76,8 +76,8 @@ com/general_hello/commands/RPG/Objects/RPGEmojis.java
  com.general_hello.commands.RPG.Objects.RPGEmojis
 com/general_hello/commands/RPG/Items/Rare/Artifacts/Ruby.java
  com.general_hello.commands.RPG.Items.Rare.Artifacts.Ruby
-com/general_hello/commands/commands/Currency/StartTaxCollectorCommand.java
- com.general_hello.commands.commands.Currency.StartTaxCollectorCommand
+com/general_hello/commands/commands/Math/MathCommand.java
+ com.general_hello.commands.commands.Math.MathCommand
 com/general_hello/commands/commands/Register/Data.java
  com.general_hello.commands.commands.Register.Data
 com/general_hello/commands/commands/Utils/UtilBot.java
@@ -250,8 +250,8 @@ com/general_hello/commands/RPG/Items/Legendary/Artifacts/EightCommandment.java
  com.general_hello.commands.RPG.Items.Legendary.Artifacts.EightCommandment
 com/general_hello/commands/RPG/Items/Legendary/AttainFish/LegendaryFish.java
  com.general_hello.commands.RPG.Items.Legendary.AttainFish.LegendaryFish
-com/general_hello/commands/commands/RankingSystem/ViewRank.java
- com.general_hello.commands.commands.RankingSystem.ViewRank
+com/general_hello/commands/commands/Currency/StartTaxCollectorCommand.java
+ com.general_hello.commands.commands.Currency.StartTaxCollectorCommand
 com/general_hello/commands/commands/Utils/UtilNum.java
  com.general_hello.commands.commands.Utils.UtilNum
 com/general_hello/commands/RPG/Items/Rare/AttainFish/JonahBigFish.java
@@ -315,8 +315,8 @@ com/general_hello/commands/RPG/Items/Rare/AttainHunt/Serpent.java
  com.general_hello.commands.RPG.Items.Rare.AttainHunt.Serpent
 com/general_hello/commands/commands/Auction/AuctionToChannelStoring.java
  com.general_hello.commands.commands.Auction.AuctionToChannelStoring
-com/general_hello/commands/commands/Currency/TaxGetter.java
- com.general_hello.commands.commands.Currency.TaxGetter
+com/general_hello/commands/OtherEvents/OtherEvents.java
+ com.general_hello.commands.OtherEvents.OtherEvents
 com/general_hello/commands/commands/Currency/LeaderboardCommand.java
  com.general_hello.commands.commands.Currency.LeaderboardCommand
 com/general_hello/commands/commands/CommandContext.java
@@ -371,8 +371,8 @@ com/general_hello/commands/RPG/Items/Legendary/Artifacts/NinthCommandment.java
  com.general_hello.commands.RPG.Items.Legendary.Artifacts.NinthCommandment
 com/general_hello/commands/commands/Utils/ErrorUtils.java
  com.general_hello.commands.commands.Utils.ErrorUtils
-com/general_hello/commands/Status.java
- com.general_hello.commands.Status
+com/general_hello/commands/OtherEvents/OnButtonClick.java
+ com.general_hello.commands.OtherEvents.OnButtonClick
 com/general_hello/commands/commands/Utils/MCColor.java
  com.general_hello.commands.commands.Utils.MCColor
 com/general_hello/commands/OtherEvents/OnPrivateMessage.java
@@ -381,14 +381,14 @@ com/general_hello/commands/commands/Currency/BegCommand.java
  com.general_hello.commands.commands.Currency.BegCommand
 com/general_hello/commands/commands/GroupOfGames/Games/GuessNumberCommand.java
  com.general_hello.commands.commands.GroupOfGames.Games.GuessNumberCommand
+com/general_hello/commands/commands/Currency/TaxGetter.java
+ com.general_hello.commands.commands.Currency.TaxGetter
 com/general_hello/commands/CommandManager.java
  com.general_hello.commands.CommandManager
  com.general_hello.commands.CommandManager$1
-com/general_hello/commands/Listener.java
- com.general_hello.commands.Listener
-com/general_hello/commands/commands/Math/MathCommand.java
- com.general_hello.commands.commands.Math.MathCommand
+com/general_hello/commands/commands/RankingSystem/ViewRank.java
+ com.general_hello.commands.commands.RankingSystem.ViewRank
+com/general_hello/commands/Status.java
+ com.general_hello.commands.Status
 com/general_hello/commands/Bot.java
  com.general_hello.commands.Bot
-com/general_hello/commands/OtherEvents/OtherEvents.java
- com.general_hello.commands.OtherEvents.OtherEvents

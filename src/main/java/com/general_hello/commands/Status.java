@@ -8,7 +8,7 @@ public class Status {
         Runnable runnable = () -> {
             while (true) {
                 System.out.println("Yeet");
-                Bot.jda.getPresence().setActivity(Activity.listening("Made by General Hello#4756"));
+                Bot.jda.getPresence().setActivity(Activity.listening("Made by General Koala#0400"));
 
                 try {
                     Thread.sleep(1000000);
@@ -16,7 +16,7 @@ public class Status {
                 }
 
                 JDA jda = Bot.jda;
-                jda.getPresence().setActivity(Activity.competing("This bot uses over 3,000 lines of code"));
+                jda.getPresence().setActivity(Activity.competing("This bot uses over 10,000 lines of code"));
 
                 try {
                     Thread.sleep(1000000);
