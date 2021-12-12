@@ -52,13 +52,11 @@ public class LevelPointManager{
     public static synchronized void feed(User member){
         try{
             if(!accessMap.containsKey(member)){
-                System.out.println("Added member :)");
                 trackMember(member);
             }
 
             OffsetDateTime last = accessMap.get(member);
             if(OffsetDateTime.now().isBefore(last.plusSeconds(DELAY))){
-                System.out.println("Did not add xp to " + member.getName() + " due to delay!");
                 return;
             }
 
@@ -66,7 +64,6 @@ public class LevelPointManager{
             accessMap.put(member, OffsetDateTime.now());
 
             GetData.setLevelPoints(member, GetData.getLevelPoints(member) + POINTS_PER_MESSAGE);
-            System.out.println("Added xp to " + member.getName() + "!");
         }
         catch(Exception ignore){
         }
@@ -75,14 +72,12 @@ public class LevelPointManager{
     public static synchronized void feed(User member, long xpToAdd){
         try{
             if(!accessMap.containsKey(member)){
-                System.out.println("Added member :)");
                 trackMember(member);
             }
             long level = calculateLevel(member);
 
             GetData.setLevelPoints(member, GetData.getLevelPoints(member) + xpToAdd);
             long nowlevel = calculateLevel(member);
-            System.out.println("Added xp to " + member.getName() + "!");
 
             if (level < nowlevel) {
                 member.openPrivateChannel().queue((privateChannel -> {

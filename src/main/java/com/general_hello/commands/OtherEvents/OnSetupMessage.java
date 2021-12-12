@@ -159,7 +159,7 @@ public class OnSetupMessage extends ListenerAdapter {
                 "\n" +
                 "Role: " + role.getAsMention());
         embedBuilder.setColor(Color.CYAN);
-        embedBuilder.setThumbnail("https://tenor.com/view/sold-auction-gif-9041957");
+        embedBuilder.setThumbnail("https://cdn.discordapp.com/emojis/910501523346317322.png");
         embedBuilder.setTimestamp(OffsetDateTime.now());
         mainChannel.sendMessageEmbeds(embedBuilder.build())
                 .setActionRows(
@@ -171,7 +171,7 @@ public class OnSetupMessage extends ListenerAdapter {
         logChannel.sendMessage("Sent the auction message in " + mainChannel.getAsMention()).queue();
     }
 
-    private OffsetDateTime stringToTime(String time) {
+    public static OffsetDateTime stringToTime(String time) {
         time = time.toLowerCase();
         time = time.replaceAll("\\s+", "");
         String[] owo = time.split("d");
@@ -201,14 +201,10 @@ public class OnSetupMessage extends ListenerAdapter {
             minutes = null;
         }
 
-        System.out.println(days);
-        System.out.println(hours);
-        System.out.println(minutes);
-
         return OffsetDateTime.now().plusDays(toLong(days)).plusHours(toLong(hours)).plusMinutes(toLong(minutes));
     }
 
-    private long toLong(String string) {
+    private static long toLong(String string) {
         if (string == null) {
             return 0L;
         }

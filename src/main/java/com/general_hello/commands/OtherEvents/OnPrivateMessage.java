@@ -7,7 +7,6 @@ import com.general_hello.commands.commands.Others.UpdateIgniteCoinsCommand;
 import com.general_hello.commands.commands.Register.Data;
 import com.general_hello.commands.commands.User.UserPhoneUser;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -44,10 +43,6 @@ public class OnPrivateMessage extends ListenerAdapter {
                 Data.userPhoneUsers.add(user);
 
                 DatabaseManager.INSTANCE.newInfo(event.getAuthor().getIdLong(), oldAnswers.get(0));
-                Guild guildById = event.getJDA().getGuildById(843769353040298011L);
-                try {
-                    guildById.addRoleToMember(guildById.getMember(event.getAuthor()), guildById.getRolesByName("member", true).get(0)).queue();
-                } catch (Exception ignored) {}
 
                 try {
                     UpdateIgniteCoinsCommand.loadData();

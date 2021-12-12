@@ -2,11 +2,16 @@ package com.general_hello.commands.OtherEvents;
 
 import com.general_hello.commands.Config;
 import com.general_hello.commands.Database.DatabaseManager;
+import com.general_hello.commands.RPG.Objects.RPGEmojis;
+import com.general_hello.commands.commands.Work.WorkCommand;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.GroupOfGames.Games.TriviaCommand;
 import com.general_hello.commands.commands.Info.InfoUserCommand;
 import com.general_hello.commands.commands.PrefixStoring;
 import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
+import com.general_hello.commands.commands.Register.Data;
+import com.general_hello.commands.commands.User.UserPhoneUser;
+import com.general_hello.commands.commands.Utils.UtilNum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
@@ -18,6 +23,7 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.text.DecimalFormat;
 
 public class OnSelectionMenu extends ListenerAdapter {
     @Override
@@ -48,27 +54,82 @@ public class OnSelectionMenu extends ListenerAdapter {
             reward = reward * multiplier;
 
             if (event.getSelectedOptions().get(0).getValue().equals(answer)) {
-                event.getChannel().sendMessage("Correct answer!!!!\n" +
-                        "You got \uD83E\uDE99 " + reward + " for getting the correct answer!\n" +
-                        "Question: `" + question + "`").queue();
-                LevelPointManager.feed(event.getUser(), 25);
-                DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), reward);
-                event.deferEdit().queue();
-                event.getMessage().delete().queue();
+                if (WorkCommand.job.containsKey(event.getUser())) {
+                    UserPhoneUser bankUser = Data.userUserPhoneUserHashMap.get(event.getJDA().getSelfUser());
+                    int bankCredits = bankUser.getCredits();
+
+                    int minRobOrFine = 0;
+                    int maxRobOrFine = 200_000;
+
+                    if (maxRobOrFine > bankCredits) {
+                        maxRobOrFine = bankCredits;
+                    }
+
+                    int randomNum = UtilNum.randomNum(minRobOrFine, maxRobOrFine);
+
+                    DecimalFormat formatter = new DecimalFormat("#,###.00");
+                    DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), randomNum);
+                    DatabaseManager.INSTANCE.setCredits(event.getJDA().getSelfUser().getIdLong(), (-randomNum));
+
+                    EmbedBuilder e = new EmbedBuilder();
+                    e.setTitle("Great Work!");
+                    e.setColor(Color.green);
+                    e.setDescription("You were given " + RPGEmojis.credits + " `" + formatter.format(randomNum) + "` for an hour of work.");
+                    e.setFooter("Working as a teacher");
+                    event.getHook().deleteOriginal().queue();
+                    event.deferEdit().queue();
+                    event.getChannel().sendMessageEmbeds(e.build()).setActionRow(event.getSelectionMenu().asDisabled()).queue();
+                } else {
+                    event.getChannel().sendMessage("Correct answer!!!!\n" +
+                            "You got \uD83E\uDE99 " + reward + " for getting the correct answer!\n" +
+                            "Question: `" + question + "`").queue();
+                    LevelPointManager.feed(event.getUser(), 25);
+                    DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), reward);
+                    event.deferEdit().queue();
+                    event.getMessage().delete().queue();
+                }
                 TriviaCommand.storeAnswer.remove(event.getUser());
             } else {
-                EmbedBuilder e = new EmbedBuilder();
-                e.setTitle("Incorrect answer");
-                e.setFooter("A correct answer gives you \uD83E\uDE99 " + reward);
-                e.addField("Question: `" + question + "`\n" + "Difficulty: **" + difficulty +
-                        "**\nThe correct answer is " + TriviaCommand.storeAnswer.get(event.getUser()), "Better luck next time", false).setColor(Color.RED);
-                event.getChannel().sendMessageEmbeds(e.build()).queue();
-                event.getMessage().delete().queue();
+                if (WorkCommand.job.containsKey(event.getUser())) {
+
+                    UserPhoneUser bankUser = Data.userUserPhoneUserHashMap.get(event.getJDA().getSelfUser());
+                    int bankCredits = bankUser.getCredits();
+
+                    int minRobOrFine = 0;
+                    int maxRobOrFine = 80_000;
+
+                    if (maxRobOrFine > bankCredits) {
+                        maxRobOrFine = bankCredits;
+                    }
+
+                    int randomNum = UtilNum.randomNum(minRobOrFine, maxRobOrFine);
+
+                    DecimalFormat formatter = new DecimalFormat("#,###.00");
+                    DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), randomNum);
+                    DatabaseManager.INSTANCE.setCredits(event.getJDA().getSelfUser().getIdLong(), (-randomNum));
+
+                    EmbedBuilder e = new EmbedBuilder();
+                    e.setTitle("TERRIBLE Work!");
+                    e.setColor(Color.red);
+                    e.setDescription("You lost the mini-game because the answer you chose wasn't correct.\n" +
+                            "You were given " + RPGEmojis.credits + " `" + formatter.format(randomNum) + "` for a sub-par hour of work.");
+                    e.setFooter("Working as a teacher");
+                    event.getHook().deleteOriginal().queue();
+                    event.deferEdit().queue();
+                    event.getChannel().sendMessageEmbeds(e.build()).setActionRow(event.getSelectionMenu().asDisabled()).queue();
+                } else {
+                    EmbedBuilder e = new EmbedBuilder();
+                    e.setTitle("Incorrect answer");
+                    e.setFooter("A correct answer gives you \uD83E\uDE99 " + reward);
+                    e.addField("Question: `" + question + "`\n" + "Difficulty: **" + difficulty +
+                            "**\nThe correct answer is " + TriviaCommand.storeAnswer.get(event.getUser()), "Better luck next time", false).setColor(Color.RED);
+                    event.getChannel().sendMessageEmbeds(e.build()).queue();
+                    event.getMessage().delete().queue();
+                    event.deferEdit().queue();
+                }
                 TriviaCommand.storeAnswer.remove(event.getUser());
                 TriviaCommand.storeQuestion.remove(event.getUser());
                 TriviaCommand.storeDifficulty.remove(event.getUser());
-
-                event.deferEdit().queue();
             }
         }
         while (x < event.getSelectedOptions().size()) {

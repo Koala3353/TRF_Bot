@@ -39,6 +39,7 @@ public class AuctionTimer {
         }
 
         DatabaseManager.INSTANCE.setCredits(winner.getIdLong(), (-Math.toIntExact(bids.get(winner))));
+
         auction.getMainChannel().sendMessage("Congratulations " + winner.getAsMention() + " you won the auction for **" + auction.getItem() + "** by bidding " + Emojis.credits + "** " + bids.get(winner) +"**!").queue();
     }
 }

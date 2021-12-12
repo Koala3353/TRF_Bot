@@ -34,21 +34,16 @@ public class ViewRank implements ICommand
         String name = member.getName().replaceAll("\\s++", "%20");
 
         long levelI = LevelPointManager.calculateLevel(member);
+        String background = "https://media.discordapp.net/attachments/877423237200510996/918754304570052608/image0.png";
         long max = LevelPointManager.calculateLevelMax(levelI);
         long cur = GetData.getLevelPoints(member);
 
-        String urlString = "https://app.resetxd.repl.co/level?" +
-                "background=https://png.pngtree.com/thumb_back/fh260/background/20200714/pngtree-modern-double-color-futuristic-neon-background-image_351866.jpg" +
-                "&height=700" +
-                "&avatar=" + member.getAvatarUrl() +
-                "&username=" + name +
-                "&current_exp=" + cur +
-                "&max_exp=" + max +
-                "&level=" + levelI +
-                "&bar_color=%2300ffef";
+        String urlString = "https://api.willz.repl.co/image/rankcard?username=" +
+                name + "&discriminator=" + member.getDiscriminator() + "&level=" + levelI + "&xp=" + cur + "&req=" + max + "&rank=999&status=" + ctx.getMember().getOnlineStatus().name().toLowerCase() + "&image=" + member.getAvatarUrl() + "&background=" + background;
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setTimestamp(OffsetDateTime.now()).setTitle(member.getName() + "'s Rank");
         embedBuilder.setImage(urlString);
+        embedBuilder.setFooter("Kindly ignore the rank in the image");
         ctx.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(
                 Button.of(ButtonStyle.SECONDARY, ctx.getAuthor().getId() + ":rank:" + member.getId(), "Show rank in another image")
         ).queue();

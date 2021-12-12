@@ -2,11 +2,15 @@ package com.general_hello.commands;
 
 import com.general_hello.commands.Database.DatabaseManager;
 import com.general_hello.commands.OtherEvents.*;
+import com.general_hello.commands.RPG.Commands.ShopCommand;
+import com.general_hello.commands.RPG.Items.Initializer;
 import com.general_hello.commands.commands.Currency.RemindBeg;
 import com.general_hello.commands.commands.Currency.RemindWork;
-import com.general_hello.commands.commands.Currency.StartTaxCollectorCommand;
+import com.general_hello.commands.commands.Giveaway.StartGiveawayCommand;
 import com.general_hello.commands.commands.Hangman.VirtualBotManager;
+import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import me.duncte123.botcommons.messaging.EmbedUtils;
 import me.duncte123.botcommons.web.WebUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -39,15 +43,22 @@ public class Bot {
                         .setColor(Color.cyan)
                         .setFooter("ignt help")
         );
+        // Initialize the waiter and client
+        EventWaiter waiter = new EventWaiter();
         CommandClientBuilder client = new CommandClientBuilder();
 
+
         // Set the client settings
+        client.useDefaultGame();
         client.setOwnerId(Config.get("owner_id"));
         client.setCoOwnerIds(Config.get("owner_id_partner"));
-        client.setPrefix("ignt ");
-        client.useHelpBuilder(false);
+        client.setPrefix("my ");
 
+        client.useHelpBuilder(false);
         addCommands(client);
+
+        // Finalize the command client
+        CommandClient commandClient = client.build();
 
         jda = JDABuilder.createDefault(Config.get("token"),
                 GatewayIntent.GUILD_MEMBERS,
@@ -73,6 +84,7 @@ public class Bot {
                 .addEventListeners(new OnSetupMessage())
                 .addEventListeners(new OnApiRequest())
                 .addEventListeners(new VirtualBotManager(true))
+                .addEventListeners(commandClient, waiter)
                 .setActivity(Activity.watching("ignt help"))
                 .setStatus(OnlineStatus.ONLINE)
                 .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
@@ -83,6 +95,7 @@ public class Bot {
     }
 
     public static void main(String[] args) throws LoginException {
+        Initializer.initializer();
         commandPrompt();
     }
 
@@ -206,8 +219,9 @@ public class Bot {
 
     private static void addCommands(CommandClientBuilder clientBuilder) {
         //add here
-        clientBuilder.addCommand(new StartTaxCollectorCommand());
         clientBuilder.addCommand(new RemindBeg());
         clientBuilder.addCommand(new RemindWork());
+        clientBuilder.addSlashCommand(new StartGiveawayCommand());
+        clientBuilder.addCommand(new ShopCommand());
     }
 }

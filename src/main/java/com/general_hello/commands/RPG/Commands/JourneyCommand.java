@@ -1,5 +1,6 @@
 package com.general_hello.commands.RPG.Commands;
 
+import com.general_hello.commands.RPG.RpgUser.RPGUser;
 import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.ICommand;
@@ -28,9 +29,18 @@ public class JourneyCommand implements ICommand {
                 "**End your journey** <:dinosaur:905241832550699099> - Deletes all your data on RPG");
         embedBuilder.setFooter("Start your journey now!").setTimestamp(OffsetDateTime.now());
 
+        boolean start = true;
+        boolean end = true;
+        int shekels = RPGUser.getShekels(ctx.getAuthor().getIdLong());
+
+        if (shekels == -1) {
+            start = false;
+        } else {
+            end = false;
+        }
         ctx.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(
-                Button.of(ButtonStyle.PRIMARY, ctx.getAuthor().getId() + ":start", "Start your journey").withEmoji(Emoji.fromEmote("crabby", 900170344202113096L, true)),
-                Button.of(ButtonStyle.DANGER, ctx.getAuthor().getId() + ":end", "End your journey").withEmoji(Emoji.fromEmote("dinosaur", 905241832550699099L, false))
+                Button.of(ButtonStyle.PRIMARY, ctx.getAuthor().getId() + ":start", "Start your journey").withEmoji(Emoji.fromEmote("crabby", 900170344202113096L, true)).withDisabled(start),
+                Button.of(ButtonStyle.DANGER, ctx.getAuthor().getId() + ":end", "End your journey").withEmoji(Emoji.fromEmote("dinosaur", 905241832550699099L, false)).withDisabled(end)
         ).queue();
     }
 

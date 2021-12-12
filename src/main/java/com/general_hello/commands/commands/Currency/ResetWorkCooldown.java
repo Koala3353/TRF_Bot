@@ -4,6 +4,7 @@ import com.general_hello.commands.Config;
 import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.ICommand;
+import com.general_hello.commands.commands.Work.WorkCommand;
 
 import java.io.IOException;
 import java.sql.SQLException;

@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class DailyDrop {
     public static void runDrop() {
         ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
-        ses.scheduleAtFixedRate(DailyDrop::drop, 0, 10, TimeUnit.MINUTES);
+        ses.scheduleAtFixedRate(DailyDrop::drop, 0, 13, TimeUnit.MINUTES);
     }
 
     private static void drop() {
@@ -24,25 +24,21 @@ public class DailyDrop {
 
         Bot.jda.getTextChannelById(876363970108334162L).sendMessage("<@&905691492205621278>").queue();
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle("New Chest Drop!!!").setTimestamp(OffsetDateTime.now()).setColor(InfoUserCommand.randomColor());
-        embedBuilder.setDescription("A new chest 🧰 has been found! **First igniter** to press the button below will get  <:credit:905976767821525042> **0** to  <:credit:905976767821525042> **100,000 **!\n" +
-                "\n**Warning:** There is NO possibility to be reduced in credits due to this chest being a hourly dropper 💸💸💸!!!");
-        embedBuilder.setThumbnail("https://images-ext-1.discordapp.net/external/e4iDunw5XV3-Hspl7LA8XBLbTLZMQP7rVPJqMkGuMco/https/cdn.discordapp.com/emojis/861390922410360883.gif");
+        embedBuilder.setTitle("Christmas Gift found!").setTimestamp(OffsetDateTime.now()).setColor(InfoUserCommand.randomColor());
+        embedBuilder.setDescription("A new christmas gift <a:present:917914791547379742> has been found! **First igniter** to press the button below will get  <:credit:905976767821525042> **0** to  <:credit:905976767821525042> **200,000 **!\n" +
+                "\n**Warning:** There is NO possibility to be reduced in credits because it's Christmas <a:christmas_tree_snow:917914794848321547>!!!");
+        embedBuilder.setThumbnail("https://cdn.discordapp.com/emojis/917914791547379742.gif");
         Bot.jda.getTextChannelById(876363970108334162L).sendMessageEmbeds(embedBuilder.build()).setActionRows(
-                ActionRow.of(Button.of(ButtonStyle.PRIMARY, "0000:claimdaily", "Claim"), Button.of(ButtonStyle.DANGER, "0000:NADAME", "Dropped by the random dropper").asDisabled())
+                ActionRow.of(Button.of(ButtonStyle.PRIMARY, "0000:claimdaily", "Open"), Button.of(ButtonStyle.DANGER, "0000:NADAME", "Dropped by Someone").asDisabled())
         ).queue((message -> {
             DropCommand.isClaimed.put(message.getIdLong(), false);
-            DropCommand.button.put(message.getIdLong(), Button.of(ButtonStyle.DANGER, "0000:NADAME", "Dropped by the random dropper").asDisabled());
+            DropCommand.button.put(message.getIdLong(), Button.of(ButtonStyle.DANGER, "0000:NADAME", "Dropped by Someone").asDisabled());
         }));
     }
 
     private static boolean shouldDrop() {
-        int i = UtilNum.randomNum(0, 100);
+        int i = UtilNum.randomNum(1, 100);
 
-        if (i > 50) {
-            return true;
-        }
-
-        return false;
+        return i > 50;
     }
 }

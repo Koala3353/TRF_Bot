@@ -7,15 +7,123 @@ public class Status {
     public Thread status() {
         Runnable runnable = () -> {
             while (true) {
-                System.out.println("Yeet");
-                Bot.jda.getPresence().setActivity(Activity.listening("Made by General Koala#0400"));
+                JDA jda = Bot.jda;
+
+                jda.getPresence().setActivity(Activity.listening("Dashing through the snow"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("In a one-horse open sleigh"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("O'er the fields we go"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("Laughing all the way."));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("Bells on bob-tails ring"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("Making spirits bright"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("What fun it is to ride and sing"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("A sleighing song tonight, oh"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("Jingle Bells, Jingle Bells"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("Jingle all the way"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("Oh what fun it is to ride"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("In a one-horse open sleigh, hey!"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("Jingle Bells, Jingle Bells"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("Jingle all the way"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("Oh what fun it is to ride"));
+
+                try {
+                    Thread.sleep(6000);
+                } catch (Exception ignored) {
+                }
+
+                jda.getPresence().setActivity(Activity.listening("In a one-horse open sleigh"));
+
+                /*System.out.println("Yeet");
+                jda.getPresence().setActivity(Activity.listening("Made by General Koala#0400"));
 
                 try {
                     Thread.sleep(1000000);
                 } catch (Exception ignored) {
                 }
 
-                JDA jda = Bot.jda;
                 jda.getPresence().setActivity(Activity.competing("This bot uses over 10,000 lines of code"));
 
                 try {
@@ -70,7 +178,7 @@ public class Status {
                 try {
                     Thread.sleep(1000000);
                 } catch (Exception ignored) {
-                }
+                }*/
             }
         };
 

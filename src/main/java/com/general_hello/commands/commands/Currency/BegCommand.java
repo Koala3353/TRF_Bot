@@ -1,5 +1,7 @@
 package com.general_hello.commands.commands.Currency;
 
+import com.general_hello.commands.Bot;
+import com.general_hello.commands.Config;
 import com.general_hello.commands.Database.DatabaseManager;
 import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
@@ -65,7 +67,7 @@ public class BegCommand implements ICommand {
             DatabaseManager.INSTANCE.setCredits(author.getIdLong(), (-randomNum));
             DatabaseManager.INSTANCE.setCredits(ctx.getSelfUser().getIdLong(), (randomNum));
 
-            ctx.getChannel().sendMessage(author.getAsMention() + " the cops caught you and fined you for begging! Paying " + Emojis.credits + formatter.format(randomNum) + "!!!").queue();
+            ctx.getChannel().sendMessage(author.getAsMention() + " The duck got " + Emojis.credits + formatter.format(randomNum) + " from your pocket! Better luck next time!!!").queue();
         }
 
         if (ctx.getMember().getRoles().contains(ctx.getJDA().getGuildById(843769353040298011L).getRolesByName("beg reminder", true).get(0))) {
@@ -95,7 +97,7 @@ public class BegCommand implements ICommand {
             case 4:
                 return "Starbucks isn't a place to beg, the strange thing is that everyone in the room gave you some money. All in all you received";
             case 5:
-                return "While going to the place where you'll beg, an old man named HELLO66 gave you";
+                return "While going to the place where you'll beg, an old man named " + Bot.jda.getUserById(Config.get("owner_id")).getName() + " gave you";
             case 6:
                 return "While begging you fell into a pool of **cash**... Bringing home a total amount of";
             case 7:

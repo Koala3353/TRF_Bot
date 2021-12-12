@@ -64,25 +64,13 @@ public class Listener extends ListenerAdapter {
 
         Data.users.add(event.getAuthor());
 
-        if (event.getMessage().getContentRaw().equals("startendgame")) {
-            List<Member> members = event.getGuild().getMembers();
-            int x = 0;
-            while (x < members.size()) {
-                if (!Data.userUserPhoneUserHashMap.containsKey(members.get(x).getUser())) {
-                    event.getGuild().removeRoleFromMember(members.get(x).getIdLong(), event.getGuild().getRolesByName("member", true).get(0)).queue();
-                    event.getChannel().sendMessage("Removed the role of " + members.get(x).getEffectiveName() + " due to not being registered!").queue();
-                }
-                x++;
-            }
-        }
-
         report(event);
         neatify(event);
     }
 
     private void neatify(GuildMessageReceivedEvent event) {
         try {
-            System.out.println(event.getAuthor().getName() + " sent " + event.getMessage().getContentRaw() + " in #" + event.getChannel().getName());
+            LOGGER.info(event.getAuthor().getName() + " sent " + event.getMessage().getContentRaw() + " in #" + event.getChannel().getName());
             EmbedBuilder em;
 
             if (event.getGuild().getId().equals("873215265322717185") || event.getChannel().getIdLong() == (876407101130407956L) || event.getChannel().getIdLong() == (876376944009158668L) || event.getChannel().getIdLong() == 876362447013965876L) {
@@ -170,7 +158,6 @@ public class Listener extends ListenerAdapter {
 
             jda = event.getJDA();
 
-            System.out.println(prefix);
             if (raw.equalsIgnoreCase(prefix + " shutdown") && event.getAuthor().getId().equals(Config.get("owner_id"))) {
                 shutdown(event, true);
                 return;
@@ -195,10 +182,7 @@ public class Listener extends ListenerAdapter {
                 try {
                     if (!gn.isEnded)
                         gn.sendInput(lol, event);
-                } catch (NullPointerException en) {
-                    LOGGER.info(en + this.getClass().getName(), "Game haven't started.");
-                } catch (NumberFormatException ignored) {
-                }
+                } catch (NullPointerException | NumberFormatException ignored) {}
             }
         } catch (Exception e) {
             ErrorUtils.error(event, e);
@@ -226,14 +210,11 @@ public class Listener extends ListenerAdapter {
                     }
                 }
             } else {
-                System.out.println("owo");
                 latestMessage.put(event.getMember(), rawMessage);
                 latestSameMessageCount.put(event.getMember(), 0);
                 firstSameMessageTime.put(event.getMember(), OffsetDateTime.now());
             }
         } else {
-            System.out.println("New data owo");
-
             latestMessage.put(event.getMember(), rawMessage);
             firstSameMessageTime.put(event.getMember(), OffsetDateTime.now());
             latestSameMessageCount.put(event.getMember(), 0);

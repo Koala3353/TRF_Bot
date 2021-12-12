@@ -1,12 +1,15 @@
 package com.general_hello.commands.Database;
 
 import com.general_hello.commands.Config;
+import com.general_hello.commands.RPG.Items.Initializer;
+import com.general_hello.commands.RPG.Objects.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SQLiteDataSource implements DatabaseManager {
@@ -60,7 +63,12 @@ public class SQLiteDataSource implements DatabaseManager {
                     "CREATE TABLE IF NOT EXISTS GuildSettings (" +
                             "XPSystem INTEGER DEFAULT 0," +
                             "GuildId INTEGER" +
-                            ");"
+                            ");",
+                    "CREATE TABLE IF NOT EXISTS RPGData (" +
+                            "UserId INTEGER," +
+                            "Shekels INTEGER," +
+                            "Level INTEGER," + items() +
+                            ")"
             };
 
             Connection connection = getConnection();
@@ -82,9 +90,60 @@ public class SQLiteDataSource implements DatabaseManager {
         }
     }
 
+    private String items() {
+        StringBuilder items = new StringBuilder();
+
+        int x = 0;
+        ArrayList<LandAnimal> landAnimals = Initializer.landAnimals;
+        while (x < landAnimals.size()) {
+            LandAnimal landAnimal = landAnimals.get(x);
+            items.append(filter(landAnimal.getName())).append(" INTEGER DEFAULT 0, ");
+            x++;
+        }
+
+        x = 0;
+        ArrayList<SeaAnimal> seaAnimals = Initializer.seaAnimals;
+        while (x < seaAnimals.size()) {
+            SeaAnimal seaAnimal = seaAnimals.get(x);
+            items.append(filter(seaAnimal.getName())).append(" INTEGER DEFAULT 0, ");
+            x++;
+        }
+
+        x = 0;
+        ArrayList<Artifact> artifacts = Initializer.artifacts;
+        while (x < artifacts.size()) {
+            Artifact artifact = artifacts.get(x);
+            items.append(filter(artifact.getName())).append(" INTEGER DEFAULT 0, ");
+            x++;
+        }
+
+        x = 0;
+        ArrayList<Weapon> weapons = Initializer.weapons;
+        while (x < weapons.size()) {
+            Weapon weapon = weapons.get(x);
+            items.append(filter(weapon.getName())).append(" INTEGER DEFAULT 0, ");
+            x++;
+        }
+
+        x = 0;
+        ArrayList<Tool> tools = Initializer.tools;
+        while (x < tools.size()) {
+            Tool tool = tools.get(x);
+            items.append(filter(tool.getName()));
+
+            if (x != tools.size()-1) {
+                items.append(" INTEGER DEFAULT 0, ");
+            } else {
+                items.append(" INTEGER DEFAULT 0");
+            }
+            x++;
+        }
+
+        return items.toString();
+    }
+
     @Override
     public String getPrefix(long guildId) {
-        System.out.println("Get prefix");
 
         try (final PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("SELECT prefix FROM guild_settings WHERE guild_id = ?")) {
@@ -111,9 +170,12 @@ public class SQLiteDataSource implements DatabaseManager {
         return Config.get("prefix");
     }
 
+    public static String filter(String word) {
+        return word.replaceAll("\\s+", "").replaceAll("'", "");
+    }
+
     @Override
     public void setPrefix(long guildId, String newPrefix) {
-        System.out.println("Set prefix");
 
         try (final PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("UPDATE guild_settings SET prefix = ? WHERE guild_id = ?")) {
@@ -148,7 +210,6 @@ public class SQLiteDataSource implements DatabaseManager {
 
     @Override
     public Integer getXpPoints(long userId) throws SQLException {
-        System.out.println("Get XP points");
         try {
             Statement statement = getConnection().createStatement();
             String sql = "SELECT xpPoints FROM XPSystemUser WHERE userId=" + userId;
@@ -178,11 +239,6 @@ public class SQLiteDataSource implements DatabaseManager {
 
     @Override
     public void setXpPoints(long userId, long xpPoints) {
-        System.out.println("Set XP points");
-        try {
-            System.out.println("Connection closed? " + getConnection().isClosed());
-        } catch (Exception ignored) {}
-
         try {
             if (getConnection() == null) return;
 
@@ -198,7 +254,6 @@ public class SQLiteDataSource implements DatabaseManager {
 
     @Override
     public void newInfo(long userId, String userName) {
-        System.out.println("New info");
 
         try (final PreparedStatement preparedStatement = getConnection()
              .prepareStatement("INSERT INTO UserData" +
@@ -210,8 +265,6 @@ public class SQLiteDataSource implements DatabaseManager {
 
             preparedStatement.executeUpdate();
             preparedStatement.close();
-
-            System.out.println("Added the user to the database successfully!");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -220,8 +273,6 @@ public class SQLiteDataSource implements DatabaseManager {
 
     @Override
     public void setName(long userId, String name) {
-        System.out.println("Set name");
-
         try (final PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("UPDATE UserData SET UserName=? WHERE UserId=?"
                 )) {
@@ -236,8 +287,6 @@ public class SQLiteDataSource implements DatabaseManager {
     }
 
     public int getCredits(long userId) {
-        System.out.println("Get credits");
-
         try {
             Statement statement = getConnection().createStatement();
             String sql = "SELECT Credits FROM UserData WHERE UserId=" + userId;
@@ -256,15 +305,13 @@ public class SQLiteDataSource implements DatabaseManager {
 
     @Override
     public void setCredits(long userId, int credits) {
-        System.out.println("Set Credits");
-
         Integer totalReceived = 0;
         if (SQLiteDataSource.totalReceived.containsKey(userId)) {
             totalReceived = SQLiteDataSource.totalReceived.get(userId);
         }
 
         if (credits > 0) {
-            SQLiteDataSource.totalReceived.put(userId, (credits / 10) + totalReceived);
+            SQLiteDataSource.totalReceived.put(userId, (credits / 50) + totalReceived);
         }
 
         int total = (credits) + DatabaseManager.INSTANCE.getCredits(userId);

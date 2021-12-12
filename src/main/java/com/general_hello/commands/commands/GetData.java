@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GetData {
-    public static ArrayList<Guild> blackListedGuild = new ArrayList<>();
     public static ArrayList<User> blackListedUser = new ArrayList<>();
     public static HashMap<User, Long> xpMember = new HashMap<>();
     //get data from the db

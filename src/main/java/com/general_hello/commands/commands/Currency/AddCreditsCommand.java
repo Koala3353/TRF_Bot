@@ -5,7 +5,6 @@ import com.general_hello.commands.Database.DatabaseManager;
 import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.ICommand;
-import net.dv8tion.jda.api.entities.Member;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -13,9 +12,7 @@ import java.sql.SQLException;
 public class AddCreditsCommand implements ICommand {
     @Override
     public void handle(CommandContext ctx) throws InterruptedException, IOException, SQLException {
-        Member member = ctx.getMember();
-
-        if (!member.getId().equals(Config.get("owner_id"))) {
+        if (!ctx.getAuthor().getId().equals(Config.get("owner_id")) && !ctx.getAuthor().getId().equals(Config.get("owner_id_partner"))) {
             ctx.getChannel().sendMessage("Only the owner can do this!").queue();
             return;
         }
@@ -28,7 +25,6 @@ public class AddCreditsCommand implements ICommand {
         int moneey;
 
         String money = ctx.getArgs().get(1);
-        System.out.println(money);
         try {
             moneey = Integer.parseInt(money);
         } catch (NumberFormatException e) {

@@ -29,14 +29,7 @@ public class TriviaCommand implements ICommand {
 
             obj.getTrivia();
 
-            System.out.println(obj.getQuestion());
-            System.out.println(obj.getCorrectAnswer());
-
             String[] incorrectAnswers = obj.incorrectAnswers;
-            for (int i = 0; i < obj.incorrectAnswers.length; i++) {
-                System.out.println(obj.incorrectAnswers[i]);
-            }
-
 
             SelectionMenu.Builder menu = SelectionMenu.create("menu:class")
                     .setPlaceholder("Choose the correct answer") // shows the placeholder indicating what this menu is for
@@ -57,8 +50,6 @@ public class TriviaCommand implements ICommand {
             while (x < size) {
                 int random = UtilNum.randomNum(0, size - 1 - (x));
                 String choice = arrayList.get(random).replace("&quot;", "'").replace("&#039;", "'").replace("&Uuml;", "ü").replace("&amp;", "&");
-                System.out.println(choice);
-
                 menu.addOption(choice, choice);
                 arrayList.remove(choice);
 

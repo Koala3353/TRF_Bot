@@ -14,11 +14,11 @@ import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.GroupOfGames.Blackjack.*;
 import com.general_hello.commands.commands.GroupOfGames.Games.GuessNumberCommand;
 import com.general_hello.commands.commands.GroupOfGames.Games.TriviaCommand;
-import com.general_hello.commands.commands.GroupOfGames.MiniGames.ChessRequest;
 import com.general_hello.commands.commands.ICommand;
 import com.general_hello.commands.commands.Info.AboutCommand;
 import com.general_hello.commands.commands.Info.InfoServerCommand;
 import com.general_hello.commands.commands.Info.InfoUserCommand;
+import com.general_hello.commands.commands.Marriage.MarriageCommand;
 import com.general_hello.commands.commands.Math.MathCommand;
 import com.general_hello.commands.commands.Others.*;
 import com.general_hello.commands.commands.RankingSystem.ViewRank;
@@ -29,6 +29,7 @@ import com.general_hello.commands.commands.Uno.DrawCommand;
 import com.general_hello.commands.commands.Uno.PlayCardCommand;
 import com.general_hello.commands.commands.Uno.UnoCommand;
 import com.general_hello.commands.commands.Utils.ErrorUtils;
+import com.general_hello.commands.commands.Work.WorkCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -70,8 +71,7 @@ public class CommandManager {
         addCommand(new LeaderboardCommand());
 
         //mini Games
-        addCommand(new ChessRequest());
-
+        addCommand(new MarriageCommand());
         //games
         GameHandler gameHandler = new GameHandler();
 
@@ -186,8 +186,6 @@ public class CommandManager {
                                 break;
                             case MUSIC:
                                 if (event.getChannel().getIdLong() != (MUSICC)) {
-                                    System.out.println("2");
-
                                     embedBuilder.setDescription(Emojis.ERROR + " Incorrect text channel!\n" +
                                             "Go to " + event.getGuild().getGuildChannelById(MUSICC).getAsMention() + " and send \n" +
                                             "```java\n" +
@@ -199,8 +197,6 @@ public class CommandManager {
                                 break;
                             case WALLET:
                                 if (event.getChannel().getIdLong() != (WALLETC)) {
-                                    System.out.println("4");
-
                                     embedBuilder.setDescription(Emojis.ERROR + " Incorrect text channel!\n" +
                                             "Go to " + event.getGuild().getGuildChannelById(WALLETC).getAsMention() + " and send \n" +
                                             "```java\n" +
@@ -212,8 +208,6 @@ public class CommandManager {
                                 break;
                             case OTHERS:
                                 if (event.getChannel().getIdLong() != (OTHERSC)) {
-                                    System.out.println("5");
-
                                     embedBuilder.setDescription(Emojis.ERROR + " Incorrect text channel!\n" +
                                             "Go to " + event.getGuild().getGuildChannelById(OTHERSC).getAsMention() + " and send \n" +
                                             "```java\n" +

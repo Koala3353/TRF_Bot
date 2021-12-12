@@ -1,5 +1,6 @@
 package com.general_hello.commands.commands.Currency;
 
+import com.general_hello.commands.RPG.RpgUser.RPGUser;
 import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.Emoji.Emojis;
@@ -53,13 +54,15 @@ public class BalanceCommand implements ICommand {
             balance = null;
         }
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setColor(Color.CYAN);
+        int shekels = RPGUser.getShekels(user.getIdLong());
+        System.out.println(shekels);
+        embedBuilder.setColor(Color.RED);
         embedBuilder.setThumbnail("https://images-ext-2.discordapp.net/external/dSmBwljIOT0xUFDxjc5_KNUZx9g3dNviWTCkCZ6oleY/https/cdn.discordapp.com/emojis/718138332982280272.gif");
         DecimalFormat formatter = new DecimalFormat("#,###.00");
-        embedBuilder.setTitle(user.getName() + "'s Balance").setFooter("Nice balance you have 😀");
+        embedBuilder.setTitle(user.getName() + "'s Balance").setFooter("Hohoho Merry Christmas 🎄");
         embedBuilder.setDescription(Emojis.igntCoins + " Ignite Coins: **" + (balance == null ? "You are not in the coin database**\n" :"Press the button for your ignite coins**\n") +
                 Emojis.credits + " Credits: ** " + formatter.format(userPhoneUser.getCredits()) + " credits**\n" +
-                Emojis.shekels + " Shekels: **To arrive soon**");
+                Emojis.shekels + " Shekels: **" + (shekels != -1 ? formatter.format(shekels) : "You didn't start your journey yet") + "**");
         ctx.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(Button.of(ButtonStyle.PRIMARY, user.getIdLong() + ":balance", "View Coins").withEmoji(Emoji.fromEmote("ignt_coins", 905999722374905857L, false)).withDisabled(balance == null)).queue();
 
         if (balance != null) {
