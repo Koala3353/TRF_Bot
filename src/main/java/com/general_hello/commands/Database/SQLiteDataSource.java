@@ -10,12 +10,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class SQLiteDataSource implements DatabaseManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(SQLiteDataSource.class);
     public static Connection connection = null;
-    public static HashMap<Long, Integer> totalReceived = new HashMap<>();
 
     public SQLiteDataSource() {
         try {
@@ -67,7 +65,8 @@ public class SQLiteDataSource implements DatabaseManager {
                     "CREATE TABLE IF NOT EXISTS RPGData (" +
                             "UserId INTEGER," +
                             "Shekels INTEGER," +
-                            "Level INTEGER," + items() +
+                            "Level INTEGER," +
+                            "Health INTEGER," + items() +
                             ")"
             };
 
@@ -171,7 +170,7 @@ public class SQLiteDataSource implements DatabaseManager {
     }
 
     public static String filter(String word) {
-        return word.replaceAll("\\s+", "").replaceAll("'", "");
+        return word.replaceAll("\\s+", "").replaceAll("'", "").toLowerCase();
     }
 
     @Override
@@ -306,13 +305,6 @@ public class SQLiteDataSource implements DatabaseManager {
     @Override
     public void setCredits(long userId, int credits) {
         Integer totalReceived = 0;
-        if (SQLiteDataSource.totalReceived.containsKey(userId)) {
-            totalReceived = SQLiteDataSource.totalReceived.get(userId);
-        }
-
-        if (credits > 0) {
-            SQLiteDataSource.totalReceived.put(userId, (credits / 50) + totalReceived);
-        }
 
         int total = (credits) + DatabaseManager.INSTANCE.getCredits(userId);
 

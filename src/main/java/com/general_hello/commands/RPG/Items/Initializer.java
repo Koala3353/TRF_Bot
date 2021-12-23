@@ -12,37 +12,50 @@ public class Initializer {
     public static HashMap<String, SeaAnimal> seaAnimalToId = new HashMap<>();
     public static HashMap<String, Artifact> artifactToId = new HashMap<>();
     public static HashMap<String, Tool> toolToId = new HashMap<>();
+    public static HashMap<String, Objects> allItems = new HashMap<>();
+    public static HashMap<String, Animal> allAnimals = new HashMap<>();
     public static HashMap<String, Weapon> weaponToId = new HashMap<>();
     public static ArrayList<LandAnimal> landAnimals = new ArrayList<>();
+    public static ArrayList<String> animals = new ArrayList<>();
     public static ArrayList<SeaAnimal> seaAnimals = new ArrayList<>();
     public static ArrayList<Artifact> artifacts = new ArrayList<>();
     public static ArrayList<Tool> tools = new ArrayList<>();
     public static ArrayList<Weapon> weapons = new ArrayList<>();
     public static ArrayList<String> allNames = new ArrayList<>();
+    public static ArrayList<SeaAnimal> commonSea = new ArrayList<>();
+    public static ArrayList<SeaAnimal> uncommonSea = new ArrayList<>();
+    public static ArrayList<SeaAnimal> rareSea = new ArrayList<>();
+    public static ArrayList<SeaAnimal> legendarySea = new ArrayList<>();
+    public static ArrayList<SeaAnimal> mythicalSea = new ArrayList<>();
+    public static ArrayList<LandAnimal> commonLand = new ArrayList<>();
+    public static ArrayList<LandAnimal> uncommonLand = new ArrayList<>();
+    public static ArrayList<LandAnimal> rareLand = new ArrayList<>();
+    public static ArrayList<LandAnimal> legendaryLand = new ArrayList<>();
+    public static ArrayList<LandAnimal> mythicalLand = new ArrayList<>();
 
     public static void initializer() {
         //Fish
         //Common
-        new SeaAnimal(Rarity.COMMON, "Common fish", "");
+        new SeaAnimal(Rarity.COMMON, "Common fish", "<:common_fish:911077702474268722>");
         new SeaAnimal(Rarity.COMMON, "Seaweed", "<:seaweed:899872673419644968>");
         //Uncommon
-        new SeaAnimal(Rarity.UNCOMMON, "Uncommon Fish", "");
+        new SeaAnimal(Rarity.UNCOMMON, "Uncommon Fish", "<:uncommon_fish:923382221539254323>");
         new SeaAnimal(Rarity.UNCOMMON, "Peter's Fish", "<:fishy:899492725798354946>");
         //Rare
-        new SeaAnimal(Rarity.RARE, "Rare Fish", "");
+        new SeaAnimal(Rarity.RARE, "Rare Fish", "<:rare_fish:923382338648428555>");
         new SeaAnimal(Rarity.RARE, "Jelly Fish", "<:jellyfish:899873055084511302>");
         new SeaAnimal(Rarity.RARE, "Cuttle Fish", "");
         new SeaAnimal(Rarity.RARE, "Puffer Fish", "");
         new SeaAnimal(Rarity.RARE, "Shrimp", "");
         //Legendary
-        new SeaAnimal(Rarity.LEGENDARY, "Legendary Fish", "");
+        new SeaAnimal(Rarity.LEGENDARY, "Legendary Fish", "<:leggy_fish:911077765292363776>");
         new SeaAnimal(Rarity.LEGENDARY, "Octopus", "<:octopuses:899872869322989589>");
         new SeaAnimal(Rarity.LEGENDARY, "Crab", "<a:crabby:900170344202113096>", "Powerful yet small, a crab is.", 1_000_000);
         new SeaAnimal(Rarity.LEGENDARY, "Lobster", "", "Brother of crab.", 1_200_000);
         new SeaAnimal(Rarity.LEGENDARY, "Jonah's Big Fish", "<:jonah_big_fish:899872152961044521>");
         //Mythical
-        new SeaAnimal(Rarity.MYTHICAL, "Mythical Fish", "", "Impossible to have one if ye are poor", 20_000_000);
-        new SeaAnimal(Rarity.MYTHICAL, "Kraken", "", "No one knows what this creature is!", 50_000_000);
+        new SeaAnimal(Rarity.MYTHICAL, "Mythical Fish", "<:mythical_fish:923382428981162004>", "Impossible to have one if ye are poor", 20_000_000);
+        new SeaAnimal(Rarity.MYTHICAL, "Kraken", "<:kraken:899871980017311795>", "No one knows what this creature is!", 50_000_000);
 
         //Hunt
         //Common
@@ -81,5 +94,56 @@ public class Initializer {
         new Artifact(Rarity.LEGENDARY, "Diamond", "<:diamond:899873834549780512>", "Diamond... A gem.", 150_000);
         new Artifact(Rarity.LEGENDARY, "Rod of Moses", "<:moses_rod:905961435891372083>", "A rod used by Moses to perform miracles.", 500_000);
         new Artifact(Rarity.MYTHICAL, "Part of Ten Commandments", "<:tencommandment:905241910644461569>", "The Ten Commandments. Nothing more. Nothing less.", 2_000_000);
+        backEndInitializer();
+    }
+
+    private static void backEndInitializer() {
+        ArrayList<SeaAnimal> seaAnimals = Initializer.seaAnimals;
+        int x = 0;
+        while (x < seaAnimals.size()) {
+            SeaAnimal seaAnimal = seaAnimals.get(x);
+            switch (seaAnimal.getRarity()) {
+                case COMMON:
+                    commonSea.add(seaAnimal);
+                    break;
+                case UNCOMMON:
+                    uncommonSea.add(seaAnimal);
+                    break;
+                case RARE:
+                    rareSea.add(seaAnimal);
+                    break;
+                case LEGENDARY:
+                    legendarySea.add(seaAnimal);
+                    break;
+                case MYTHICAL:
+                    mythicalSea.add(seaAnimal);
+                    break;
+            }
+            x++;
+        }
+
+        ArrayList<LandAnimal> landAnimals = Initializer.landAnimals;
+        x = 0;
+        while (x < landAnimals.size()) {
+            LandAnimal landAnimal = landAnimals.get(x);
+            switch (landAnimal.getRarity()) {
+                case COMMON:
+                    commonLand.add(landAnimal);
+                    break;
+                case UNCOMMON:
+                    uncommonLand.add(landAnimal);
+                    break;
+                case RARE:
+                    rareLand.add(landAnimal);
+                    break;
+                case LEGENDARY:
+                    legendaryLand.add(landAnimal);
+                    break;
+                case MYTHICAL:
+                    mythicalLand.add(landAnimal);
+                    break;
+            }
+            x++;
+        }
     }
 }

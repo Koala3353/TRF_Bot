@@ -43,71 +43,79 @@ public class ShopCommand extends Command {
         }
         String name = event.getArgs().replaceAll("'", "").replaceAll("^[\"']\\w+[\"']", "").replaceAll("\\s+", "").toLowerCase();
 
-        if (Initializer.landAnimalToId.containsKey(name)) {
-            LandAnimal landAnimal = Initializer.landAnimalToId.get(name);
-            EmbedBuilder embedBuilder = new EmbedBuilder().setTitle(landAnimal.getName() + " (" + RPGUser.getItemCount(event.getAuthor().getIdLong(), RPGDataUtils.filter(name)) + " owned)");
-            embedBuilder.setColor(Color.GREEN);
-            embedBuilder.setDescription("> " + landAnimal.getDescription() + "\n\n" +
-                    "**BUY** - " + (landAnimal.getPrice() == null ? "Out of Stock" : RPGEmojis.shekels + " [" + landAnimal.getFormattedPrice() + "](https://discord.com)") + "\n" +
-                    "**SELL** - " + RPGEmojis.shekels + " [" + landAnimal.getFormattedSellPrice() + "](https://discord.com)\n" +
-                    "**TRADE** - Unknown");
-            embedBuilder.setThumbnail(landAnimal.getEmojiUrl());
-            embedBuilder.addField("Rarity", "`" + landAnimal.getRarity().getName() + "`", true);
-            embedBuilder.addField("Type", "`Sellable`", true);
-            embedBuilder.addField("Cooking Reward", "`" + landAnimal.getRewardForCooking() + "`", true);
-            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-            return;
+        boolean isErrorOutputed = false;
+        try {
+            if (Initializer.landAnimalToId.containsKey(name)) {
+                LandAnimal landAnimal = Initializer.landAnimalToId.get(name);
+                EmbedBuilder embedBuilder = new EmbedBuilder().setTitle(landAnimal.getName() + " (" + RPGUser.getItemCount(event.getAuthor().getIdLong(), RPGDataUtils.filter(name)) + " owned)");
+                embedBuilder.setColor(Color.GREEN);
+                embedBuilder.setDescription("> " + landAnimal.getDescription() + "\n\n" +
+                        "**BUY** - " + (landAnimal.getCostToBuy() == null ? "Out of Stock" : RPGEmojis.shekels + " [" + landAnimal.getFormattedPrice() + "](https://discord.com)") + "\n" +
+                        "**SELL** - " + RPGEmojis.shekels + " [" + landAnimal.getFormattedSellPrice() + "](https://discord.com)\n" +
+                        "**TRADE** - Unknown");
+                embedBuilder.setThumbnail(landAnimal.getEmojiUrl());
+                embedBuilder.addField("Rarity", "`" + landAnimal.getRarity().getName() + "`", true);
+                embedBuilder.addField("Type", "`Sellable`", true);
+                embedBuilder.addField("Cooking Reward", "`" + landAnimal.getRewardForCooking() + "`", true);
+                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                return;
+            }
+
+            if (Initializer.seaAnimalToId.containsKey(name)) {
+                SeaAnimal seaAnimal = Initializer.seaAnimalToId.get(name);
+                EmbedBuilder embedBuilder = new EmbedBuilder().setTitle(seaAnimal.getName() + " (" + RPGUser.getItemCount(event.getAuthor().getIdLong(), RPGDataUtils.filter(name)) + " owned)");
+                embedBuilder.setColor(Color.CYAN);
+                embedBuilder.setDescription("> " + seaAnimal.getDescription() + "\n\n" +
+                        "**BUY** - " + (seaAnimal.getCostToBuy() == null ? "Out of Stock" : RPGEmojis.shekels + " [" + seaAnimal.getFormattedPrice() + "](https://discord.com)") + "\n" +
+                        "**SELL** - " + RPGEmojis.shekels + " [" + seaAnimal.getFormattedSellPrice() + "](https://discord.com)\n" +
+                        "**TRADE** - Unknown");
+                embedBuilder.addField("Rarity", "`" + seaAnimal.getRarity().getName() + "`", true);
+                embedBuilder.addField("Type", "`Sellable`", true);
+                embedBuilder.addField("Cooking Reward", "`" + seaAnimal.getRewardForCooking() + "`", true);
+                embedBuilder.setThumbnail(seaAnimal.getEmojiUrl());
+                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                return;
+            }
+
+            if (Initializer.toolToId.containsKey(name)) {
+                Tool tool = Initializer.toolToId.get(name);
+                EmbedBuilder embedBuilder = new EmbedBuilder().setTitle(tool.getName() + " (" + RPGUser.getItemCount(event.getAuthor().getIdLong(), RPGDataUtils.filter(name)) + " owned)");
+                embedBuilder.setColor(Color.ORANGE);
+                embedBuilder.setDescription("> " + tool.getDescription() + "\n\n" +
+                        "**BUY** - " + RPGEmojis.shekels + " [30,000](https://discord.com)" + "\n" +
+                        "**SELL** - " + RPGEmojis.shekels + " [20,000](https://discord.com)\n" +
+                        "**TRADE** - Unknown");
+                embedBuilder.addField("Rarity", "`" + tool.getRarity().getName() + "`", true);
+                embedBuilder.addField("Type", "`Tool`", true);
+                embedBuilder.addField("Retrievable by", "`" + tool.getToBeUsedOn().toString() + "`", true);
+                embedBuilder.setThumbnail(tool.getEmojiUrl());
+                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                return;
+            }
+
+            if (Initializer.artifactToId.containsKey(name)) {
+                Artifact artifact = Initializer.artifactToId.get(name);
+                EmbedBuilder embedBuilder = new EmbedBuilder().setTitle(artifact.getName() + " (" + RPGUser.getItemCount(event.getAuthor().getIdLong(), RPGDataUtils.filter(name)) + " owned)");
+                embedBuilder.setColor(Color.YELLOW);
+                embedBuilder.setDescription("> " + artifact.getDescription() + "\n\n" +
+                        "**BUY** - " + RPGEmojis.shekels + " [" + artifact.getFormattedPrice() + "](https://discord.com)" + "\n" +
+                        "**SELL** - " + RPGEmojis.shekels + " [" + artifact.getFormattedSellPrice() + "](https://discord.com)\n" +
+                        "**TRADE** - Unknown");
+                embedBuilder.addField("Rarity", "`" + artifact.getRarity().getName() + "`", true);
+                embedBuilder.addField("Type", "`Collectible`", true);
+                embedBuilder.addField("ID", "`" + name + "`", true);
+                embedBuilder.setThumbnail(artifact.getEmojiUrl());
+                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                return;
+            }
+        } catch (Exception e) {
+            event.getTextChannel().sendMessage("The item you searched for is not there!").queue();
+            isErrorOutputed = true;
         }
 
-        if (Initializer.seaAnimalToId.containsKey(name)) {
-            SeaAnimal seaAnimal = Initializer.seaAnimalToId.get(name);
-            EmbedBuilder embedBuilder = new EmbedBuilder().setTitle(seaAnimal.getName() + " (" + RPGUser.getItemCount(event.getAuthor().getIdLong(), RPGDataUtils.filter(name)) + " owned)");
-            embedBuilder.setColor(Color.CYAN);
-            embedBuilder.setDescription("> " + seaAnimal.getDescription() + "\n\n" +
-                    "**BUY** - " + (seaAnimal.getPrice() == null ? "Out of Stock" : RPGEmojis.shekels + " [" + seaAnimal.getFormattedPrice() + "](https://discord.com)") + "\n" +
-                    "**SELL** - " + RPGEmojis.shekels + " [" + seaAnimal.getFormattedSellPrice() + "](https://discord.com)\n" +
-                    "**TRADE** - Unknown");
-            embedBuilder.addField("Rarity", "`" + seaAnimal.getRarity().getName() + "`", true);
-            embedBuilder.addField("Type", "`Sellable`", true);
-            embedBuilder.addField("Cooking Reward", "`" + seaAnimal.getRewardForCooking() + "`", true);
-            embedBuilder.setThumbnail(seaAnimal.getEmojiUrl());
-            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-            return;
+        if (!isErrorOutputed) {
+            event.getTextChannel().sendMessage("The item you searched for is not there!").queue();
         }
-
-        if (Initializer.toolToId.containsKey(name)) {
-            Tool tool = Initializer.toolToId.get(name);
-            EmbedBuilder embedBuilder = new EmbedBuilder().setTitle(tool.getName() + " (" + RPGUser.getItemCount(event.getAuthor().getIdLong(), RPGDataUtils.filter(name)) + " owned)");
-            embedBuilder.setColor(Color.ORANGE);
-            embedBuilder.setDescription("> " + tool.getDescription() + "\n\n" +
-                    "**BUY** - " + RPGEmojis.shekels + " [30,000](https://discord.com)" + "\n" +
-                    "**SELL** - " + RPGEmojis.shekels + " [20,000](https://discord.com)\n" +
-                    "**TRADE** - Unknown");
-            embedBuilder.addField("Rarity", "`" + tool.getRarity().getName() + "`", true);
-            embedBuilder.addField("Type", "`Tool`", true);
-            embedBuilder.addField("Used for", "`" + tool.getToBeUsedOn().toString() + "`", true);
-            embedBuilder.setThumbnail(tool.getEmojiUrl());
-            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-            return;
-        }
-
-        if (Initializer.artifactToId.containsKey(name)) {
-            Artifact artifact = Initializer.artifactToId.get(name);
-            EmbedBuilder embedBuilder = new EmbedBuilder().setTitle(artifact.getName() + " (" + RPGUser.getItemCount(event.getAuthor().getIdLong(), RPGDataUtils.filter(name)) + " owned)");
-            embedBuilder.setColor(Color.YELLOW);
-            embedBuilder.setDescription("> " + artifact.getDescription() + "\n\n" +
-                    "**BUY** - " + RPGEmojis.shekels + " [" + artifact.getFormattedPrice() + "](https://discord.com)" + "\n" +
-                    "**SELL** - " + RPGEmojis.shekels + " [" + artifact.getFormattedSellPrice() + "](https://discord.com)\n" +
-                    "**TRADE** - Unknown");
-            embedBuilder.addField("Rarity", "`" + artifact.getRarity().getName() + "`", true);
-            embedBuilder.addField("Type", "`Collectible`", true);
-            embedBuilder.addField("ID", "`" + name + "`", true);
-            embedBuilder.setThumbnail(artifact.getEmojiUrl());
-            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-            return;
-        }
-
-        event.getTextChannel().sendMessage("The item you searched for is not there!").queue();
     }
 
     public static void buildEmbed(int number, TextChannel textChannel, long author) {
@@ -115,9 +123,6 @@ public class ShopCommand extends Command {
         embedBuilder.setTitle("Shop");
         embedBuilder.setTimestamp(OffsetDateTime.now()).setFooter("Page " + number + " of 7");
         embedBuilder.setColor(InfoUserCommand.randomColor());
-
-        boolean iAmNothing = number > 6;
-        boolean iAmNull = number < 2;
 
         switch (number) {
             case 1:
@@ -147,32 +152,32 @@ public class ShopCommand extends Command {
             case 1:
             case 2:
                 textChannel.sendMessageEmbeds(embedBuilder.build()).setActionRow(
-                        Button.of(ButtonStyle.PRIMARY, author + ":previous:" + number, Emoji.fromMarkdown("<:left:915425233215827968>")).withDisabled(iAmNull),
+                        Button.of(ButtonStyle.PRIMARY, author + ":previous:" + number, Emoji.fromMarkdown("<:left:915425233215827968>")).asDisabled(),
                         Button.of(ButtonStyle.SECONDARY, "1234:empty", "Land Animals").asDisabled(),
-                        Button.of(ButtonStyle.PRIMARY, author + ":next:" + number, Emoji.fromMarkdown("<:right:915425310592356382>")).withDisabled(iAmNothing)
+                        Button.of(ButtonStyle.PRIMARY, author + ":next:" + number, Emoji.fromMarkdown("<:right:915425310592356382>"))
                 ).queue();
                 break;
             case 3:
             case 4:
                 textChannel.sendMessageEmbeds(embedBuilder.build()).setActionRow(
-                        Button.of(ButtonStyle.PRIMARY, author + ":previous:" + number, Emoji.fromMarkdown("<:left:915425233215827968>")).withDisabled(iAmNull),
+                        Button.of(ButtonStyle.PRIMARY, author + ":previous:" + number, Emoji.fromMarkdown("<:left:915425233215827968>")),
                         Button.of(ButtonStyle.SECONDARY, "1234:empty", "Sea Animals").asDisabled(),
-                        Button.of(ButtonStyle.PRIMARY, author + ":next:" + number, Emoji.fromMarkdown("<:right:915425310592356382>")).withDisabled(iAmNothing)
+                        Button.of(ButtonStyle.PRIMARY, author + ":next:" + number, Emoji.fromMarkdown("<:right:915425310592356382>"))
                 ).queue();
                 break;
             case 5:
             case 6:
                 textChannel.sendMessageEmbeds(embedBuilder.build()).setActionRow(
-                        Button.of(ButtonStyle.PRIMARY, author + ":previous:" + number, Emoji.fromMarkdown("<:left:915425233215827968>")).withDisabled(iAmNull),
+                        Button.of(ButtonStyle.PRIMARY, author + ":previous:" + number, Emoji.fromMarkdown("<:left:915425233215827968>")),
                         Button.of(ButtonStyle.SECONDARY, "1234:empty", "Artifacts").asDisabled(),
-                        Button.of(ButtonStyle.PRIMARY, author + ":next:" + number, Emoji.fromMarkdown("<:right:915425310592356382>")).withDisabled(iAmNothing)
+                        Button.of(ButtonStyle.PRIMARY, author + ":next:" + number, Emoji.fromMarkdown("<:right:915425310592356382>"))
                 ).queue();
                 break;
             case 7:
                 textChannel.sendMessageEmbeds(embedBuilder.build()).setActionRow(
-                        Button.of(ButtonStyle.PRIMARY, author + ":previous:" + number, Emoji.fromMarkdown("<:left:915425233215827968>")).withDisabled(iAmNull),
+                        Button.of(ButtonStyle.PRIMARY, author + ":previous:" + number, Emoji.fromMarkdown("<:left:915425233215827968>")),
                         Button.of(ButtonStyle.SECONDARY, "1234:empty", "Tools").asDisabled(),
-                        Button.of(ButtonStyle.PRIMARY, author + ":next:" + number, Emoji.fromMarkdown("<:right:915425310592356382>")).withDisabled(iAmNothing)
+                        Button.of(ButtonStyle.PRIMARY, author + ":next:" + number, Emoji.fromMarkdown("<:right:915425310592356382>")).asDisabled()
                 ).queue();
                 break;
         }
@@ -185,7 +190,7 @@ public class ShopCommand extends Command {
         while (x < landAnimals.size()) {
             LandAnimal landAnimal = landAnimals.get(x);
             embedBuilder.appendDescription(landAnimal.getEmojiOfItem() + " **" + landAnimal.getName() + "** " +
-                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(landAnimal.getName())) + ") — [" + (landAnimal.getPrice() == null ? "Out of stock" : "<:shekels:906039266650505256> " + formatter.format(landAnimal.getPrice())) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
+                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(landAnimal.getName())) + ") — " + (landAnimal.getCostToBuy() == null ? "[Out of stock" : "<:shekels:906039266650505256> [" + formatter.format(landAnimal.getCostToBuy())) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
                     landAnimal.getDescription() + "\n\n");
             x++;
 
@@ -200,7 +205,7 @@ public class ShopCommand extends Command {
         while (x < landAnimals.size()) {
             LandAnimal landAnimal = landAnimals.get(x);
             embedBuilder.appendDescription(landAnimal.getEmojiOfItem() + " **" + landAnimal.getName() + "** " +
-                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(landAnimal.getName())) + ") — [" + (landAnimal.getPrice() == null ? "Out of stock" : "<:shekels:906039266650505256> " + formatter.format(landAnimal.getPrice())) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
+                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(landAnimal.getName())) + ") — " + (landAnimal.getCostToBuy() == null ? "[Out of stock" : "<:shekels:906039266650505256> [" + formatter.format(landAnimal.getCostToBuy())) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
                     landAnimal.getDescription() + "\n\n");
             x++;
         }
@@ -213,7 +218,7 @@ public class ShopCommand extends Command {
         while (x < seaAnimals.size()) {
             SeaAnimal seaAnimal = seaAnimals.get(x);
             embedBuilder.appendDescription(seaAnimal.getEmojiOfItem() + " **" + seaAnimal.getName() + "** " +
-                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(seaAnimal.getName())) + ") — [" + (seaAnimal.getPrice() == null ? "Out of stock" : "<:shekels:906039266650505256> " + formatter.format(seaAnimal.getPrice())) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
+                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(seaAnimal.getName())) + ") — " + (seaAnimal.getCostToBuy() == null ? "[Out of stock" : "<:shekels:906039266650505256> [" + formatter.format(seaAnimal.getCostToBuy())) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
                     seaAnimal.getDescription() + "\n\n");
             x++;
 
@@ -228,7 +233,7 @@ public class ShopCommand extends Command {
         while (x < seaAnimals.size()) {
             SeaAnimal seaAnimal = seaAnimals.get(x);
             embedBuilder.appendDescription(seaAnimal.getEmojiOfItem() + " **" + seaAnimal.getName() + "** " +
-                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(seaAnimal.getName())) + ") — [" + (seaAnimal.getPrice() == null ? "Out of stock" : "<:shekels:906039266650505256> " + formatter.format(seaAnimal.getPrice())) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
+                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(seaAnimal.getName())) + ") — " + (seaAnimal.getCostToBuy() == null ? "[Out of stock" : "<:shekels:906039266650505256> [" + formatter.format(seaAnimal.getCostToBuy())) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
                     seaAnimal.getDescription() + "\n\n");
             x++;
         }
@@ -240,8 +245,8 @@ public class ShopCommand extends Command {
         int x = 0;
         while (x < artifacts.size()) {
             Artifact artifact = artifacts.get(x);
-            embedBuilder.appendDescription(artifact.getEmoji() + " **" + artifact.getName() + "** " +
-                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(artifact.getName())) + ") — [" + "<:shekels:906039266650505256> " + formatter.format(artifact.getPrice()) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
+            embedBuilder.appendDescription(artifact.getEmojiOfItem() + " **" + artifact.getName() + "** " +
+                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(artifact.getName())) + ") — " + "<:shekels:906039266650505256> [" + formatter.format(artifact.getCostToBuy()) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
                     artifact.getDescription() + "\n\n");
             x++;
 
@@ -255,8 +260,8 @@ public class ShopCommand extends Command {
         int x = 7;
         while (x < artifacts.size()) {
             Artifact artifact = artifacts.get(x);
-            embedBuilder.appendDescription(artifact.getEmoji() + " **" + artifact.getName() + "** " +
-                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(artifact.getName())) + ") — [" + "<:shekels:906039266650505256> " + formatter.format(artifact.getPrice()) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
+            embedBuilder.appendDescription(artifact.getEmojiOfItem() + " **" + artifact.getName() + "** " +
+                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(artifact.getName())) + ") — " + "<:shekels:906039266650505256> [" + formatter.format(artifact.getCostToBuy()) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
                     artifact.getDescription() + "\n\n");
             x++;
         }
@@ -268,8 +273,8 @@ public class ShopCommand extends Command {
         int x = 0;
         while (x < tools.size()) {
             Tool tool = tools.get(x);
-            embedBuilder.appendDescription(tool.getEmoji() + " **" + tool.getName() + "** " +
-                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(tool.getName())) + ") — [" + "<:shekels:906039266650505256> " + formatter.format((30_000)) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
+            embedBuilder.appendDescription(tool.getEmojiOfItem() + " **" + tool.getName() + "** " +
+                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(tool.getName())) + ") — " + "<:shekels:906039266650505256> [" + formatter.format((30_000)) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
                     tool.getDescription() + "\n\n");
             x++;
         }

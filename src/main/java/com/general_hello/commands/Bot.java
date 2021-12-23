@@ -2,15 +2,15 @@ package com.general_hello.commands;
 
 import com.general_hello.commands.Database.DatabaseManager;
 import com.general_hello.commands.OtherEvents.*;
-import com.general_hello.commands.RPG.Commands.ShopCommand;
+import com.general_hello.commands.RPG.Commands.*;
 import com.general_hello.commands.RPG.Items.Initializer;
 import com.general_hello.commands.commands.Currency.RemindBeg;
 import com.general_hello.commands.commands.Currency.RemindWork;
+import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.Giveaway.StartGiveawayCommand;
 import com.general_hello.commands.commands.Hangman.VirtualBotManager;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import me.duncte123.botcommons.messaging.EmbedUtils;
 import me.duncte123.botcommons.web.WebUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -44,7 +44,6 @@ public class Bot {
                         .setFooter("ignt help")
         );
         // Initialize the waiter and client
-        EventWaiter waiter = new EventWaiter();
         CommandClientBuilder client = new CommandClientBuilder();
 
 
@@ -53,6 +52,7 @@ public class Bot {
         client.setOwnerId(Config.get("owner_id"));
         client.setCoOwnerIds(Config.get("owner_id_partner"));
         client.setPrefix("my ");
+        client.setEmojis(Emojis.BABY_YODA, "⚠", Emojis.ERROR);
 
         client.useHelpBuilder(false);
         addCommands(client);
@@ -72,7 +72,6 @@ public class Bot {
                 GatewayIntent.GUILD_INVITES
         )
                 .enableCache(CacheFlag.VOICE_STATE)
-                .addEventListeners(client.build())
                 .addEventListeners(new Listener())
                 .addEventListeners(new OnButtonClick())
                 .addEventListeners(new OnPrivateMessage())
@@ -84,7 +83,7 @@ public class Bot {
                 .addEventListeners(new OnSetupMessage())
                 .addEventListeners(new OnApiRequest())
                 .addEventListeners(new VirtualBotManager(true))
-                .addEventListeners(commandClient, waiter)
+                .addEventListeners(commandClient)
                 .setActivity(Activity.watching("ignt help"))
                 .setStatus(OnlineStatus.ONLINE)
                 .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
@@ -223,5 +222,13 @@ public class Bot {
         clientBuilder.addCommand(new RemindWork());
         clientBuilder.addSlashCommand(new StartGiveawayCommand());
         clientBuilder.addCommand(new ShopCommand());
+        clientBuilder.addCommand(new BuyCommand());
+        clientBuilder.addCommand(new SellCommand());
+        clientBuilder.addCommand(new AddShekelsCommand());
+        clientBuilder.addCommand(new InventoryCommand());
+        clientBuilder.addCommand(new FishCommand());
+        clientBuilder.addCommand(new HuntCommand());
+        clientBuilder.addCommand(new CookCommand());
+        clientBuilder.addCommand(new HealthCommand());
     }
 }

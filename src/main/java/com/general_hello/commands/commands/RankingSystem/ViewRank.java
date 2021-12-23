@@ -32,12 +32,10 @@ public class ViewRank implements ICommand
         }*/
 
         String name = member.getName().replaceAll("\\s++", "%20");
-
         long levelI = LevelPointManager.calculateLevel(member);
         String background = "https://media.discordapp.net/attachments/877423237200510996/918754304570052608/image0.png";
         long max = LevelPointManager.calculateLevelMax(levelI);
         long cur = GetData.getLevelPoints(member);
-
         String urlString = "https://api.willz.repl.co/image/rankcard?username=" +
                 name + "&discriminator=" + member.getDiscriminator() + "&level=" + levelI + "&xp=" + cur + "&req=" + max + "&rank=999&status=" + ctx.getMember().getOnlineStatus().name().toLowerCase() + "&image=" + member.getAvatarUrl() + "&background=" + background;
 

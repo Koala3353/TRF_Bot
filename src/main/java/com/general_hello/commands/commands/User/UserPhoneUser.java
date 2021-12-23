@@ -34,7 +34,6 @@ public class UserPhoneUser implements Comparable <UserPhoneUser>{
     }
 
     public void setBalance(Integer balance) {
-        System.out.println("Balance updated to: " + balance);
         this.balance = balance;
     }
 

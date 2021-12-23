@@ -46,7 +46,7 @@ public class BegCommand implements ICommand {
         int bankCredits = bankUser.getCredits();
 
         int minRobOrFine = 0;
-        int maxRobOrFine = 50_000;
+        int maxRobOrFine = 200_000;
 
         if (maxRobOrFine > bankCredits) {
             maxRobOrFine = bankCredits;

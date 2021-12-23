@@ -35,6 +35,7 @@ public class LeaderboardCommand implements ICommand {
             List<UserPhoneUser> collectedUsers = userPhoneUsers.stream().sorted(UserPhoneUser::compareTo).collect(Collectors.toList());
 
             List<User> toFilter = new ArrayList<>();
+            DecimalFormat formatter = new DecimalFormat("#,###.00");
 
             int x = 0;
             while (x < collectedUsers.size()) {
@@ -53,6 +54,7 @@ public class LeaderboardCommand implements ICommand {
 
             int y = 0;
             x = 0;
+            boolean userThere = false;
             while (y < userUserPhoneUserHashMap.size()) {
                 UserPhoneUser credits = userUserPhoneUserHashMap.get(toFilter.get(y));
                 if (!credits.getDiscordUser().isBot()) {
@@ -68,11 +70,12 @@ public class LeaderboardCommand implements ICommand {
                     } else {
                         rankShow = "🔹";
                     }
-
-                    DecimalFormat formatter = new DecimalFormat("#,###.00");
                     Integer credits1 = credits.getCredits();
                     stringBuilder.append(rankShow).append(" <:credit:905976767821525042> **").append(formatter.format(credits1)).append("** - ").append(credits.getDiscordUser().getAsTag()).append("\n");
 
+                    if (credits.getDiscordUser().equals(ctx.getAuthor())) {
+                        userThere = true;
+                    }
                     if (y == 15) {
                         break;
                     }
@@ -80,6 +83,23 @@ public class LeaderboardCommand implements ICommand {
                 }
                 y++;
             }
+
+            x = 15;
+            y = 15;
+
+            while (!userThere) {
+                UserPhoneUser credit = userUserPhoneUserHashMap.get(toFilter.get(x));
+                if (!credit.getDiscordUser().isBot()) {
+                    y++;
+                }
+                if (credit.getDiscordUser().equals(ctx.getAuthor())) {
+                    int credits = credit.getCredits();
+                    stringBuilder.append("**😎 ").append(y).append(" <:credit:905976767821525042> **").append(formatter.format(credits)).append("** - ").append(credit.getDiscordUser().getAsTag()).append("**");
+                    userThere = true;
+                }
+                x++;
+            }
+
 
             embedBuilder.setDescription(stringBuilder.toString());
             embedBuilder.setColor(InfoUserCommand.randomColor());

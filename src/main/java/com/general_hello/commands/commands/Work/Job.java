@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 public class Job {
     private final QuestionType questionType;
     private final TextChannel textChannel;
-    private String answer;
     private final User user;
 
     public Job(User user, TextChannel textChannel) {
@@ -27,16 +26,8 @@ public class Job {
         this.textChannel = textChannel;
     }
 
-    public QuestionType getQuestionType() {
-        return questionType;
-    }
-
     public TextChannel getTextChannel() {
         return textChannel;
-    }
-
-    public String getAnswer() {
-        return answer;
     }
 
     public User getUser() {
@@ -59,54 +50,60 @@ public class Job {
     }
 
     private void trivia(TextChannel textChannel) {
-        OpenTDB obj = new OpenTDB();
-        obj.setDifficulty("hard");
-        obj.getTrivia();
-        while (!obj.getType().equals("multiple")) {
-            obj.getTrivia();
+        while (true) {
+            try {
+                OpenTDB obj = new OpenTDB();
+                obj.setDifficulty("hard");
+                obj.getTrivia();
+                while (!obj.getType().equals("multiple")) {
+                    obj.getTrivia();
+                }
+
+                String[] incorrectAnswers = obj.incorrectAnswers;
+
+                SelectionMenu.Builder menu = SelectionMenu.create("menu:class")
+                        .setPlaceholder("Choose the correct answer") // shows the placeholder indicating what this menu is for
+                        .setRequiredRange(1, 1);
+
+                int x = 0;
+                ArrayList<String> arrayList = new ArrayList<>();
+
+                while (x < incorrectAnswers.length) {
+                    arrayList.add(incorrectAnswers[x]);
+                    x++;
+                }
+
+                x = 0;
+
+                arrayList.add(obj.getCorrectAnswer());
+                int size = arrayList.size();
+                while (x < size) {
+                    int random = UtilNum.randomNum(0, size - 1 - (x));
+                    String choice = arrayList.get(random).replace("&quot;", "'").replace("&#039;", "'").replace("&Uuml;", "ü").replace("&amp;", "&");
+
+                    menu.addOption(choice, choice);
+                    arrayList.remove(choice);
+
+                    x++;
+                }
+
+                String msg = obj.getQuestion().replace("&quot;", "'").replace("&#039;", "'").replace("&Uuml;", "ü").replace("&amp;", "&");
+                EmbedBuilder embedBuilder = new EmbedBuilder();
+                embedBuilder.setAuthor(this.user.getName() + "'s trivia question", null, this.user.getAvatarUrl());
+                embedBuilder.setDescription("**" + msg + "**");
+                embedBuilder.addField("Difficulty", "`" + obj.getDifficulty() + "`", true);
+                embedBuilder.addField("Category", "`" + obj.getCategory() + "`", true);
+                embedBuilder.setColor(Color.pink);
+                embedBuilder.setFooter("Giving a correct answer will make this hour's work a success!!!").setTimestamp(OffsetDateTime.now());
+                textChannel.sendMessageEmbeds(embedBuilder.build()).setActionRow(menu.build()).queue();
+
+                TriviaCommand.storeQuestion.put(this.user, msg);
+                TriviaCommand.storeDifficulty.put(this.user, obj.getDifficulty());
+                TriviaCommand.storeAnswer.put(this.user, obj.getCorrectAnswer().replace("&quot;", "'").replace("&#039;", "'").replace("&Uuml;", "ü").replace("&amp;", "&"));
+                return;
+            } catch (Exception ignored) {
+            }
         }
-
-        String[] incorrectAnswers = obj.incorrectAnswers;
-
-        SelectionMenu.Builder menu = SelectionMenu.create("menu:class")
-                .setPlaceholder("Choose the correct answer") // shows the placeholder indicating what this menu is for
-                .setRequiredRange(1, 1);
-
-        int x = 0;
-        ArrayList<String> arrayList = new ArrayList<>();
-
-        while (x < incorrectAnswers.length) {
-            arrayList.add(incorrectAnswers[x]);
-            x++;
-        }
-
-        x = 0;
-
-        arrayList.add(obj.getCorrectAnswer());
-        int size = arrayList.size();
-        while (x < size) {
-            int random = UtilNum.randomNum(0, size - 1 - (x));
-            String choice = arrayList.get(random).replace("&quot;", "'").replace("&#039;", "'").replace("&Uuml;", "ü").replace("&amp;", "&");
-
-            menu.addOption(choice, choice);
-            arrayList.remove(choice);
-
-            x++;
-        }
-
-        String msg = obj.getQuestion().replace("&quot;", "'").replace("&#039;", "'").replace("&Uuml;", "ü").replace("&amp;", "&");
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setAuthor(this.user.getName() + "'s trivia question", null, this.user.getAvatarUrl());
-        embedBuilder.setDescription("**" + msg + "**");
-        embedBuilder.addField("Difficulty", "`" + obj.getDifficulty() + "`", true);
-        embedBuilder.addField("Category", "`" + obj.getCategory() + "`", true);
-        embedBuilder.setColor(Color.pink);
-        embedBuilder.setFooter("Giving a correct answer will make this hour's work a success!!!").setTimestamp(OffsetDateTime.now());
-        textChannel.sendMessageEmbeds(embedBuilder.build()).setActionRow(menu.build()).queue();
-
-        TriviaCommand.storeQuestion.put(this.user, msg);
-        TriviaCommand.storeDifficulty.put(this.user, obj.getDifficulty());
-        TriviaCommand.storeAnswer.put(this.user, obj.getCorrectAnswer().replace("&quot;", "'").replace("&#039;", "'").replace("&Uuml;", "ü").replace("&amp;", "&"));
     }
 
     private void colorGame(TextChannel textChannel) {
@@ -117,7 +114,7 @@ public class Job {
             ArrayList<Colors> colors = new ArrayList<>();
             String color = null;
 
-            int a = UtilNum.randomNum(0, 4);
+            int a = UtilNum.randomNum(0, 3);
             while (x < 4) {
                 Colors randomColor = randomColor();
                 while (true) {
@@ -129,7 +126,8 @@ public class Job {
                 }
 
                 colors.add(randomColor);
-                String randomWord = randomWord();
+                String[] randomWords = randomWord().split("\\s+");
+                String randomWord = randomWords[0];
                 question.append(randomColor.getEmoji()).append(" ")
                         .append(randomColor.getName()).append(" - ")
                         .append(randomWord).append("\n");

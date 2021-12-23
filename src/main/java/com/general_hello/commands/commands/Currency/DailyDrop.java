@@ -25,7 +25,7 @@ public class DailyDrop {
         Bot.jda.getTextChannelById(876363970108334162L).sendMessage("<@&905691492205621278>").queue();
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Christmas Gift found!").setTimestamp(OffsetDateTime.now()).setColor(InfoUserCommand.randomColor());
-        embedBuilder.setDescription("A new christmas gift <a:present:917914791547379742> has been found! **First igniter** to press the button below will get  <:credit:905976767821525042> **0** to  <:credit:905976767821525042> **200,000 **!\n" +
+        embedBuilder.setDescription("A new christmas gift <a:present:917914791547379742> has been found! **First igniter** to press the button below will get  <:credit:905976767821525042> **0** to  <:credit:905976767821525042> **500,000 **!\n" +
                 "\n**Warning:** There is NO possibility to be reduced in credits because it's Christmas <a:christmas_tree_snow:917914794848321547>!!!");
         embedBuilder.setThumbnail("https://cdn.discordapp.com/emojis/917914791547379742.gif");
         Bot.jda.getTextChannelById(876363970108334162L).sendMessageEmbeds(embedBuilder.build()).setActionRows(

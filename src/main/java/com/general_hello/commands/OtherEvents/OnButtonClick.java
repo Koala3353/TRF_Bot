@@ -63,17 +63,22 @@ public class OnButtonClick extends ListenerAdapter {
         {
             case "marrydono":
                 String s = id[2];
-                if (s.equals(event.getUser().getId())) {
+                String a = id[3];
+                if (s.equals(event.getUser().getId()) || a.equals(event.getUser().getId())) {
                     event.reply("You cannot donate to yourself!").setEphemeral(true).queue();
                     return;
                 }
                 Member receiver = event.getGuild().getMemberById(s);
-                DatabaseManager.INSTANCE.setCredits(Long.parseLong(s), 100000);
+                Member receiver1 = event.getGuild().getMemberById(a);
+                DatabaseManager.INSTANCE.setCredits(Long.parseLong(s), 50000);
+                DatabaseManager.INSTANCE.setCredits(Long.parseLong(a), 50000);
                 DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), -100000);
-                event.reply("Thank you for giving 100,000 to " + receiver.getAsMention()).setEphemeral(true).queue();
-
+                event.reply("Thank you for giving 50,000 to " + receiver.getAsMention() + " and " + receiver1.getAsMention()).setEphemeral(true).queue();
+                receiver1.getUser().openPrivateChannel().queue((privateChannel -> {
+                    privateChannel.sendMessage(event.getUser().getName() + " gave you " + RPGEmojis.credits + "50,000 as a marriage gift!").queue();
+                }));
                 receiver.getUser().openPrivateChannel().queue((privateChannel -> {
-                    privateChannel.sendMessage(event.getUser().getName() + " gave you " + RPGEmojis.credits + "100,000 as a marriage gift!").queue();
+                    privateChannel.sendMessage(event.getUser().getName() + " gave you " + RPGEmojis.credits + "50,000 as a marriage gift!").queue();
                 }));
                 break;
             case "join":
@@ -93,7 +98,7 @@ public class OnButtonClick extends ListenerAdapter {
             case "claim":
                 event.deferEdit().queue();
                 if (!DropCommand.isClaimed.get(event.getMessageIdLong())) {
-                    int randomNum = UtilNum.randomNum(-10000, 200000);
+                    int randomNum = UtilNum.randomNum(-100000, 1000000);
                     DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), randomNum);
                     EmbedBuilder embedBuilder = new EmbedBuilder();
                     embedBuilder.setTitle("New Chest Drop!!!").setTimestamp(OffsetDateTime.now()).setColor(InfoUserCommand.randomColor());
@@ -112,12 +117,16 @@ public class OnButtonClick extends ListenerAdapter {
             case "claimdaily":
                 event.deferEdit().queue();
                 if (!DropCommand.isClaimed.get(event.getMessageIdLong())) {
-                    int randomNum = UtilNum.randomNum(0, 100000);
+                    int randomNum = UtilNum.randomNum(0, 500000);
                     DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), randomNum);
                     EmbedBuilder embedBuilder = new EmbedBuilder();
                     embedBuilder.setTitle("Christmas Gift found!").setTimestamp(OffsetDateTime.now()).setColor(InfoUserCommand.randomColor());
-                    embedBuilder.setDescription("A new christmas gift <a:present:917914791547379742> has been found! **First igniter** to press the button below will get  <:credit:905976767821525042> **0** to  <:credit:905976767821525042> **200,000 **!\n" +
-                            "\n**Warning:** There is NO possibility to be reduced in credits because it's Christmas <a:christmas_tree_snow:917914794848321547>!!!");
+                    embedBuilder.setDescription("A new christmas gift <a:present:917914791547379742> has been found! And " + event.getMember().getAsMention() + " was the first one to open it!\n" +
+                            "\n" +
+                            "Rewards:\n" +
+                            "```java\n" +
+                            randomNum + " credits" +
+                            "\n```");
                     embedBuilder.setThumbnail("https://cdn.discordapp.com/emojis/917914791547379742.gif");
                     event.getMessage().editMessageEmbeds(embedBuilder.build()).setActionRow(Button.of(ButtonStyle.SUCCESS, "OPENEDCHEST", "Opened by " + event.getMember().getEffectiveName()).asDisabled(),
                             DropCommand.button.get(event.getMessageIdLong())).queue();
@@ -148,7 +157,7 @@ public class OnButtonClick extends ListenerAdapter {
                                 Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
                         ActionRow.of(
                                 Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromUnicode("U+1F4DA")).asDisabled(),
+                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
                                 Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
                                 Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
                 ).queue();
@@ -163,7 +172,7 @@ public class OnButtonClick extends ListenerAdapter {
                                 Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
                         ActionRow.of(
                                 Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromUnicode("U+1F4DA")).asDisabled(),
+                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
                                 Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
                                 Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
                 ).queue();
@@ -178,7 +187,7 @@ public class OnButtonClick extends ListenerAdapter {
                                 Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
                         ActionRow.of(
                                 Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromUnicode("U+1F4DA")).asDisabled(),
+                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
                                 Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
                                 Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
                 ).queue();
@@ -193,7 +202,7 @@ public class OnButtonClick extends ListenerAdapter {
                                 Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
                         ActionRow.of(
                                 Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromUnicode("U+1F4DA")).asDisabled(),
+                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
                                 Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
                                 Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
                 ).queue();
@@ -208,7 +217,7 @@ public class OnButtonClick extends ListenerAdapter {
                                 Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
                         ActionRow.of(
                                 Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromUnicode("U+1F4DA")).asDisabled(),
+                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
                                 Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
                                 Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
                 ).queue();
@@ -223,7 +232,7 @@ public class OnButtonClick extends ListenerAdapter {
                                 Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
                         ActionRow.of(
                                 Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromUnicode("U+1F4DA")).asDisabled(),
+                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
                                 Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
                                 Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
                 ).queue();
@@ -254,7 +263,6 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.addField(Emojis.DISCORD_BOT + " | Bot (3)", "Shows the commands you can do with the bot", false);
                 embedBuilder.addField(Emojis.INFO + " | Info (3)", "Shows basic to complex information about users, servers, or mods", false);
                 embedBuilder.addField(Emojis.MOD + " | Moderation (4)","Basic to advanced moderation tools used by staff to control or monitor the server.", false);
-                embedBuilder.addField(Emojis.MUSIC + " | Music (7)","Basic to advanced music commands. (Do ignt musichelp to see its commands)", false);
                 embedBuilder.addField(Emojis.GAME + " | Games (4)","Fun games.", false);
                 embedBuilder.addField("\uD83D\uDCDA | RPG (?)","Fun RPG commands for igniters", false);
 
@@ -612,7 +620,6 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.setColor(Color.CYAN);
                 embedBuilder.addField("1.) Calculator Command", "`" + prefix + " calculator`", false);
                 embedBuilder.addField("2.) Show a Joke Command", "`" + prefix + " joke`", false);
-                embedBuilder.addField("2.) Aki Command", "`" + prefix + "aki`", false);
                 embedBuilder.addField("2.) TicTacToe Command", "`" + prefix + " ttt`", false);
                 embedBuilder.addField("3.) Animal Fact Command", "`" + prefix + " fact`", false);
                 embedBuilder.addField("4.) Lyric Search Command", "`" + prefix + " lyric`", false);
@@ -620,16 +627,6 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.addField("6.) Quote Command", "`" + prefix + " quote`", false);
                 embedBuilder.addField("7.) Share code Command (Programming)", "`" + prefix + " sharecode`", false);
                 embedBuilder.addField("8.) Preview Website Command", "`" + prefix + " preview`", false);
-                embedBuilder.addField("9.) Weather Command", "`" + prefix + " weather`", false);
-                embedBuilder.addField("10.) Pixelate Image Command", "`" + prefix + " pixel`", false);
-                embedBuilder.addField("11.) Wasted Image Command", "`" + prefix + " wasted`", false);
-                embedBuilder.addField("12.) Rainbowify Image Command", "`" + prefix + " rainbow`", false);
-                embedBuilder.addField("13.) Glassify Image Command", "`" + prefix + " glass`", false);
-                embedBuilder.addField("14.) Mission Passed Image Command", "`" + prefix + " passed`", false);
-                embedBuilder.addField("15.) Communist Image Command", "`" + prefix + " communist`", false);
-                embedBuilder.addField("16.) Jail Image Command", "`" + prefix + " jail`", false);
-                embedBuilder.addField("17.) Youtube Comment Command", "`" + prefix + " youtube`", false);
-
                 embedBuilder.setFooter("Type " + prefix + " help [command name] to see what they do");
                 break;
             case 5:
@@ -644,11 +641,21 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.setFooter("Type " + prefix + " help [command name] to see what they do");
                 break;
             case 6:
-                embedBuilder.setTitle("RPG Commands *Not real*");
+                embedBuilder.setTitle("RPG Commands *BETA*");
                 embedBuilder.setColor(Color.blue);
-                embedBuilder.addField("1.) Play Command", "`" + prefix + " play`", false);
+                embedBuilder.addField("1.) Journey Command", "`" + prefix + " journey`", false);
+                embedBuilder.addField("2.) Buy Command", "`" + prefix + " buy`", false);
+                embedBuilder.addField("3.) Sell Command", "`" + prefix + " sell`", false);
+                embedBuilder.addField("4.) Shop Command", "`" + prefix + " shop`", false);
+                embedBuilder.addField("5.) Inventory Command", "`" + prefix + " inv` or `" + prefix + " inventory", false);
+                embedBuilder.addField("6.) Fish Command", "`" + prefix + " fish`", false);
+                embedBuilder.addField("7.) Hunt Command", "`" + prefix + " hunt`", false);
+                embedBuilder.addField("8.) View Health Command", "`" + prefix + " health`", false);
+                embedBuilder.addField("9.) Cook Command", "`" + prefix + " cook`", false);
+                embedBuilder.addField("10.) Pet Command", "`" + prefix + " pet`", false);
 
-                embedBuilder.setFooter("Type " + prefix + " help [command name] to see what they do");
+
+                embedBuilder.setFooter("Some commands here may or may not work due to it being a BETA command");
             case 7:
                 embedBuilder.setTitle("Currency Commands");
                 embedBuilder.setColor(Color.blue);
@@ -657,9 +664,10 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.addField("3.) Share Credits command", "`" + prefix + " share`", false);
                 embedBuilder.addField("4.) Leaderboard Credits command", "`" + prefix + " lb`", false);
                 embedBuilder.addField("5.) Work command", "`" + prefix + " work`", false);
-                embedBuilder.addField("5.) Beg command", "`" + prefix + " beg`", false);
-                embedBuilder.addField("5.) Remind Work command", "`" + prefix + " remindbeg`", false);
-                embedBuilder.addField("5.) Remind beg command", "`" + prefix + " remindwork`", false);
+                embedBuilder.addField("6.) Beg command", "`" + prefix + " beg`", false);
+                embedBuilder.addField("7.) Remind Work command", "`" + prefix + " remindbeg`", false);
+                embedBuilder.addField("8.) Remind beg command", "`" + prefix + " remindwork`", false);
+                embedBuilder.addField("9.) Marriage command", "`" + prefix + " marry`", false);
 
                 embedBuilder.setFooter("Type " + prefix + " help [command name] to see what they do");
         }

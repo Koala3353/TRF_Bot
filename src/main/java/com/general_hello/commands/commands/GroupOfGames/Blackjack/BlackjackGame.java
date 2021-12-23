@@ -57,12 +57,12 @@ public class BlackjackGame {
     }
 
     public enum EndState{
-        WON("You won", 1.5),
-        LOST("You lost", -1),
+        WON("You won", 2),
+        LOST("You lost", -0.5),
         BUST("You busted", -1),
-        DEALER_BUST("The dealer busted", 1),
+        DEALER_BUST("The dealer busted", 1.5),
         PUSH("It's a push/tie", 0),
-        BLACKJACK("Congratulations! You got a blackjack!!!", 2);
+        BLACKJACK("Congratulations! You got a blackjack!!!", 2.5);
 
         private String display;
         private double reward;

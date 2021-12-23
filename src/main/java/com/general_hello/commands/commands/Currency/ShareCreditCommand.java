@@ -46,7 +46,7 @@ public class ShareCreditCommand implements ICommand {
             UserPhoneUser senderUserData = Data.userUserPhoneUserHashMap.get(author);
             int money = Integer.parseInt(ctx.getArgs().get(0));
 
-            int tax = (money * 3) / 100;
+            int tax = (money) / 10;
             int toBeGiven = money - tax;
 
             if (senderUserData.getCredits() < money) {

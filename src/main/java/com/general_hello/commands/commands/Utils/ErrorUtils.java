@@ -35,7 +35,7 @@ public class ErrorUtils {
                 .addField("Guild", event.getGuild().getIdLong()+" ("+event.getGuild().getName()+")",true)
                 .addField("User", event.getAuthor().getAsMention()+" ("+event.getAuthor().getAsTag()+")", true)
                 .addField("Command", event.getMessage().getContentRaw(), false)
-                .setDescription("```\n"+ e.getLocalizedMessage() +"\n```")
+                .setDescription("```\n"+ e.getMessage() +"\n```")
                 .setColor(Color.RED);
         event.getJDA().openPrivateChannelById(Config.get("owner_id"))
                 .flatMap(c -> c.sendMessageEmbeds(builder.build()))

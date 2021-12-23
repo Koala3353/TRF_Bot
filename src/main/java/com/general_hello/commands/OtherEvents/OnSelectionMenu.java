@@ -3,7 +3,6 @@ package com.general_hello.commands.OtherEvents;
 import com.general_hello.commands.Config;
 import com.general_hello.commands.Database.DatabaseManager;
 import com.general_hello.commands.RPG.Objects.RPGEmojis;
-import com.general_hello.commands.commands.Work.WorkCommand;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.GroupOfGames.Games.TriviaCommand;
 import com.general_hello.commands.commands.Info.InfoUserCommand;
@@ -12,6 +11,7 @@ import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
 import com.general_hello.commands.commands.Register.Data;
 import com.general_hello.commands.commands.User.UserPhoneUser;
 import com.general_hello.commands.commands.Utils.UtilNum;
+import com.general_hello.commands.commands.Work.WorkCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
@@ -41,25 +41,24 @@ public class OnSelectionMenu extends ListenerAdapter {
                 .build();
         int x = 0;
 
-        System.out.println(event.getSelectedOptions().get(0).getValue());
         if (TriviaCommand.storeAnswer.containsKey(event.getUser())) {
             String answer = TriviaCommand.storeAnswer.get(event.getUser());
             String question = TriviaCommand.storeQuestion.get(event.getUser());
             String difficulty = TriviaCommand.storeDifficulty.get(event.getUser());
-            int reward = 2_000;
+            int reward = 10_000;
 
             int multiplier = difficulty.equals("medium") ? 3 : 1;
             multiplier = difficulty.equals("hard") ? 5 : multiplier;
 
             reward = reward * multiplier;
-
+            System.out.println(WorkCommand.job.containsKey(event.getUser()));
             if (event.getSelectedOptions().get(0).getValue().equals(answer)) {
                 if (WorkCommand.job.containsKey(event.getUser())) {
                     UserPhoneUser bankUser = Data.userUserPhoneUserHashMap.get(event.getJDA().getSelfUser());
                     int bankCredits = bankUser.getCredits();
 
-                    int minRobOrFine = 0;
-                    int maxRobOrFine = 200_000;
+                    int minRobOrFine = 80_000;
+                    int maxRobOrFine = 500_000;
 
                     if (maxRobOrFine > bankCredits) {
                         maxRobOrFine = bankCredits;
@@ -78,6 +77,7 @@ public class OnSelectionMenu extends ListenerAdapter {
                     e.setFooter("Working as a teacher");
                     event.getHook().deleteOriginal().queue();
                     event.deferEdit().queue();
+                    WorkCommand.job.remove(event.getUser());
                     event.getChannel().sendMessageEmbeds(e.build()).setActionRow(event.getSelectionMenu().asDisabled()).queue();
                 } else {
                     event.getChannel().sendMessage("Correct answer!!!!\n" +
@@ -116,6 +116,7 @@ public class OnSelectionMenu extends ListenerAdapter {
                     e.setFooter("Working as a teacher");
                     event.getHook().deleteOriginal().queue();
                     event.deferEdit().queue();
+                    WorkCommand.job.remove(event.getUser());
                     event.getChannel().sendMessageEmbeds(e.build()).setActionRow(event.getSelectionMenu().asDisabled()).queue();
                 } else {
                     EmbedBuilder e = new EmbedBuilder();
@@ -130,6 +131,9 @@ public class OnSelectionMenu extends ListenerAdapter {
                 TriviaCommand.storeAnswer.remove(event.getUser());
                 TriviaCommand.storeQuestion.remove(event.getUser());
                 TriviaCommand.storeDifficulty.remove(event.getUser());
+                try {
+                    WorkCommand.job.remove(event.getUser());
+                } catch(Exception ignored) {}
             }
         }
         while (x < event.getSelectedOptions().size()) {

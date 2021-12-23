@@ -171,7 +171,6 @@ public class CommandManager {
             if (event.getGuild().getIdLong() == 843769353040298011L) {
                     if (!testing) {
                     if (!cmd.getCategory().equals(CommandType.SPECIAL)) {
-                        System.out.println(cmd.getCategory());
                         switch (cmd.getCategory()) {
                             case GAMES:
                                 if (event.getChannel().getIdLong() != (GAMESC) && event.getChannel().getIdLong() != (GAMESC1)) {
@@ -227,7 +226,7 @@ public class CommandManager {
 
             try {
                 CommandContext ctx = new CommandContext(event, args);
-
+                System.out.println();
                 cmd.handle(ctx);
             } catch (Exception e) {
                 ErrorUtils.error(event, e);

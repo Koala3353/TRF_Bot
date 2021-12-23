@@ -56,10 +56,10 @@ public class GuessNumber implements Game {
 
 
             e.getChannel().sendMessage(e.getAuthor().getAsMention() + " won! The number was " + number + ".\n" +
-                    "\uD83E\uDE99 " + (20_000) + " was added to your account").queue();
+                    "\uD83E\uDE99 " + (100_000) + " was added to your account").queue();
             GameHandler.removeBlackJackGame(e.getAuthor().getIdLong());
             LevelPointManager.feed(e.getAuthor(), 30);
-            DatabaseManager.INSTANCE.setCredits(e.getAuthor().getIdLong(), 20_000);
+            DatabaseManager.INSTANCE.setCredits(e.getAuthor().getIdLong(), 100_000);
             GameHandler.removeBlackJackGame(e.getAuthor().getIdLong());
             endGame(event.getAuthor());
             return;

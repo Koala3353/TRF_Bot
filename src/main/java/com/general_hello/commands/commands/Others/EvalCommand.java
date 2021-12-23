@@ -1,5 +1,6 @@
 package com.general_hello.commands.commands.Others;
 
+import com.general_hello.commands.Config;
 import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.ICommand;
@@ -12,6 +13,11 @@ import java.sql.SQLException;
 public class EvalCommand implements ICommand {
     @Override
     public void handle(CommandContext event) throws InterruptedException, IOException, SQLException {
+        if (!event.getAuthor().getId().equals(Config.get("owner_id")) && !event.getAuthor().getId().equals(Config.get("owner_id_partner"))) {
+            event.getChannel().sendMessage("Only the owner can do this!").queue();
+            return;
+        }
+
         ScriptEngine se = new ScriptEngineManager().getEngineByName("Nashorn");
         se.put("event", event.getEvent());
         se.put("jda", event.getJDA());
