@@ -66,7 +66,9 @@ public class InventoryCommand extends Command {
             inventories.add(inventory.toString());
         }
 
-        inventories.remove(0);
+        if (inventories.get(0).equals("")) {
+            inventories.remove(0);
+        }
 
         if (inventories.get(0).equals("")) {
             event.replyError("You do not have anything in your inventory");

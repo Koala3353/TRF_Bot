@@ -1,11 +1,15 @@
 package com.general_hello.commands.OtherEvents;
 
+import com.general_hello.commands.Bot;
 import com.general_hello.commands.Config;
 import com.general_hello.commands.Database.DatabaseManager;
 import com.general_hello.commands.RPG.Objects.RPGEmojis;
+import com.general_hello.commands.RPG.RpgUser.RPGDataUtils;
+import com.general_hello.commands.RPG.RpgUser.RPGUser;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.GroupOfGames.Games.TriviaCommand;
 import com.general_hello.commands.commands.Info.InfoUserCommand;
+import com.general_hello.commands.commands.Marriage.MarriageData;
 import com.general_hello.commands.commands.PrefixStoring;
 import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
 import com.general_hello.commands.commands.Register.Data;
@@ -14,6 +18,8 @@ import com.general_hello.commands.commands.Utils.UtilNum;
 import com.general_hello.commands.commands.Work.WorkCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -24,6 +30,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.text.DecimalFormat;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class OnSelectionMenu extends ListenerAdapter {
     @Override
@@ -188,6 +198,277 @@ public class OnSelectionMenu extends ListenerAdapter {
                 case "uno":
                     event.getMessage().delete().queue();
                     event.getChannel().sendMessageEmbeds(helpCrap(6, event).build()).setActionRows(ActionRow.of(menu), ActionRow.of(Button.of(ButtonStyle.DANGER, "0000:backgames", "Back"))).queue();
+                    event.deferEdit().queue();
+                    break;
+                case "credit":
+                    try {
+                        HashMap<User, UserPhoneUser> userUserPhoneUserHashMap = Data.userUserPhoneUserHashMap;
+                        ArrayList<User> users = Data.users;
+                        ArrayList<UserPhoneUser> userPhoneUsers = new ArrayList<>();
+                        int z = 0;
+                        while (z < users.size()) {
+                            User user = users.get(z);
+                            if (userUserPhoneUserHashMap.containsKey(user)) {
+                                userPhoneUsers.add(userUserPhoneUserHashMap.get(user));
+                            }
+                            z++;
+                        }
+
+                        java.util.List<UserPhoneUser> collectedUsers = userPhoneUsers.stream().sorted(UserPhoneUser::compareTo).collect(Collectors.toList());
+
+                        List<User> toFilter = new ArrayList<>();
+                        DecimalFormat formatter = new DecimalFormat("#,###.00");
+
+                        x = 0;
+                        while (x < collectedUsers.size()) {
+                            toFilter.add(collectedUsers.get(x).getDiscordUser());
+                            x++;
+                        }
+
+                        Set<User> set = new LinkedHashSet<>(toFilter);
+
+                        toFilter.clear();
+                        toFilter.addAll(set);
+
+                        embedBuilder = new EmbedBuilder();
+                        embedBuilder.setTitle("Leaderboard of Credits").setFooter("Who is the richest of the richest?").setTimestamp(OffsetDateTime.now());
+                        StringBuilder stringBuilder = new StringBuilder();
+
+                        int y = 0;
+                        x = 0;
+                        boolean userThere = false;
+                        while (y < userUserPhoneUserHashMap.size()) {
+                            UserPhoneUser credits = userUserPhoneUserHashMap.get(toFilter.get(y));
+                            if (!credits.getDiscordUser().isBot()) {
+                                int rank = x + 1;
+                                String rankShow;
+
+                                if (rank == 1) {
+                                    rankShow = "🥇";
+                                } else if (rank == 2) {
+                                    rankShow = "🥈";
+                                } else if (rank == 3) {
+                                    rankShow = "🥉";
+                                } else {
+                                    rankShow = "🔹";
+                                }
+                                Integer credits1 = credits.getCredits();
+                                stringBuilder.append(rankShow).append(" <:credit:905976767821525042> **").append(formatter.format(credits1)).append("** - ").append(credits.getDiscordUser().getAsTag()).append("\n");
+
+                                if (credits.getDiscordUser().equals(event.getUser())) {
+                                    userThere = true;
+                                }
+                                if (y == 15) {
+                                    break;
+                                }
+                                x++;
+                            }
+                            y++;
+                        }
+
+                        x = 15;
+                        y = 15;
+
+                        while (!userThere) {
+                            UserPhoneUser credit = userUserPhoneUserHashMap.get(toFilter.get(x));
+                            if (!credit.getDiscordUser().isBot()) {
+                                y++;
+                            }
+                            if (credit.getDiscordUser().equals(event.getUser())) {
+                                int credits = credit.getCredits();
+                                stringBuilder.append("**😎 ").append(y).append(" <:credit:905976767821525042> **").append(formatter.format(credits)).append("** - ").append(credit.getDiscordUser().getAsTag()).append("**");
+                                userThere = true;
+                            }
+                            x++;
+                        }
+
+
+                        embedBuilder.setDescription(stringBuilder.toString());
+                        embedBuilder.setColor(InfoUserCommand.randomColor());
+                        embedBuilder.setThumbnail("https://images-ext-1.discordapp.net/external/CldQTLK4UezxcAi3qvvrGrFCFa-1aFY_Miz5czSDPdY/https/cdn.discordapp.com/emojis/716848179022397462.gif");
+                        menu = SelectionMenu.create("menu:leaderboard")
+                                .setPlaceholder("Choose the type of leaderboard you want") // shows the placeholder indicating what this menu is for
+                                .setRequiredRange(1, 1) // only one can be selected
+                                .addOption("Credits", "credit")
+                                .addOption("Shekels", "shekel")
+                                .addOption("Marriage", "marry")
+                                .build();
+                        event.getMessage().editMessageEmbeds(embedBuilder.build()).setActionRow(menu).queue();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    event.deferEdit().queue();
+                    break;
+                case "shekel":
+                    try {
+                        DecimalFormat formatter = RPGDataUtils.formatter;
+                        List<Member> members = event.getGuild().getMembers();
+                        x = 0;
+                        ArrayList<Integer> money = new ArrayList<>();
+                        HashMap<Integer, Member> hashMap = new HashMap<>();
+                        while (x < members.size()) {
+                            Member member = members.get(x);
+                            int shekels = RPGUser.getShekels(member.getIdLong());
+                            if (shekels != -1) {
+                                money.add(shekels);
+                                hashMap.put(shekels, member);
+                            }
+                            x++;
+                        }
+                        Collections.sort(money);
+                        embedBuilder = new EmbedBuilder();
+                        embedBuilder.setTitle("Leaderboard of Shekels").setFooter("Who is the richest of the richest?").setTimestamp(OffsetDateTime.now());
+                        StringBuilder stringBuilder = new StringBuilder();
+
+                        int y = 0;
+                        x = 0;
+                        boolean userThere = false;
+                        while (y < hashMap.size()) {
+                            Member member = hashMap.get(money.get(y));
+                            Integer credits = money.get(y);
+                            if (!member.getUser().isBot()) {
+                                int rank = x + 1;
+                                String rankShow;
+
+                                if (rank == 1) {
+                                    rankShow = "🥇";
+                                } else if (rank == 2) {
+                                    rankShow = "🥈";
+                                } else if (rank == 3) {
+                                    rankShow = "🥉";
+                                } else {
+                                    rankShow = "🔹";
+                                }
+                                stringBuilder.append(rankShow).append(" " + Emojis.shekels + " **").append(formatter.format(credits)).append("** - ").append(member.getUser().getAsTag()).append("\n");
+
+                                if (member.getUser().equals(event.getUser())) {
+                                    userThere = true;
+                                }
+                                if (y == 15) {
+                                    break;
+                                }
+                                x++;
+                            }
+                            y++;
+                        }
+
+                        x = 15;
+                        y = 15;
+
+                        while (!userThere) {
+                            Member member = hashMap.get(money.get(x));
+                            Integer credits = money.get(x);
+                            if (!member.getUser().isBot()) {
+                                y++;
+                            }
+                            if (member.getUser().equals(event.getUser())) {
+                                stringBuilder.append("😢 **").append(y).append("** " + RPGEmojis.shekels + " **").append(formatter.format(credits)).append("** - **").append(member.getUser().getAsTag()).append("**");
+                                userThere = true;
+                            }
+                            x++;
+                        }
+
+
+                        embedBuilder.setDescription(stringBuilder.toString());
+                        embedBuilder.setColor(InfoUserCommand.randomColor());
+                        embedBuilder.setThumbnail("https://images-ext-1.discordapp.net/external/CldQTLK4UezxcAi3qvvrGrFCFa-1aFY_Miz5czSDPdY/https/cdn.discordapp.com/emojis/716848179022397462.gif");
+                        menu = SelectionMenu.create("menu:leaderboard")
+                                .setPlaceholder("Choose the type of leaderboard you want") // shows the placeholder indicating what this menu is for
+                                .setRequiredRange(1, 1) // only one can be selected
+                                .addOption("Credits", "credit")
+                                .addOption("Shekels", "shekel")
+                                .addOption("Marriage", "marry")
+                                .build();
+                        event.getMessage().editMessageEmbeds(embedBuilder.build()).setActionRow(menu).queue();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    event.deferEdit().queue();
+                    break;
+                case "marry":
+                    try {
+                        DecimalFormat formatter = RPGDataUtils.formatter;
+                        List<Member> members = event.getGuild().getMembers();
+                        x = 0;
+                        ArrayList<Integer> xp = new ArrayList<>();
+                        HashMap<Integer, Member> hashMap = new HashMap<>();
+                        while (x < members.size()) {
+                            Member member = members.get(x);
+                            int marriageXP = (int) MarriageData.getXP(member.getIdLong());
+                            if (marriageXP != -1 && !xp.contains(marriageXP)) {
+                                xp.add(marriageXP);
+                                hashMap.put(marriageXP, member);
+                            }
+                            x++;
+                        }
+                        Collections.sort(xp);
+                        embedBuilder = new EmbedBuilder();
+                        embedBuilder.setTitle("Leaderboard of Marriage").setFooter("Who is the most faithful of the faithful?").setTimestamp(OffsetDateTime.now());
+                        StringBuilder stringBuilder = new StringBuilder();
+
+                        int y = 0;
+                        x = 0;
+                        boolean userThere = false;
+                        while (y < hashMap.size()) {
+                            Member member = hashMap.get(xp.get(y));
+                            Integer xps = xp.get(y);
+                            if (!member.getUser().isBot()) {
+                                int rank = x + 1;
+                                String rankShow;
+
+                                if (rank == 1) {
+                                    rankShow = "🥇";
+                                } else if (rank == 2) {
+                                    rankShow = "🥈";
+                                } else if (rank == 3) {
+                                    rankShow = "🥉";
+                                } else {
+                                    rankShow = "🔹";
+                                }
+                                stringBuilder.append(rankShow).append(" **").append(formatter.format(xps)).append(" XP** *(Level ").append(LevelPointManager.calculateLevel(xps)).append(")*  - **").append(RPGDataUtils.getNameFromUser(member.getUser())).append("** and **").append(RPGDataUtils.getNameFromUser(Bot.jda.getUserById(MarriageData.getWife(member.getIdLong())))).append("**").append("\n");
+
+                                if (member.getUser().equals(event.getUser())) {
+                                    userThere = true;
+                                }
+                                if (y == 15) {
+                                    break;
+                                }
+                                x++;
+                            }
+                            y++;
+                        }
+
+                        x = 15;
+                        y = 15;
+
+                        while (!userThere) {
+                            Member member = hashMap.get(xp.get(x));
+                            Integer credits = xp.get(x);
+                            if (!member.getUser().isBot()) {
+                                y++;
+                            }
+                            if (member.getUser().equals(event.getUser())) {
+                                stringBuilder.append("😢 **").append(y).append("** " + RPGEmojis.shekels + " **").append(formatter.format(credits)).append("** - **").append(member.getUser().getAsTag()).append("**");
+                                userThere = true;
+                            }
+                            x++;
+                        }
+
+
+                        embedBuilder.setDescription(stringBuilder.toString());
+                        embedBuilder.setColor(InfoUserCommand.randomColor());
+                        embedBuilder.setThumbnail("https://images-ext-1.discordapp.net/external/CldQTLK4UezxcAi3qvvrGrFCFa-1aFY_Miz5czSDPdY/https/cdn.discordapp.com/emojis/716848179022397462.gif");
+                        menu = SelectionMenu.create("menu:leaderboard")
+                                .setPlaceholder("Choose the type of leaderboard you want") // shows the placeholder indicating what this menu is for
+                                .setRequiredRange(1, 1) // only one can be selected
+                                .addOption("Credits", "credit")
+                                .addOption("Shekels", "shekel")
+                                .addOption("Marriage", "marry")
+                                .build();
+                        event.getMessage().editMessageEmbeds(embedBuilder.build()).setActionRow(menu).queue();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     event.deferEdit().queue();
                     break;
             }

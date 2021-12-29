@@ -1,5 +1,6 @@
 package com.general_hello.commands.OtherEvents;
 
+import com.general_hello.commands.Bot;
 import com.general_hello.commands.Database.DatabaseManager;
 import com.general_hello.commands.RPG.Commands.InventoryCommand;
 import com.general_hello.commands.RPG.Commands.ShopCommand;
@@ -7,6 +8,7 @@ import com.general_hello.commands.RPG.Objects.RPGEmojis;
 import com.general_hello.commands.RPG.RpgUser.RPGDataUtils;
 import com.general_hello.commands.RPG.RpgUser.RPGUser;
 import com.general_hello.commands.commands.Marriage.MarriageCommand;
+import com.general_hello.commands.commands.Marriage.MarriageData;
 import com.general_hello.commands.commands.Utils.UtilNum;
 import com.general_hello.commands.commands.Work.WorkCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -109,8 +111,68 @@ public class OnRPGButtonClick extends ListenerAdapter {
                         Button.success(author.getId() + ":noMarry:RIP", "No").asDisabled(),
                         Button.secondary(author.getId() + ":yesMarry:RIP", "Yes").asDisabled()
                 ).queue();
-                event.getChannel().sendMessage("This is sad....").queue();
+                event.getChannel().sendMessage("OOF! REJECTED! *pat pat*").queue();
                 event.deferEdit().queue();
+                break;
+            case "date":
+                long wife = MarriageData.getWife(Long.parseLong(authorId));
+                int pay = UtilNum.randomNum(100_000, 400_000);
+                String message = "You went to a date with " + RPGDataUtils.getNameFromUser(wife) + " (" + Bot.jda.getUserById(wife).getName() + "). Making your partner happy!";
+                event.getChannel().sendMessage(message + " You also paid " + RPGEmojis.credits + " " + RPGDataUtils.formatter.format(pay) + " for the dinner.").queue();
+                MarriageCommand.makeEmbed(event.getMessage(), author, message);
+                int randomNum = UtilNum.randomNum(10, 20);
+                MarriageData.addHappiness(Long.parseLong(authorId), randomNum);
+                MarriageData.addHappiness(wife, randomNum);
+                randomNum = UtilNum.randomNum(1, 5);
+                MarriageData.addXP(Long.parseLong(authorId), randomNum);
+                MarriageData.addXP(wife, randomNum);
+                DatabaseManager.INSTANCE.setCredits(Long.parseLong(authorId), -pay);
+                break;
+            case "hug":
+                wife = MarriageData.getWife(Long.parseLong(authorId));
+                message = "You gave " + RPGDataUtils.getNameFromUser(wife) + " (" + Bot.jda.getUserById(wife).getName() + ") a hug. Making your wife/husband love you more!";
+                event.getChannel().sendMessage(message).queue();
+                MarriageCommand.makeEmbed(event.getMessage(), author, message);
+                randomNum = UtilNum.randomNum(1, 20);
+                MarriageData.addLove(Long.parseLong(authorId), randomNum);
+                MarriageData.addLove(wife, randomNum);
+                randomNum = UtilNum.randomNum(1, 5);
+                MarriageData.addXP(Long.parseLong(authorId), randomNum);
+                MarriageData.addXP(wife, randomNum);
+                break;
+            case "fixHouse":
+                wife = MarriageData.getWife(Long.parseLong(authorId));
+                pay = UtilNum.randomNum(100_000, 300_000);
+                message = "You hired someone to fix " + RPGDataUtils.getNameFromUser(wife) + " (" + Bot.jda.getUserById(wife).getName() + ") and your house. Making your house better!";
+                event.getChannel().sendMessage(message + " You also paid " + RPGEmojis.credits + " " + RPGDataUtils.formatter.format(pay) + " for the worker.").queue();
+                MarriageCommand.makeEmbed(event.getMessage(), author, message);
+                randomNum = UtilNum.randomNum(20, 40);
+                MarriageData.addHouseStatus(Long.parseLong(authorId), randomNum);
+                MarriageData.addHouseStatus(wife, randomNum);
+                randomNum = UtilNum.randomNum(1, 5);
+                MarriageData.addHouseXP(Long.parseLong(authorId), randomNum);
+                MarriageData.addHouseXP(wife, randomNum);
+                DatabaseManager.INSTANCE.setCredits(Long.parseLong(authorId), -pay);
+                break;
+            case "yesAdopt":
+                User father = event.getJDA().getUserById(id[2]);
+                User son = author;
+                embedBuilder = new EmbedBuilder();
+                embedBuilder.setTitle("Pending Confirmation").setDescription(father.getAsMention() + " is ask for you to be his/her son!\n" +
+                        "**What is your answer?**");
+                embedBuilder.setColor(Color.YELLOW);
+                event.getHook().editOriginalEmbeds(embedBuilder.build()).setActionRow(
+                        Button.secondary(author.getId() + ":noMarry:RIP", "No").asDisabled(),
+                        Button.success(author.getId() + ":yesMarry:RIP", "Yes").asDisabled()
+                ).queue();
+                MarriageData.adoptSon(father.getIdLong(), son.getIdLong());
+                wife = MarriageData.getWife(father.getIdLong());
+                MarriageData.adoptSon(wife, son.getIdLong());
+                embedBuilder = new EmbedBuilder();
+                embedBuilder.setTitle("Adopting").setColor(Color.PINK);
+                embedBuilder.setDescription(father.getAsMention() + " and " + event.getJDA().getUserById(wife).getAsMention() +
+                        " Congratulations for adopting " + son.getAsMention() + " as your son/daughter!");
+                event.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
                 break;
             case "yesMarry":
                 embedBuilder = new EmbedBuilder();
@@ -125,20 +187,21 @@ public class OnRPGButtonClick extends ListenerAdapter {
                 User receiverOfRing = event.getJDA().getUserById(id[2]);
                 User proposer = event.getUser();
                 int i = UtilNum.randomNum(1, 100);
-                int money = i * UtilNum.randomNum(50000, 50000);
+                int money = i * UtilNum.randomNum(5000, 30000);
                 DatabaseManager.INSTANCE.setCredits(receiverOfRing.getIdLong(), money);
                 DatabaseManager.INSTANCE.setCredits(proposer.getIdLong(), money);
                 embedBuilder = new EmbedBuilder();
                 embedBuilder.setTitle("Marriage").setColor(Color.PINK);
                 embedBuilder.setDescription(proposer.getAsMention() + " and " + receiverOfRing.getAsMention() +
-                        "I, " + event.getJDA().getSelfUser().getName() + ", pronounce you husband and wife. You may kiss now, or date, or whatever. " +
+                        " I, " + event.getJDA().getSelfUser().getName() + ", pronounce you husband and wife. You may kiss now, or date, or whatever. " +
                         "For this special occasion, a total of " + i + " people sent each of you a grand total of " + RPGEmojis.credits + " " + RPGDataUtils.formatter.format(money) + "!\n\n" +
                         "**Once again, I say CONGRATULATIONS 🥳**");
+                embedBuilder.setThumbnail("https://cdn.discordapp.com/emojis/862369027984064552.png");
                 event.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(
                         Button.of(ButtonStyle.SECONDARY, "0000:marrydono:" + receiverOfRing.getId() + ":" + proposer.getId(), "Give 100,000 credits")
                 ).queue();
-                MarriageCommand.marriage.put(receiverOfRing, proposer);
-                MarriageCommand.marriage.put(proposer, receiverOfRing);
+                MarriageData.newInfo(receiverOfRing.getIdLong(), proposer.getIdLong());
+                MarriageData.newInfo(proposer.getIdLong(), receiverOfRing.getIdLong());
                 break;
             case "next":
                 event.deferEdit().queue();
@@ -163,7 +226,7 @@ public class OnRPGButtonClick extends ListenerAdapter {
                 ArrayList<String> list = InventoryCommand.embedPaginatorMessage.get(event.getMessage().getIdLong());
                 event.getMessage().delete().queue();
                 int pageNumber = Integer.parseInt(id[2])-1;
-                String message = list.get(pageNumber);
+                message = list.get(pageNumber);
                 boolean disableNext = pageNumber == 0;
                 embedBuilder = new EmbedBuilder().setColor(Color.BLACK).setTitle("Owned Items");
                 embedBuilder.setAuthor(author.getName() + "'s inventory", null, author.getAvatarUrl());

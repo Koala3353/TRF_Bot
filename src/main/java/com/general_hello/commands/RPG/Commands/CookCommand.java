@@ -47,6 +47,11 @@ public class CookCommand extends Command {
             }
         }
         long authorId = event.getAuthor().getIdLong();
+        if (RPGUser.getItemCount(authorId, RPGDataUtils.filter(itemName)) < amount) {
+            event.reply("You do not have enough food!");
+            return;
+        }
+
         Animal animal = Initializer.allAnimals.get(RPGDataUtils.filter(itemName));
         int rewardForCooking = animal.getRewardForCooking() * amount;
         int health = RPGUser.getHealth(authorId);

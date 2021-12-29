@@ -8,6 +8,7 @@ import com.general_hello.commands.commands.Register.Data;
 import com.general_hello.commands.commands.User.UserPhoneUser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -94,7 +95,7 @@ public class LeaderboardCommand implements ICommand {
                 }
                 if (credit.getDiscordUser().equals(ctx.getAuthor())) {
                     int credits = credit.getCredits();
-                    stringBuilder.append("**😎 ").append(y).append(" <:credit:905976767821525042> **").append(formatter.format(credits)).append("** - ").append(credit.getDiscordUser().getAsTag()).append("**");
+                    stringBuilder.append("😢 **").append(y).append("** <:credit:905976767821525042> **").append(formatter.format(credits)).append("** - **").append(credit.getDiscordUser().getAsTag()).append("**");
                     userThere = true;
                 }
                 x++;
@@ -104,8 +105,14 @@ public class LeaderboardCommand implements ICommand {
             embedBuilder.setDescription(stringBuilder.toString());
             embedBuilder.setColor(InfoUserCommand.randomColor());
             embedBuilder.setThumbnail("https://images-ext-1.discordapp.net/external/CldQTLK4UezxcAi3qvvrGrFCFa-1aFY_Miz5czSDPdY/https/cdn.discordapp.com/emojis/716848179022397462.gif");
-
-            ctx.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+            SelectionMenu menu = SelectionMenu.create("menu:leaderboard")
+                    .setPlaceholder("Choose the type of leaderboard you want") // shows the placeholder indicating what this menu is for
+                    .setRequiredRange(1, 1) // only one can be selected
+                    .addOption("Credits", "credit")
+                    .addOption("Shekels", "shekel")
+                    .addOption("Marriage", "marry")
+                    .build();
+            ctx.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(menu).queue();
         } catch (Exception e) {
             e.printStackTrace();
         }

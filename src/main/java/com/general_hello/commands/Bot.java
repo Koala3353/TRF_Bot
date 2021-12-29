@@ -9,6 +9,10 @@ import com.general_hello.commands.commands.Currency.RemindWork;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.Giveaway.StartGiveawayCommand;
 import com.general_hello.commands.commands.Hangman.VirtualBotManager;
+import com.general_hello.commands.commands.Marriage.AdoptCommand;
+import com.general_hello.commands.commands.Marriage.DivorceCommand;
+import com.general_hello.commands.commands.Marriage.FamilyTreeCommand;
+import com.general_hello.commands.commands.Marriage.LeaveSonCommand;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import me.duncte123.botcommons.messaging.EmbedUtils;
@@ -51,8 +55,8 @@ public class Bot {
         client.useDefaultGame();
         client.setOwnerId(Config.get("owner_id"));
         client.setCoOwnerIds(Config.get("owner_id_partner"));
-        client.setPrefix("my ");
-        client.setEmojis(Emojis.BABY_YODA, "⚠", Emojis.ERROR);
+        client.setPrefix(Config.get("prefix") + " ");
+        client.setEmojis(Emojis.BABY_YODA, Emojis.MOD, Emojis.ERROR);
 
         client.useHelpBuilder(false);
         addCommands(client);
@@ -228,7 +232,11 @@ public class Bot {
         clientBuilder.addCommand(new InventoryCommand());
         clientBuilder.addCommand(new FishCommand());
         clientBuilder.addCommand(new HuntCommand());
+        clientBuilder.addCommand(new FamilyTreeCommand());
         clientBuilder.addCommand(new CookCommand());
+        clientBuilder.addCommand(new AdoptCommand());
         clientBuilder.addCommand(new HealthCommand());
+        clientBuilder.addCommand(new DivorceCommand());
+        clientBuilder.addCommand(new LeaveSonCommand());
     }
 }

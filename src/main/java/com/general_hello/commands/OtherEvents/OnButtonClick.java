@@ -647,13 +647,12 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.addField("2.) Buy Command", "`" + prefix + " buy`", false);
                 embedBuilder.addField("3.) Sell Command", "`" + prefix + " sell`", false);
                 embedBuilder.addField("4.) Shop Command", "`" + prefix + " shop`", false);
-                embedBuilder.addField("5.) Inventory Command", "`" + prefix + " inv` or `" + prefix + " inventory", false);
+                embedBuilder.addField("5.) Inventory Command", "`" + prefix + " inv` or `" + prefix + " inventory'", false);
                 embedBuilder.addField("6.) Fish Command", "`" + prefix + " fish`", false);
                 embedBuilder.addField("7.) Hunt Command", "`" + prefix + " hunt`", false);
                 embedBuilder.addField("8.) View Health Command", "`" + prefix + " health`", false);
                 embedBuilder.addField("9.) Cook Command", "`" + prefix + " cook`", false);
                 embedBuilder.addField("10.) Pet Command", "`" + prefix + " pet`", false);
-
 
                 embedBuilder.setFooter("Some commands here may or may not work due to it being a BETA command");
             case 7:
@@ -668,6 +667,10 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.addField("7.) Remind Work command", "`" + prefix + " remindbeg`", false);
                 embedBuilder.addField("8.) Remind beg command", "`" + prefix + " remindwork`", false);
                 embedBuilder.addField("9.) Marriage command", "`" + prefix + " marry`", false);
+                embedBuilder.addField("10.) Adopt Command", "`" + prefix + " adopt`", false);
+                embedBuilder.addField("11.) Divorce Command", "`" + prefix + " divorce`", false);
+                embedBuilder.addField("12.) Leave Son Command", "`" + prefix + " dump`", false);
+                embedBuilder.addField("12.) Family tree Command", "`" + prefix + " family`", false);
 
                 embedBuilder.setFooter("Type " + prefix + " help [command name] to see what they do");
         }

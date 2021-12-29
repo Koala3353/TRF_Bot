@@ -67,6 +67,16 @@ public class SQLiteDataSource implements DatabaseManager {
                             "Shekels INTEGER," +
                             "Level INTEGER," +
                             "Health INTEGER," + items() +
+                            ")",
+                    "CREATE TABLE IF NOT EXISTS MarriageData (" +
+                            "MainUser INTEGER," +
+                            "Wife INTEGER," +
+                            "Son INTEGER," +
+                            "XP INTEGER," +
+                            "HouseXP INTEGER," +
+                            "Happiness INTEGER," +
+                            "Love INTEGER," +
+                            "House INTEGER" +
                             ")"
             };
 
