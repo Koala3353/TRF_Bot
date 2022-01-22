@@ -1,20 +1,19 @@
 package com.general_hello.commands.RPG.Commands;
 
+import com.general_hello.commands.Bot;
 import com.general_hello.commands.RPG.Items.Initializer;
 import com.general_hello.commands.RPG.Objects.Objects;
 import com.general_hello.commands.RPG.RpgUser.RPGDataUtils;
 import com.general_hello.commands.RPG.RpgUser.RPGUser;
+import com.general_hello.commands.commands.ButtonPaginator;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class InventoryCommand extends Command {
     public static HashMap<Long, ArrayList<String>> embedPaginatorMessage = new HashMap<>();
@@ -40,7 +39,6 @@ public class InventoryCommand extends Command {
 
         ArrayList<String> inventories = new ArrayList<>();
         StringBuilder inventory = new StringBuilder();
-        boolean isAdded = true;
 
         while (x < allNames.size()) {
             int itemCount = RPGUser.getItemCount(authorId, allNames.get(x));
@@ -55,39 +53,34 @@ public class InventoryCommand extends Command {
             }
 
             if (y%5==0) {
-                inventories.add(inventory.toString());
+                if (!inventory.toString().equals("")) {
+                    inventories.add(inventory.toString());
+                }
                 inventory = new StringBuilder();
-                isAdded = false;
             }
             x++;
         }
 
-        if (isAdded) {
+        if (!inventory.toString().equals("")) {
             inventories.add(inventory.toString());
         }
 
-        if (inventories.get(0).equals("")) {
-            inventories.remove(0);
-        }
-
-        if (inventories.get(0).equals("")) {
+        if (inventories.isEmpty()) {
             event.replyError("You do not have anything in your inventory");
             return;
         }
 
-        boolean disableNext = inventories.size() < 2;
+        ButtonPaginator.Builder builder = new ButtonPaginator.Builder(event.getJDA())
+                .setEventWaiter(Bot.getBot().getEventWaiter())
+                .setItemsPerPage(1)
+                .setTimeout(1, TimeUnit.MINUTES)
+                .useNumberedItems(false);
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setColor(Color.BLACK).setTitle("Owned Items");
-        embedBuilder.setAuthor(author.getName() + "'s inventory", null, author.getAvatarUrl());
-        embedBuilder.setDescription(inventories.get(0));
-        embedBuilder.setFooter("You can use 'ignt sell [item]' to sell an item. ─ Page 1 of " + inventories.size());
-        event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(
-                Button.of(ButtonStyle.PRIMARY, author.getId() + ":previousInv:1", Emoji.fromMarkdown("<:left:915425233215827968>")).asDisabled(),
-                Button.of(ButtonStyle.PRIMARY, author.getId() + ":nextInv:1", Emoji.fromMarkdown("<:right:915425310592356382>")).withDisabled(disableNext)
-        ).queue(
-                (message -> {
-                    embedPaginatorMessage.put(message.getIdLong(), inventories);
-                })
-        );
+        builder.setTitle("**" + author.getName() + "**'s inventory")
+                .setItems(inventories)
+                .addAllowedUsers(event.getAuthor().getIdLong())
+                .setColor(Color.decode("#452350"));
+
+        builder.build().paginate(event.getTextChannel(), 1);
     }
 }

@@ -1,13 +1,13 @@
 package com.general_hello.commands;
 
 import com.general_hello.commands.Database.DatabaseManager;
+import com.general_hello.commands.RPG.Items.Initializer;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.GetData;
 import com.general_hello.commands.commands.GroupOfGames.Blackjack.GameHandler;
 import com.general_hello.commands.commands.GroupOfGames.Games.GuessNumber;
 import com.general_hello.commands.commands.GroupOfGames.Games.GuessNumberCommand;
 import com.general_hello.commands.commands.PrefixStoring;
-import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
 import com.general_hello.commands.commands.Register.Data;
 import com.general_hello.commands.commands.Uno.UnoGame;
 import com.general_hello.commands.commands.Uno.UnoHand;
@@ -94,9 +94,6 @@ public class Listener extends ListenerAdapter {
             if (event.getAuthor().isBot() || event.isWebhookMessage() || event.getAuthor().isSystem()) {
                 return;
             }
-
-            //add xp :D
-            LevelPointManager.feed(event.getAuthor());
 
             final long guildID = event.getGuild().getIdLong();
             String prefix = PrefixStoring.PREFIXES.computeIfAbsent(guildID, DatabaseManager.INSTANCE::getPrefix);
@@ -275,12 +272,12 @@ public class Listener extends ListenerAdapter {
                             "Reported by: " + user.getName() + "\n\n" +
                             "Reporter info:\n" +
                             "Tag: `" + user.getAsTag() + "`\n" +
-                            "Real name: `" + (userPhoneUser == null ? "Not registered" : userPhoneUser.getUserPhoneUserName()) + "`\n\n" +
+                            "Real name: `" + (userPhoneUser == null ? "Not registered" : userPhoneUser.getRealName()) + "`\n\n" +
                             "Author of the Message: " + author.getName() + "\n" +
                             "\n" +
                             "Author info:\n" +
                             "Tag: `" + author.getAsTag() + "`\n" +
-                            "Real name: `" + (authorPhoneUser == null ? "Not registered" : authorPhoneUser.getUserPhoneUserName()) + "`\n\n" +
+                            "Real name: `" + (authorPhoneUser == null ? "Not registered" : authorPhoneUser.getRealName()) + "`\n\n" +
                             "\n" +
                             "Message sent in " + message.getTextChannel().getAsMention() + "\n" +
                             "Click [here](" + message.getJumpUrl() + ") to see the message!");

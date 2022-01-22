@@ -131,6 +131,7 @@ public class Emojis {
     public final static String UNO = EmojiParser.parseToUnicode("<a:uno:891148764537049088>");
     public final static String MUSIC = EmojiParser.parseToUnicode("<a:music:891148744408584192>");
     public final static String WALLET = EmojiParser.parseToUnicode("<a:wallet:891179114470465566>");
+    public final static String RPG = EmojiParser.parseToUnicode("<:RPG:899933662185918464>");
 
     /* Server Emotes */
     public final static String GUILD_ONLINE = "🟢";

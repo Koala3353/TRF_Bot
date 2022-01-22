@@ -2,7 +2,6 @@ package com.general_hello.commands.OtherEvents;
 
 import com.general_hello.commands.Bot;
 import com.general_hello.commands.Config;
-import com.general_hello.commands.Database.DatabaseManager;
 import com.general_hello.commands.RPG.Objects.RPGEmojis;
 import com.general_hello.commands.RPG.RpgUser.RPGDataUtils;
 import com.general_hello.commands.RPG.RpgUser.RPGUser;
@@ -11,7 +10,7 @@ import com.general_hello.commands.commands.GroupOfGames.Games.TriviaCommand;
 import com.general_hello.commands.commands.Info.InfoUserCommand;
 import com.general_hello.commands.commands.Marriage.MarriageData;
 import com.general_hello.commands.commands.PrefixStoring;
-import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
+import com.general_hello.commands.commands.RankingSystem.LevelCalculator;
 import com.general_hello.commands.commands.Register.Data;
 import com.general_hello.commands.commands.User.UserPhoneUser;
 import com.general_hello.commands.commands.Utils.UtilNum;
@@ -31,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.time.OffsetDateTime;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class OnSelectionMenu extends ListenerAdapter {
@@ -50,111 +49,14 @@ public class OnSelectionMenu extends ListenerAdapter {
                 .addOption("Chess", "chess")
                 .build();
         int x = 0;
-
-        if (TriviaCommand.storeAnswer.containsKey(event.getUser())) {
-            String answer = TriviaCommand.storeAnswer.get(event.getUser());
-            String question = TriviaCommand.storeQuestion.get(event.getUser());
-            String difficulty = TriviaCommand.storeDifficulty.get(event.getUser());
-            int reward = 10_000;
-
-            int multiplier = difficulty.equals("medium") ? 3 : 1;
-            multiplier = difficulty.equals("hard") ? 5 : multiplier;
-
-            reward = reward * multiplier;
-            System.out.println(WorkCommand.job.containsKey(event.getUser()));
-            if (event.getSelectedOptions().get(0).getValue().equals(answer)) {
-                if (WorkCommand.job.containsKey(event.getUser())) {
-                    UserPhoneUser bankUser = Data.userUserPhoneUserHashMap.get(event.getJDA().getSelfUser());
-                    int bankCredits = bankUser.getCredits();
-
-                    int minRobOrFine = 80_000;
-                    int maxRobOrFine = 500_000;
-
-                    if (maxRobOrFine > bankCredits) {
-                        maxRobOrFine = bankCredits;
-                    }
-
-                    int randomNum = UtilNum.randomNum(minRobOrFine, maxRobOrFine);
-
-                    DecimalFormat formatter = new DecimalFormat("#,###.00");
-                    DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), randomNum);
-                    DatabaseManager.INSTANCE.setCredits(event.getJDA().getSelfUser().getIdLong(), (-randomNum));
-
-                    EmbedBuilder e = new EmbedBuilder();
-                    e.setTitle("Great Work!");
-                    e.setColor(Color.green);
-                    e.setDescription("You were given " + RPGEmojis.credits + " `" + formatter.format(randomNum) + "` for an hour of work.");
-                    e.setFooter("Working as a teacher");
-                    event.getHook().deleteOriginal().queue();
-                    event.deferEdit().queue();
-                    WorkCommand.job.remove(event.getUser());
-                    event.getChannel().sendMessageEmbeds(e.build()).setActionRow(event.getSelectionMenu().asDisabled()).queue();
-                } else {
-                    event.getChannel().sendMessage("Correct answer!!!!\n" +
-                            "You got \uD83E\uDE99 " + reward + " for getting the correct answer!\n" +
-                            "Question: `" + question + "`").queue();
-                    LevelPointManager.feed(event.getUser(), 25);
-                    DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), reward);
-                    event.deferEdit().queue();
-                    event.getMessage().delete().queue();
-                }
-                TriviaCommand.storeAnswer.remove(event.getUser());
-            } else {
-                if (WorkCommand.job.containsKey(event.getUser())) {
-
-                    UserPhoneUser bankUser = Data.userUserPhoneUserHashMap.get(event.getJDA().getSelfUser());
-                    int bankCredits = bankUser.getCredits();
-
-                    int minRobOrFine = 0;
-                    int maxRobOrFine = 80_000;
-
-                    if (maxRobOrFine > bankCredits) {
-                        maxRobOrFine = bankCredits;
-                    }
-
-                    int randomNum = UtilNum.randomNum(minRobOrFine, maxRobOrFine);
-
-                    DecimalFormat formatter = new DecimalFormat("#,###.00");
-                    DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), randomNum);
-                    DatabaseManager.INSTANCE.setCredits(event.getJDA().getSelfUser().getIdLong(), (-randomNum));
-
-                    EmbedBuilder e = new EmbedBuilder();
-                    e.setTitle("TERRIBLE Work!");
-                    e.setColor(Color.red);
-                    e.setDescription("You lost the mini-game because the answer you chose wasn't correct.\n" +
-                            "You were given " + RPGEmojis.credits + " `" + formatter.format(randomNum) + "` for a sub-par hour of work.");
-                    e.setFooter("Working as a teacher");
-                    event.getHook().deleteOriginal().queue();
-                    event.deferEdit().queue();
-                    WorkCommand.job.remove(event.getUser());
-                    event.getChannel().sendMessageEmbeds(e.build()).setActionRow(event.getSelectionMenu().asDisabled()).queue();
-                } else {
-                    EmbedBuilder e = new EmbedBuilder();
-                    e.setTitle("Incorrect answer");
-                    e.setFooter("A correct answer gives you \uD83E\uDE99 " + reward);
-                    e.addField("Question: `" + question + "`\n" + "Difficulty: **" + difficulty +
-                            "**\nThe correct answer is " + TriviaCommand.storeAnswer.get(event.getUser()), "Better luck next time", false).setColor(Color.RED);
-                    event.getChannel().sendMessageEmbeds(e.build()).queue();
-                    event.getMessage().delete().queue();
-                    event.deferEdit().queue();
-                }
-                TriviaCommand.storeAnswer.remove(event.getUser());
-                TriviaCommand.storeQuestion.remove(event.getUser());
-                TriviaCommand.storeDifficulty.remove(event.getUser());
-                try {
-                    WorkCommand.job.remove(event.getUser());
-                } catch(Exception ignored) {}
-            }
-        }
         while (x < event.getSelectedOptions().size()) {
             switch (event.getSelectedOptions().get(x).getValue()) {
-                case "reject":
+                case "reject" -> {
                     event.getUser().openPrivateChannel().complete().sendMessage("Sorry, you are too young to use this bot! (You shouldn't be on Discord!)").queue();
                     event.getMessage().delete().queue();
                     return;
-                case "noice":
-                case "oh":
-                case "old":
+                }
+                case "noice", "oh", "old" -> {
                     embedBuilder = new EmbedBuilder().setTitle("Rules").setColor(InfoUserCommand.randomColor());
                     String arrow = "<a:arrow_1:862525611465113640>";
                     String message = arrow + " THIS IS A CHRISTIAN COMMUNITY SERVER. That means, we value the things Christ teaches us! " + Emojis.USER + " Let us try our best to exemplify Christlikness in all that we do here! " + Emojis.CHECK + "\n" +
@@ -166,41 +68,40 @@ public class OnSelectionMenu extends ListenerAdapter {
                             arrow + " BE COURTEOUS IN YOUR SPEECH. Out of the overflow of the heart, the mouth speaks! Let's avoid saying words that hurt others and cause people to stumble! Instead, let us encourage and uplift one another!\n" +
                             "\n" +
                             arrow + " SHOW LOVE TO EVERYONE. In COIL, we do not tolerate bullying of any sort! Kindly make an effort to love one another, even in situations wherein our uniqueness makes it harder for us to do so! Let's make COIL a safe space for everyone to hang!";
-
                     embedBuilder.setDescription(message);
                     embedBuilder.setFooter("Press the Accept button if you accept the rules stated above!");
-
                     event.getUser().openPrivateChannel().complete().sendMessageEmbeds(embedBuilder.build()).setActionRow(
                             Button.primary("0000:accept", "Accept").withEmoji(Emoji.fromEmote("verify", 863204252188672000L, true))
                     ).queue();
                     event.getMessage().delete().queue();
                     return;
-                case "bj":
+                }
+                case "bj" -> {
                     event.getMessage().delete().queue();
                     event.getChannel().sendMessageEmbeds(helpCrap(1, event).build()).setActionRows(ActionRow.of(menu), ActionRow.of(Button.of(ButtonStyle.DANGER, "0000:backgames", "Back"))).queue();
                     event.deferEdit().queue();
-                    break;
-                case "gn":
+                }
+                case "gn" -> {
                     event.getMessage().delete().queue();
                     event.getChannel().sendMessageEmbeds(helpCrap(2, event).build()).setActionRows(ActionRow.of(menu), ActionRow.of(Button.of(ButtonStyle.DANGER, "0000:backgames", "Back"))).queue();
                     event.deferEdit().queue();
-                    break;
-                case "trivia":
+                }
+                case "trivia" -> {
                     event.getMessage().delete().queue();
                     event.getChannel().sendMessageEmbeds(helpCrap(4, event).build()).setActionRows(ActionRow.of(menu), ActionRow.of(Button.of(ButtonStyle.DANGER, "0000:backgames", "Back"))).queue();
                     event.deferEdit().queue();
-                    break;
-                case "hangman":
+                }
+                case "hangman" -> {
                     event.getMessage().delete().queue();
                     event.getChannel().sendMessageEmbeds(helpCrap(5, event).build()).setActionRows(ActionRow.of(menu), ActionRow.of(Button.of(ButtonStyle.DANGER, "0000:backgames", "Back"))).queue();
                     event.deferEdit().queue();
-                    break;
-                case "uno":
+                }
+                case "uno" -> {
                     event.getMessage().delete().queue();
                     event.getChannel().sendMessageEmbeds(helpCrap(6, event).build()).setActionRows(ActionRow.of(menu), ActionRow.of(Button.of(ButtonStyle.DANGER, "0000:backgames", "Back"))).queue();
                     event.deferEdit().queue();
-                    break;
-                case "credit":
+                }
+                case "credit" -> {
                     try {
                         HashMap<User, UserPhoneUser> userUserPhoneUserHashMap = Data.userUserPhoneUserHashMap;
                         ArrayList<User> users = Data.users;
@@ -214,7 +115,7 @@ public class OnSelectionMenu extends ListenerAdapter {
                             z++;
                         }
 
-                        java.util.List<UserPhoneUser> collectedUsers = userPhoneUsers.stream().sorted(UserPhoneUser::compareTo).collect(Collectors.toList());
+                        List<UserPhoneUser> collectedUsers = userPhoneUsers.stream().sorted(UserPhoneUser::compareTo).collect(Collectors.toList());
 
                         List<User> toFilter = new ArrayList<>();
                         DecimalFormat formatter = new DecimalFormat("#,###.00");
@@ -287,19 +188,19 @@ public class OnSelectionMenu extends ListenerAdapter {
                         embedBuilder.setColor(InfoUserCommand.randomColor());
                         embedBuilder.setThumbnail("https://images-ext-1.discordapp.net/external/CldQTLK4UezxcAi3qvvrGrFCFa-1aFY_Miz5czSDPdY/https/cdn.discordapp.com/emojis/716848179022397462.gif");
                         menu = SelectionMenu.create("menu:leaderboard")
-                                .setPlaceholder("Choose the type of leaderboard you want") // shows the placeholder indicating what this menu is for
+                                .setPlaceholder("Leaderboard types") // shows the placeholder indicating what this menu is for
                                 .setRequiredRange(1, 1) // only one can be selected
-                                .addOption("Credits", "credit")
-                                .addOption("Shekels", "shekel")
-                                .addOption("Marriage", "marry")
+                                .addOption("Credits", "credit", "Old Currency", Emoji.fromMarkdown(RPGEmojis.credits))
+                                .addOption("Shekels", "shekel", "RPG Currency", Emoji.fromMarkdown(RPGEmojis.shekels))
+                                .addOption("Marriage", "marry", "Marriage XP", Emoji.fromMarkdown("<:sparkle_blue:917915035236458608>"))
                                 .build();
                         event.getMessage().editMessageEmbeds(embedBuilder.build()).setActionRow(menu).queue();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     event.deferEdit().queue();
-                    break;
-                case "shekel":
+                }
+                case "shekel" -> {
                     try {
                         DecimalFormat formatter = RPGDataUtils.formatter;
                         List<Member> members = event.getGuild().getMembers();
@@ -315,7 +216,7 @@ public class OnSelectionMenu extends ListenerAdapter {
                             }
                             x++;
                         }
-                        Collections.sort(money);
+                        money.sort(Collections.reverseOrder());
                         embedBuilder = new EmbedBuilder();
                         embedBuilder.setTitle("Leaderboard of Shekels").setFooter("Who is the richest of the richest?").setTimestamp(OffsetDateTime.now());
                         StringBuilder stringBuilder = new StringBuilder();
@@ -340,7 +241,6 @@ public class OnSelectionMenu extends ListenerAdapter {
                                     rankShow = "🔹";
                                 }
                                 stringBuilder.append(rankShow).append(" " + Emojis.shekels + " **").append(formatter.format(credits)).append("** - ").append(member.getUser().getAsTag()).append("\n");
-
                                 if (member.getUser().equals(event.getUser())) {
                                     userThere = true;
                                 }
@@ -355,37 +255,40 @@ public class OnSelectionMenu extends ListenerAdapter {
                         x = 15;
                         y = 15;
 
-                        while (!userThere) {
-                            Member member = hashMap.get(money.get(x));
-                            Integer credits = money.get(x);
-                            if (!member.getUser().isBot()) {
-                                y++;
+                        try {
+                            while (!userThere) {
+                                Member member = hashMap.get(money.get(x));
+                                Integer credits = money.get(x);
+                                if (!member.getUser().isBot()) {
+                                    y++;
+                                }
+                                if (member.getUser().equals(event.getUser())) {
+                                    stringBuilder.append("😢 **").append(y).append("** " + RPGEmojis.shekels + " **").append(formatter.format(credits)).append("** - **").append(member.getUser().getAsTag()).append("**");
+                                    userThere = true;
+                                }
+                                x++;
                             }
-                            if (member.getUser().equals(event.getUser())) {
-                                stringBuilder.append("😢 **").append(y).append("** " + RPGEmojis.shekels + " **").append(formatter.format(credits)).append("** - **").append(member.getUser().getAsTag()).append("**");
-                                userThere = true;
-                            }
-                            x++;
+                        } catch (Exception ignored) {
                         }
 
 
                         embedBuilder.setDescription(stringBuilder.toString());
                         embedBuilder.setColor(InfoUserCommand.randomColor());
-                        embedBuilder.setThumbnail("https://images-ext-1.discordapp.net/external/CldQTLK4UezxcAi3qvvrGrFCFa-1aFY_Miz5czSDPdY/https/cdn.discordapp.com/emojis/716848179022397462.gif");
+                        embedBuilder.setThumbnail("https://cdn.discordapp.com/emojis/718136428219072662.gif");
                         menu = SelectionMenu.create("menu:leaderboard")
-                                .setPlaceholder("Choose the type of leaderboard you want") // shows the placeholder indicating what this menu is for
+                                .setPlaceholder("Leaderboard types") // shows the placeholder indicating what this menu is for
                                 .setRequiredRange(1, 1) // only one can be selected
-                                .addOption("Credits", "credit")
-                                .addOption("Shekels", "shekel")
-                                .addOption("Marriage", "marry")
+                                .addOption("Credits", "credit", "Old Currency", Emoji.fromMarkdown(RPGEmojis.credits))
+                                .addOption("Shekels", "shekel", "RPG Currency", Emoji.fromMarkdown(RPGEmojis.shekels))
+                                .addOption("Marriage", "marry", "Marriage XP", Emoji.fromMarkdown("<:sparkle_blue:917915035236458608>"))
                                 .build();
                         event.getMessage().editMessageEmbeds(embedBuilder.build()).setActionRow(menu).queue();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     event.deferEdit().queue();
-                    break;
-                case "marry":
+                }
+                case "marry" -> {
                     try {
                         DecimalFormat formatter = RPGDataUtils.formatter;
                         List<Member> members = event.getGuild().getMembers();
@@ -401,7 +304,7 @@ public class OnSelectionMenu extends ListenerAdapter {
                             }
                             x++;
                         }
-                        Collections.sort(xp);
+                        xp.sort(Collections.reverseOrder());
                         embedBuilder = new EmbedBuilder();
                         embedBuilder.setTitle("Leaderboard of Marriage").setFooter("Who is the most faithful of the faithful?").setTimestamp(OffsetDateTime.now());
                         StringBuilder stringBuilder = new StringBuilder();
@@ -425,8 +328,7 @@ public class OnSelectionMenu extends ListenerAdapter {
                                 } else {
                                     rankShow = "🔹";
                                 }
-                                stringBuilder.append(rankShow).append(" **").append(formatter.format(xps)).append(" XP** *(Level ").append(LevelPointManager.calculateLevel(xps)).append(")*  - **").append(RPGDataUtils.getNameFromUser(member.getUser())).append("** and **").append(RPGDataUtils.getNameFromUser(Bot.jda.getUserById(MarriageData.getWife(member.getIdLong())))).append("**").append("\n");
-
+                                stringBuilder.append(rankShow).append(" **").append(formatter.format(xps)).append(" XP** *(Level ").append(LevelCalculator.calculateLevel(xps)).append(")*  - **").append(RPGDataUtils.getNameFromUser(member.getUser())).append("** and **").append(RPGDataUtils.getNameFromUser(Bot.jda.getUserById(MarriageData.getWife(member.getIdLong())))).append("**").append("\n");
                                 if (member.getUser().equals(event.getUser())) {
                                     userThere = true;
                                 }
@@ -438,42 +340,137 @@ public class OnSelectionMenu extends ListenerAdapter {
                             y++;
                         }
 
-                        x = 15;
-                        y = 15;
+                        try {
+                            x = 15;
+                            y = 15;
 
-                        while (!userThere) {
-                            Member member = hashMap.get(xp.get(x));
-                            Integer credits = xp.get(x);
-                            if (!member.getUser().isBot()) {
-                                y++;
+                            while (!userThere) {
+                                Member member = hashMap.get(xp.get(x));
+                                Integer credits = xp.get(x);
+                                if (!member.getUser().isBot()) {
+                                    y++;
+                                }
+                                if (member.getUser().equals(event.getUser())) {
+                                    stringBuilder.append("😢 **").append(y).append("** " + RPGEmojis.shekels + " **").append(formatter.format(credits)).append("** - **").append(member.getUser().getAsTag()).append("**");
+                                    userThere = true;
+                                }
+                                x++;
                             }
-                            if (member.getUser().equals(event.getUser())) {
-                                stringBuilder.append("😢 **").append(y).append("** " + RPGEmojis.shekels + " **").append(formatter.format(credits)).append("** - **").append(member.getUser().getAsTag()).append("**");
-                                userThere = true;
-                            }
-                            x++;
+                        } catch (Exception e) {
                         }
-
 
                         embedBuilder.setDescription(stringBuilder.toString());
                         embedBuilder.setColor(InfoUserCommand.randomColor());
                         embedBuilder.setThumbnail("https://images-ext-1.discordapp.net/external/CldQTLK4UezxcAi3qvvrGrFCFa-1aFY_Miz5czSDPdY/https/cdn.discordapp.com/emojis/716848179022397462.gif");
                         menu = SelectionMenu.create("menu:leaderboard")
-                                .setPlaceholder("Choose the type of leaderboard you want") // shows the placeholder indicating what this menu is for
+                                .setPlaceholder("Leaderboard types") // shows the placeholder indicating what this menu is for
                                 .setRequiredRange(1, 1) // only one can be selected
-                                .addOption("Credits", "credit")
-                                .addOption("Shekels", "shekel")
-                                .addOption("Marriage", "marry")
+                                .addOption("Credits", "credit", "Old Currency", Emoji.fromMarkdown(RPGEmojis.credits))
+                                .addOption("Shekels", "shekel", "RPG Currency", Emoji.fromMarkdown(RPGEmojis.shekels))
+                                .addOption("Marriage", "marry", "Marriage XP", Emoji.fromMarkdown("<:sparkle_blue:917915035236458608>"))
                                 .build();
                         event.getMessage().editMessageEmbeds(embedBuilder.build()).setActionRow(menu).queue();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     event.deferEdit().queue();
-                    break;
+                }
             }
 
             x++;
+        }
+
+
+        if (TriviaCommand.storeAnswer.containsKey(event.getUser())) {
+            String answer = TriviaCommand.storeAnswer.get(event.getUser());
+            String question = TriviaCommand.storeQuestion.get(event.getUser());
+            String difficulty = TriviaCommand.storeDifficulty.get(event.getUser());
+            int reward = 500;
+
+            int multiplier = difficulty.equals("medium") ? 3 : 1;
+            multiplier = difficulty.equals("hard") ? 5 : multiplier;
+
+            reward = reward * multiplier;
+            System.out.println(WorkCommand.job.containsKey(event.getUser()));
+            if (event.getSelectedOptions().get(0).getValue().equals(answer)) {
+                if (WorkCommand.job.containsKey(event.getUser())) {
+                    UserPhoneUser bankUser = Data.userUserPhoneUserHashMap.get(event.getJDA().getSelfUser());
+                    int bankCredits = bankUser.getCredits();
+
+                    int minRobOrFine = 1_000;
+                    int maxRobOrFine = 10_000;
+
+                    if (maxRobOrFine > bankCredits) {
+                        maxRobOrFine = bankCredits;
+                    }
+
+                    int randomNum = UtilNum.randomNum(minRobOrFine, maxRobOrFine);
+
+                    DecimalFormat formatter = new DecimalFormat("#,###.00");
+                    RPGUser.addShekels(event.getUser().getIdLong(), randomNum);
+                    EmbedBuilder e = new EmbedBuilder();
+                    e.setTitle("Great Work!");
+                    e.setColor(Color.green);
+                    e.setDescription("You were given " + RPGEmojis.shekels + " `" + formatter.format(randomNum) + "` for an hour of work.");
+                    e.setFooter("Working as a teacher");
+                    event.getHook().deleteOriginal().queue();
+                    event.deferEdit().queue();
+                    WorkCommand.job.remove(event.getUser());
+                    event.getChannel().sendMessageEmbeds(e.build()).setActionRow(event.getSelectionMenu().asDisabled()).queue();
+                } else {
+                    event.getChannel().sendMessage("Correct answer!!!!\n" +
+                            "You got " + RPGEmojis.shekels + " " + reward + " for getting the correct answer!\n" +
+                            "Question: `" + question + "`").queue();
+                    RPGUser.addShekels(event.getUser().getIdLong(), reward);
+                    event.deferEdit().queue();
+                    event.getMessage().delete().queue();
+                }
+                TriviaCommand.storeAnswer.remove(event.getUser());
+            } else {
+                if (WorkCommand.job.containsKey(event.getUser())) {
+
+                    UserPhoneUser bankUser = Data.userUserPhoneUserHashMap.get(event.getJDA().getSelfUser());
+                    int bankCredits = bankUser.getCredits();
+
+                    int minRobOrFine = 0;
+                    int maxRobOrFine = 2_000;
+
+                    if (maxRobOrFine > bankCredits) {
+                        maxRobOrFine = bankCredits;
+                    }
+
+                    int randomNum = UtilNum.randomNum(minRobOrFine, maxRobOrFine);
+
+                    DecimalFormat formatter = new DecimalFormat("#,###.00");
+                    RPGUser.addShekels(event.getUser().getIdLong(), randomNum);
+
+                    EmbedBuilder e = new EmbedBuilder();
+                    e.setTitle("TERRIBLE Work!");
+                    e.setColor(Color.red);
+                    e.setDescription("You lost the mini-game because the answer you chose wasn't correct.\n" +
+                            "You were given " + RPGEmojis.shekels + " `" + formatter.format(randomNum) + "` for a sub-par hour of work.");
+                    e.setFooter("Working as a teacher");
+                    event.getHook().deleteOriginal().queue();
+                    event.deferEdit().queue();
+                    WorkCommand.job.remove(event.getUser());
+                    event.getChannel().sendMessageEmbeds(e.build()).setActionRow(event.getSelectionMenu().asDisabled()).queue();
+                } else {
+                    EmbedBuilder e = new EmbedBuilder();
+                    e.setTitle("Incorrect answer");
+                    e.setFooter("A correct answer gives you " + RPGEmojis.shekels + " " + reward);
+                    e.addField("Question: `" + question + "`\n" + "Difficulty: **" + difficulty +
+                            "**\nThe correct answer is " + TriviaCommand.storeAnswer.get(event.getUser()), "Better luck next time", false).setColor(Color.RED);
+                    event.getChannel().sendMessageEmbeds(e.build()).queue();
+                    event.getMessage().delete().queue();
+                    event.deferEdit().queue();
+                }
+                TriviaCommand.storeAnswer.remove(event.getUser());
+                TriviaCommand.storeQuestion.remove(event.getUser());
+                TriviaCommand.storeDifficulty.remove(event.getUser());
+                try {
+                    WorkCommand.job.remove(event.getUser());
+                } catch(Exception ignored) {}
+            }
         }
     }
 

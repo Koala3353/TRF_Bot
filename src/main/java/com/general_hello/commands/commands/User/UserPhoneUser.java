@@ -3,24 +3,24 @@ package com.general_hello.commands.commands.User;
 import com.general_hello.commands.Database.DatabaseManager;
 import net.dv8tion.jda.api.entities.User;
 public class UserPhoneUser implements Comparable <UserPhoneUser>{
-    private String userPhoneUserName;
+    private String realName;
     private Integer balance;
     private Integer credits;
 
     private final User discordUser;
 
     public UserPhoneUser(String userPhoneUserName, User discordUser, Integer credits) {
-        this.userPhoneUserName = userPhoneUserName;
+        this.realName = userPhoneUserName;
         this.discordUser = discordUser;
         this.credits = credits;
     }
 
-    public String getUserPhoneUserName() {
-        return userPhoneUserName;
+    public String getRealName() {
+        return realName;
     }
 
-    public void setUserPhoneUserName(String userPhoneUserName) {
-        this.userPhoneUserName = userPhoneUserName;
+    public void setRealName(String realName) {
+        this.realName = realName;
     }
 
     public Integer getBalance() {

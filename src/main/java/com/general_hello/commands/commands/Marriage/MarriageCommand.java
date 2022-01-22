@@ -6,7 +6,7 @@ import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.ICommand;
 import com.general_hello.commands.commands.Info.InfoUserCommand;
-import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
+import com.general_hello.commands.commands.RankingSystem.LevelCalculator;
 import com.general_hello.commands.commands.Register.Data;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -34,7 +34,7 @@ public class MarriageCommand implements ICommand {
                 return;
             }
 
-            if (MarriageData.getWife(author.getIdLong()) != -1) {
+            if (MarriageData.getWife(author.getIdLong()) != -1 || MarriageData.getWife(member.getIdLong()) != -1) {
                 ctx.getChannel().sendMessage("The one you wish to marry has chosen another husband/wife instead of you. 😭").queue();
                 return;
             }
@@ -79,11 +79,11 @@ public class MarriageCommand implements ICommand {
         int love = (int) MarriageData.getLove(author.getIdLong());
         int houseStatus = (int) MarriageData.getHouseStatus(author.getIdLong());
         int experience = (int) MarriageData.getXP(author.getIdLong());
-        int experienceLevel = (int) LevelPointManager.calculateLevel(experience);
-        int experienceLevelMax = (int) LevelPointManager.calculateLevelMax(experienceLevel);
+        int experienceLevel = (int) LevelCalculator.calculateLevel(experience);
+        int experienceLevelMax = (int) LevelCalculator.calculateLevelMax(experienceLevel);
         int house = (int) MarriageData.getHouseXP(author.getIdLong());
-        int houseLevel = (int) LevelPointManager.calculateLevel(house);
-        int houseLevelMax = (int) LevelPointManager.calculateLevelMax(houseLevel);
+        int houseLevel = (int) LevelCalculator.calculateLevel(house);
+        int houseLevelMax = (int) LevelCalculator.calculateLevelMax(houseLevel);
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(InfoUserCommand.randomColor());
         embedBuilder.setTitle("Marriage Data of " + author.getName());
         embedBuilder.addField("Happiness", RPGDataUtils.getBarFromPercentage(happiness) + " (" + happiness + "%)\n" +
@@ -100,13 +100,13 @@ public class MarriageCommand implements ICommand {
         String wifeName = "Unknown";
         String[] split;
         try {
-            husbandName = Data.userUserPhoneUserHashMap.get(author).getUserPhoneUserName();
+            husbandName = Data.userUserPhoneUserHashMap.get(author).getRealName();
             split = husbandName.split("\\s+");
             husbandName = split[0];
         } catch (Exception ignored) {}
 
         try {
-            wifeName = Data.userUserPhoneUserHashMap.get(Bot.jda.getUserById(MarriageData.getWife(author.getIdLong()))).getUserPhoneUserName();
+            wifeName = Data.userUserPhoneUserHashMap.get(Bot.jda.getUserById(MarriageData.getWife(author.getIdLong()))).getRealName();
             split = wifeName.split("\\s+");
             wifeName = split[0];
         } catch (Exception ignored) {}
@@ -140,11 +140,11 @@ public class MarriageCommand implements ICommand {
         int love = (int) MarriageData.getLove(author.getIdLong());
         int houseStatus = (int) MarriageData.getHouseStatus(author.getIdLong());
         int experience = (int) MarriageData.getXP(author.getIdLong());
-        int experienceLevel = (int) LevelPointManager.calculateLevel(experience);
-        int experienceLevelMax = (int) LevelPointManager.calculateLevelMax(experienceLevel);
+        int experienceLevel = (int) LevelCalculator.calculateLevel(experience);
+        int experienceLevelMax = (int) LevelCalculator.calculateLevelMax(experienceLevel);
         int house = (int) MarriageData.getHouseXP(author.getIdLong());
-        int houseLevel = (int) LevelPointManager.calculateLevel(house);
-        int houseLevelMax = (int) LevelPointManager.calculateLevelMax(houseLevel);
+        int houseLevel = (int) LevelCalculator.calculateLevel(house);
+        int houseLevelMax = (int) LevelCalculator.calculateLevelMax(houseLevel);
         EmbedBuilder embedBuilder = new EmbedBuilder().setColor(InfoUserCommand.randomColor());
         embedBuilder.setTitle("Marriage Data of " + author.getName());
         embedBuilder.addField("Happiness", RPGDataUtils.getBarFromPercentage(happiness) + " (" + happiness + "%)\n" +
@@ -161,13 +161,13 @@ public class MarriageCommand implements ICommand {
         String wifeName = "Unknown";
         String[] split;
         try {
-            husbandName = Data.userUserPhoneUserHashMap.get(author).getUserPhoneUserName();
+            husbandName = Data.userUserPhoneUserHashMap.get(author).getRealName();
             split = husbandName.split("\\s+");
             husbandName = split[0];
         } catch (Exception ignored) {}
 
         try {
-            wifeName = Data.userUserPhoneUserHashMap.get(Bot.jda.getUserById(MarriageData.getWife(author.getIdLong()))).getUserPhoneUserName();
+            wifeName = Data.userUserPhoneUserHashMap.get(Bot.jda.getUserById(MarriageData.getWife(author.getIdLong()))).getRealName();
             split = wifeName.split("\\s+");
             wifeName = split[0];
         } catch (Exception ignored) {}

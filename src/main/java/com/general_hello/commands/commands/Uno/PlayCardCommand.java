@@ -7,7 +7,6 @@ import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.GroupOfGames.Blackjack.GameHandler;
 import com.general_hello.commands.commands.ICommand;
 import com.general_hello.commands.commands.PrefixStoring;
-import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
 import com.general_hello.commands.commands.Utils.MoneyData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -99,9 +98,8 @@ public class PlayCardCommand implements ICommand {
                             } else {
                                 EmbedBuilder eb2 = new EmbedBuilder();
                                 int size = hands.size() - 1;
-                                int credits = unoGame.getBet() == 0 ? 100000 * size : unoGame.getBet() * size;
+                                int credits = unoGame.getBet() == 0 ? 1000 * size : unoGame.getBet() * size;
                                 eb2.setTitle(String.format("You played a **%s** and won, you won **%d** credits", card.toString(), credits));
-                                LevelPointManager.feed(e.getAuthor(), 20);
                                 DatabaseManager.INSTANCE.setCredits(e.getAuthor().getIdLong(), credits);
 
                                 channel.sendMessageEmbeds(eb2.build()).queue();

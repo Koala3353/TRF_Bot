@@ -17,7 +17,7 @@ public class Objects {
         this.name = name;
         this.costToBuy = costToBuy;
         this.rarity = rarity;
-        int multi = UtilNum.randomNum(20, 100);
+        int multi = UtilNum.randomNum(500, 2000);
         this.sellPrice = rarity.getWorth() * multi;
         this.emojiOfItem = emojiOfItem;
         this.description = description;
@@ -53,10 +53,12 @@ public class Objects {
     }
 
     public String getEmojiUrl() {
-        if (emojiOfItem.replaceFirst("<", "").startsWith("a")) {
-            return "https://cdn.discordapp.com/emojis/" + getEmojiId() + ".gif";
+        Emoji emoji = Emoji.fromMarkdown(getEmojiOfItem());
+        if (emoji.isAnimated()) {
+            return "https://cdn.discordapp.com/emojis/" + emoji.getId() + ".gif";
         }
-        return "https://cdn.discordapp.com/emojis/" + getEmojiId() + ".png";
+        return "https://cdn.discordapp.com/emojis/" + emoji.getId() + ".png";
+
     }
 
     public String getFormattedPrice() {

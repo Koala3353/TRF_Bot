@@ -110,7 +110,7 @@ public class InfoUserCommand implements ICommand {
         String userPhoneUserName;
 
         try {
-            userPhoneUserName = Data.userUserPhoneUserHashMap.get(user).getUserPhoneUserName() == null ? "`Unregistered`" : "`" + Data.userUserPhoneUserHashMap.get(user).getUserPhoneUserName() + "`";
+            userPhoneUserName = Data.userUserPhoneUserHashMap.get(user).getRealName() == null ? "`Unregistered`" : "`" + Data.userUserPhoneUserHashMap.get(user).getRealName() + "`";
         } catch (Exception ei) {
             userPhoneUserName = "`Unregistered`";
         }

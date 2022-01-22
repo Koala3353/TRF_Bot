@@ -2,11 +2,11 @@ package com.general_hello.commands.commands.GroupOfGames.Blackjack;
 
 
 import com.general_hello.commands.Database.DatabaseManager;
+import com.general_hello.commands.RPG.RpgUser.RPGUser;
 import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.ICommand;
 import com.general_hello.commands.commands.PrefixStoring;
-import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.concurrent.TimeUnit;
@@ -28,9 +28,8 @@ public class SplitCommand implements ICommand {
                         if (bjg.hasEnded()) {
                             int d = bjg.getWonCreds();
                             GameHandler.removeBlackJackGame(e.getAuthor().getIdLong());
-                            LevelPointManager.feed(e.getAuthor(), 20);
-                            DatabaseManager.INSTANCE.setCredits(e.getAuthor().getIdLong(), d);
-                            eb.addField("Credits", "You now have " + d + " more credits", false);
+                            RPGUser.addShekels(e.getAuthor().getIdLong(), d);
+                            eb.addField("Shekels", "You now have " + d + " more shekels", false);
                             GameHandler.removeBlackJackGame(e.getAuthor().getIdLong());
                         }
                         m.editMessageEmbeds(eb.build()).queue();

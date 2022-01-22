@@ -34,8 +34,9 @@ public enum Rarity {
             multiplier.append(0);
             y++;
         }
-
-        return Integer.parseInt(multiplier.toString());
+        int i = Integer.parseInt(multiplier.toString());
+        i = i / getMultiplier();
+        return i;
     }
 
     public int getMultipliedValue() {

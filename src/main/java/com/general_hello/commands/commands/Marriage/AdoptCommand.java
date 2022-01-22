@@ -23,7 +23,7 @@ public class AdoptCommand extends Command {
         long fatherIdLong = father.getIdLong();
 
         if (MarriageData.getWife(fatherIdLong) == -1) {
-            event.reply("You can't adopt a son without marrying!");
+            event.reply("You can't adopt a son/daughter without marrying!");
             return;
         }
 
@@ -42,12 +42,12 @@ public class AdoptCommand extends Command {
         }
 
         if (MarriageData.getSon(fatherIdLong) != -1 || MarriageData.getSon(wifeIdLong) != -1) {
-            event.reply("You already have a son ;-;");
+            event.reply("You already have a son/daughter ;-;");
             return;
         }
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle("Pending Confirmation").setDescription(father.getAsMention() + " is asking for you to be his/her son!\n" +
+        embedBuilder.setTitle("Pending Confirmation").setDescription(father.getAsMention() + " is asking for you to be his/her son/daughter!\n" +
                 "**What is your answer?**");
         event.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(
                 Button.danger(son.getId() + ":noAdopt:" + father.getId(), "No"),

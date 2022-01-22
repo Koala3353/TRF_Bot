@@ -44,6 +44,42 @@ public class RPGUser {
         return -1;
     }
 
+    public static int getBank(long userId) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT Bank FROM RPGData WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("Bank");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static int getBankStorage(long userId) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT BankLimit FROM RPGData WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("BankLimit");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public static int getHealth(long userId) {
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
@@ -76,6 +112,48 @@ public class RPGUser {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void addBank(long userId, int shekels) {
+        int total = (shekels) + getBank(userId);
+
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE RPGData SET Bank=? WHERE UserId=?"
+                )) {
+
+            preparedStatement.setString(2, String.valueOf(userId));
+            preparedStatement.setString(1, String.valueOf(total));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addBankStorage(long userId, int shekels) {
+        int total = (shekels) + getBankStorage(userId);
+
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE RPGData SET BankLimit=? WHERE UserId=?"
+                )) {
+
+            preparedStatement.setString(2, String.valueOf(userId));
+            preparedStatement.setString(1, String.valueOf(total));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void transferShekelsToBank(long userId, int shekels) {
+        addShekels(userId, -shekels);
+        addBank(userId, shekels);
+    }
+
+    public static void transferBankToShekels(long userId, int shekels) {
+        addShekels(userId, shekels);
+        addBank(userId, -shekels);
     }
 
     public static void addHealth(long userId, int health) {
@@ -162,8 +240,21 @@ public class RPGUser {
     public static void newInfo(long userId) {
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
                 .prepareStatement("INSERT INTO RPGData" +
-                        "(UserId, Shekels, Level, Health)" +
-                        "VALUES (?, 100, 0, 100);")) {
+                        "(UserId, Shekels, Bank, BankLimit, Level, Health)" +
+                        "VALUES (?, 1000, 100, 1000, 0, 100);")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteInfo(long userId) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("DELETE FROM RPGData WHERE UserId IN (?);")
+        ) {
 
             preparedStatement.setString(1, String.valueOf(userId));
 

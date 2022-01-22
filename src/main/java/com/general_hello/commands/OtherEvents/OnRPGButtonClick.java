@@ -2,8 +2,11 @@ package com.general_hello.commands.OtherEvents;
 
 import com.general_hello.commands.Bot;
 import com.general_hello.commands.Database.DatabaseManager;
-import com.general_hello.commands.RPG.Commands.InventoryCommand;
+import com.general_hello.commands.RPG.Commands.Fight.Fight;
+import com.general_hello.commands.RPG.Commands.Fight.Fighter;
 import com.general_hello.commands.RPG.Commands.ShopCommand;
+import com.general_hello.commands.RPG.Objects.Chest;
+import com.general_hello.commands.RPG.Objects.Objects;
 import com.general_hello.commands.RPG.Objects.RPGEmojis;
 import com.general_hello.commands.RPG.RpgUser.RPGDataUtils;
 import com.general_hello.commands.RPG.RpgUser.RPGUser;
@@ -13,6 +16,7 @@ import com.general_hello.commands.commands.Utils.UtilNum;
 import com.general_hello.commands.commands.Work.WorkCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -22,8 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.List;
 
 public class OnRPGButtonClick extends ListenerAdapter {
     @Override
@@ -48,26 +51,26 @@ public class OnRPGButtonClick extends ListenerAdapter {
 
         switch (type) {
             case "color":
-                if (Objects.equals(id[2], "correct")) {
-                    int minRobOrFine = 100_000;
-                    int maxRobOrFine = 500_000;
+                if (id[2].equals("correct")) {
+                    int minRobOrFine = 1_000;
+                    int maxRobOrFine = 5_000;
 
                     int randomNum = UtilNum.randomNum(minRobOrFine, maxRobOrFine);
 
                     DecimalFormat formatter = new DecimalFormat("#,###.00");
-                    DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), randomNum);
+                    RPGUser.addShekels(event.getUser().getIdLong(), randomNum);
 
                     EmbedBuilder e = new EmbedBuilder();
                     e.setTitle("Great Work!");
                     e.setColor(Color.green);
-                    e.setDescription("You were given " + RPGEmojis.credits + " `" + formatter.format(randomNum) + "` for an hour of work.");
+                    e.setDescription("You were given " + RPGEmojis.shekels + " `" + formatter.format(randomNum) + "` for an hour of work.");
                     e.setFooter("Working as a observer");
                     event.getHook().deleteOriginal().queue();
                     event.deferEdit().queue();
                     event.getChannel().sendMessageEmbeds(e.build()).setActionRow(Button.success("1234:IGNORE", event.getButton().getLabel()).asDisabled()).queue();
                 } else {
                     int minRobOrFine = 0;
-                    int maxRobOrFine = 100_000;
+                    int maxRobOrFine = 2_000;
 
                     int randomNum = UtilNum.randomNum(minRobOrFine, maxRobOrFine);
 
@@ -78,7 +81,7 @@ public class OnRPGButtonClick extends ListenerAdapter {
                     e.setTitle("TERRIBLE Work!");
                     e.setColor(Color.red);
                     e.setDescription("You lost the mini-game because the answer you chose wasn't correct.\n" +
-                            "You were given " + RPGEmojis.credits + " `" + formatter.format(randomNum) + "` for a sub-par hour of work.");
+                            "You were given " + RPGEmojis.shekels + " `" + formatter.format(randomNum) + "` for a sub-par hour of work.");
                     e.setFooter("Working as a observer");
                     event.getHook().deleteOriginal().queue();
                     event.deferEdit().queue();
@@ -90,7 +93,7 @@ public class OnRPGButtonClick extends ListenerAdapter {
                 break;
             case "start":
                 //some other code
-                event.getHook().editOriginal("Successfully started your journey! Good luck soldier!").setActionRow(
+                event.getHook().editOriginal("Successfully started your journey! Good luck soldier! Do `ignt help` to see the RPG commands").setActionRow(
                         Button.primary("1234:BEGUN", "Journey has started").asDisabled()
                 ).queue();
                 event.getHook().editOriginalEmbeds().queue();
@@ -101,6 +104,7 @@ public class OnRPGButtonClick extends ListenerAdapter {
                 event.getHook().editOriginal("Ended your journey! Your soldier's life has been terminated 💀").setActionRow(
                         Button.primary("1234:BEGUN", "Journey has ended").asDisabled()
                 ).queue();
+                RPGUser.deleteInfo(event.getUser().getIdLong());
                 break;
             case "noMarry":
                 EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -118,7 +122,6 @@ public class OnRPGButtonClick extends ListenerAdapter {
                 long wife = MarriageData.getWife(Long.parseLong(authorId));
                 int pay = UtilNum.randomNum(100_000, 400_000);
                 String message = "You went to a date with " + RPGDataUtils.getNameFromUser(wife) + " (" + Bot.jda.getUserById(wife).getName() + "). Making your partner happy!";
-                event.getChannel().sendMessage(message + " You also paid " + RPGEmojis.credits + " " + RPGDataUtils.formatter.format(pay) + " for the dinner.").queue();
                 MarriageCommand.makeEmbed(event.getMessage(), author, message);
                 int randomNum = UtilNum.randomNum(10, 20);
                 MarriageData.addHappiness(Long.parseLong(authorId), randomNum);
@@ -126,12 +129,11 @@ public class OnRPGButtonClick extends ListenerAdapter {
                 randomNum = UtilNum.randomNum(1, 5);
                 MarriageData.addXP(Long.parseLong(authorId), randomNum);
                 MarriageData.addXP(wife, randomNum);
-                DatabaseManager.INSTANCE.setCredits(Long.parseLong(authorId), -pay);
+                RPGUser.addShekels(Long.parseLong(authorId), pay);
                 break;
             case "hug":
                 wife = MarriageData.getWife(Long.parseLong(authorId));
                 message = "You gave " + RPGDataUtils.getNameFromUser(wife) + " (" + Bot.jda.getUserById(wife).getName() + ") a hug. Making your wife/husband love you more!";
-                event.getChannel().sendMessage(message).queue();
                 MarriageCommand.makeEmbed(event.getMessage(), author, message);
                 randomNum = UtilNum.randomNum(1, 20);
                 MarriageData.addLove(Long.parseLong(authorId), randomNum);
@@ -142,9 +144,8 @@ public class OnRPGButtonClick extends ListenerAdapter {
                 break;
             case "fixHouse":
                 wife = MarriageData.getWife(Long.parseLong(authorId));
-                pay = UtilNum.randomNum(100_000, 300_000);
+                pay = UtilNum.randomNum(1_000, 3_000);
                 message = "You hired someone to fix " + RPGDataUtils.getNameFromUser(wife) + " (" + Bot.jda.getUserById(wife).getName() + ") and your house. Making your house better!";
-                event.getChannel().sendMessage(message + " You also paid " + RPGEmojis.credits + " " + RPGDataUtils.formatter.format(pay) + " for the worker.").queue();
                 MarriageCommand.makeEmbed(event.getMessage(), author, message);
                 randomNum = UtilNum.randomNum(20, 40);
                 MarriageData.addHouseStatus(Long.parseLong(authorId), randomNum);
@@ -152,7 +153,23 @@ public class OnRPGButtonClick extends ListenerAdapter {
                 randomNum = UtilNum.randomNum(1, 5);
                 MarriageData.addHouseXP(Long.parseLong(authorId), randomNum);
                 MarriageData.addHouseXP(wife, randomNum);
-                DatabaseManager.INSTANCE.setCredits(Long.parseLong(authorId), -pay);
+                RPGUser.addShekels(Long.parseLong(authorId), pay);
+                break;
+            case "chestcontents":
+                int countChest = Integer.parseInt(id[2])-1;
+                Chest chest = ShopCommand.chests.get(countChest);
+                List<Objects> itemsInChest = chest.getItemsInChest();
+                embedBuilder = new EmbedBuilder();
+                embedBuilder.setTitle("Possible Items").setColor(Color.BLACK);
+                int x = 0;
+                while (x < itemsInChest.size()) {
+                    Objects objects = itemsInChest.get(x);
+                    embedBuilder.appendDescription(objects.getEmojiOfItem() + " `" + objects.getName() + "`\n");
+                    x++;
+                }
+                embedBuilder.appendDescription("\n\n**Possible shekels:**\n" + RPGEmojis.shekels + " " + RPGDataUtils.formatter.format(chest.getShekelsMin()) + " - " + RPGEmojis.shekels + " " + RPGDataUtils.formatter.format(chest.getShekelsMax()));
+
+                event.replyEmbeds(embedBuilder.build()).setEphemeral(true).queue();
                 break;
             case "yesAdopt":
                 User father = event.getJDA().getUserById(id[2]);
@@ -188,78 +205,51 @@ public class OnRPGButtonClick extends ListenerAdapter {
                 User proposer = event.getUser();
                 int i = UtilNum.randomNum(1, 100);
                 int money = i * UtilNum.randomNum(5000, 30000);
-                DatabaseManager.INSTANCE.setCredits(receiverOfRing.getIdLong(), money);
-                DatabaseManager.INSTANCE.setCredits(proposer.getIdLong(), money);
+                RPGUser.addShekels(receiverOfRing.getIdLong(), money);
+                RPGUser.addShekels(proposer.getIdLong(), money);
                 embedBuilder = new EmbedBuilder();
                 embedBuilder.setTitle("Marriage").setColor(Color.PINK);
                 embedBuilder.setDescription(proposer.getAsMention() + " and " + receiverOfRing.getAsMention() +
                         " I, " + event.getJDA().getSelfUser().getName() + ", pronounce you husband and wife. You may kiss now, or date, or whatever. " +
-                        "For this special occasion, a total of " + i + " people sent each of you a grand total of " + RPGEmojis.credits + " " + RPGDataUtils.formatter.format(money) + "!\n\n" +
+                        "For this special occasion, a total of " + i + " people sent each of you a grand total of " + RPGEmojis.shekels + " " + RPGDataUtils.formatter.format(money) + "!\n\n" +
                         "**Once again, I say CONGRATULATIONS 🥳**");
                 embedBuilder.setThumbnail("https://cdn.discordapp.com/emojis/862369027984064552.png");
                 event.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(
-                        Button.of(ButtonStyle.SECONDARY, "0000:marrydono:" + receiverOfRing.getId() + ":" + proposer.getId(), "Give 100,000 credits")
+                        Button.of(ButtonStyle.SECONDARY, "0000:marrydono:" + receiverOfRing.getId() + ":" + proposer.getId(), "Give 100,000 shekels")
                 ).queue();
                 MarriageData.newInfo(receiverOfRing.getIdLong(), proposer.getIdLong());
                 MarriageData.newInfo(proposer.getIdLong(), receiverOfRing.getIdLong());
                 break;
-            case "next":
-                event.deferEdit().queue();
-
-                int ids = Integer.parseInt(id[2]) + 1;
-
+            case "acceptFight":
+                User challenger = event.getJDA().getUserById(id[2]);
+                User acceptor = event.getUser();
+                embedBuilder = new EmbedBuilder();
+                int number = Fight.fights.size();
+                String defaultStatus = "❤ " + RPGDataUtils.getBarFromPercentage(100) + " **100%**\n" +
+                        "🛡 " + RPGDataUtils.getBarFromPercentage(0) + " **0 lvl**";
+                embedBuilder.addField(challenger.getName(), defaultStatus,true);
+                embedBuilder.setColor(Color.red);
+                embedBuilder.setThumbnail("https://cdn.discordapp.com/attachments/693517202879414312/860599179578966056/Fight_icon.png");
+                embedBuilder.addField(acceptor.getName(), defaultStatus,true);
+                embedBuilder.addField("Last Action", "`" + challenger.getName() + " started a fight!`", false);
+                Message message2 = event.getChannel().sendMessage("Your turn " + challenger.getAsMention()).complete();
                 event.getMessage().delete().queue();
-
-                ShopCommand.buildEmbed(ids, event.getTextChannel(), event.getUser().getIdLong());
+                event.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(
+                        Button.primary(challenger.getId() + ":punch:" + number, "Punch").withEmoji(Emoji.fromMarkdown(RPGEmojis.punch)),
+                        Button.primary(challenger.getId() + ":kick:" + number, "Kick").withEmoji(Emoji.fromMarkdown(RPGEmojis.kick)),
+                        Button.primary(challenger.getId() + ":defend:" + number, "Defend").withEmoji(Emoji.fromMarkdown(RPGEmojis.defend)),
+                        Button.danger(challenger.getId() + ":run:" + number, "Run Away").withEmoji(Emoji.fromMarkdown(RPGEmojis.run_away))
+                ).queue(message1 -> {
+                    Fight.fights.add(new Fight(challenger, acceptor, message1, message2, event.getTextChannel()));
+                });
                 break;
-            case "previous":
-                event.deferEdit().queue();
-
-                ids = Integer.parseInt(id[2]) - 1;
-
-                event.getMessage().delete().queue();
-
-                ShopCommand.buildEmbed(ids, event.getTextChannel(), event.getUser().getIdLong());
+            case "punch":
+                int fightNumber = Integer.parseInt(id[2]);
+                Fight fight = Fight.fights.get(fightNumber);
+                Fighter defendingFighter = fight.getDefendingFighter();
+                int punchDMG = UtilNum.randomNum(1, (20 - (defendingFighter.getShield() / 2)));
+                fight.sendUpdate(fightNumber, "lands a dangerous punch on " + defendingFighter.getUser().getName() + " dealing " + punchDMG + "% damage!");
                 break;
-            case "previousInv":
-                event.deferEdit().queue();
-                ArrayList<String> list = InventoryCommand.embedPaginatorMessage.get(event.getMessage().getIdLong());
-                event.getMessage().delete().queue();
-                int pageNumber = Integer.parseInt(id[2])-1;
-                message = list.get(pageNumber);
-                boolean disableNext = pageNumber == 0;
-                embedBuilder = new EmbedBuilder().setColor(Color.BLACK).setTitle("Owned Items");
-                embedBuilder.setAuthor(author.getName() + "'s inventory", null, author.getAvatarUrl());
-                embedBuilder.setDescription(message);
-                embedBuilder.setFooter("You can use 'ignt sell [item]' to sell an item. ─ Page " + (pageNumber+1) + " of " + list.size());
-                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(
-                        Button.of(ButtonStyle.PRIMARY, author.getId() + ":previousInv:" + (pageNumber), Emoji.fromMarkdown("<:left:915425233215827968>")).withDisabled(disableNext),
-                        Button.of(ButtonStyle.PRIMARY, author.getId() + ":nextInv:" + (pageNumber+1), Emoji.fromMarkdown("<:right:915425310592356382>"))
-                ).queue(
-                        (paginator -> {
-                            InventoryCommand.embedPaginatorMessage.put(paginator.getIdLong(), list);
-                        })
-                );
-                break;
-            case "nextInv":
-                event.deferEdit().queue();
-                list = InventoryCommand.embedPaginatorMessage.get(event.getMessage().getIdLong());
-                event.getMessage().delete().queue();
-                pageNumber = Integer.parseInt(id[2]);
-                message = list.get(pageNumber);
-                disableNext = list.size() < pageNumber + 1;
-                embedBuilder = new EmbedBuilder().setColor(Color.BLACK).setTitle("Owned Items");
-                embedBuilder.setAuthor(author.getName() + "'s inventory", null, author.getAvatarUrl());
-                embedBuilder.setDescription(message);
-                embedBuilder.setFooter("You can use 'ignt sell [item]' to sell an item. ─ Page " + (pageNumber+1) + " of " + list.size());
-                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(
-                        Button.of(ButtonStyle.PRIMARY, author.getId() + ":previousInv:" + (pageNumber), Emoji.fromMarkdown("<:left:915425233215827968>")),
-                        Button.of(ButtonStyle.PRIMARY, author.getId() + ":nextInv:" + (pageNumber + 1), Emoji.fromMarkdown("<:right:915425310592356382>")).withDisabled(disableNext)
-                ).queue(
-                        (paginator -> {
-                            InventoryCommand.embedPaginatorMessage.put(paginator.getIdLong(), list);
-                        })
-                );
         }
     }
 }

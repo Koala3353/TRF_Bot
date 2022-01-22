@@ -1,7 +1,7 @@
 package com.general_hello.commands.commands.Giveaway;
 
-import com.general_hello.commands.Database.DatabaseManager;
 import com.general_hello.commands.OtherEvents.OnSetupMessage;
+import com.general_hello.commands.RPG.RpgUser.RPGUser;
 import com.general_hello.commands.commands.Utils.UtilNum;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -21,12 +21,6 @@ public class StartGiveawayCommand extends SlashCommand {
         this.name = "startgiveaway";
         this.help = "Start a credit giveaway! (You use your money)";
         this.ownerCommand = true;
-        String[] users = new String[4];
-        users[0] = "755975812909367387";
-        users[1] = "756308319622397972";
-        users[2] = "512126539014340608";
-        users[3] = "846730220903333899";
-        this.enabledUsers = users;
         OptionData[] optionDatas = new OptionData[6];
         OptionData optionData = new OptionData(OptionType.CHANNEL, "channel", "What is the channel where the giveaway will be in?", true);
         optionDatas[0] = optionData;
@@ -44,17 +38,15 @@ public class StartGiveawayCommand extends SlashCommand {
     }
 
     @Override
-    protected void execute(SlashCommandEvent event) {
-        event.reply("Creating the giveaway...").queue();
+    public void execute(SlashCommandEvent event) {
         MessageChannel channel = event.getOption("channel").getAsMessageChannel();
-        long credits = event.getOption("credits").getAsLong();
+        long credits = event.getOption("shekels").getAsLong();
         String length = event.getOption("length").getAsString();
         Role requirement = event.getOption("requirement").getAsRole();
         String message = event.getOption("message").getAsString();
         User starter = event.getOption("starter").getAsUser();
         OffsetDateTime time = OnSetupMessage.stringToTime(length);
-
-        DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), (int) (-credits));
+        event.reply("Starting the giveaway at " + channel.getName() + ".").queue();
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(credits + " credits").setFooter("Giveaway made at", starter.getAvatarUrl());
@@ -78,9 +70,6 @@ public class StartGiveawayCommand extends SlashCommand {
     }
 
     public static void runGiveawayTimer(OffsetDateTime offsetDateTime, Giveaway giveaway, Message message) {
-        /*ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
-        ses.scheduleAtFixedRate(StartGiveawayCommand::run, 0, 1, TimeUnit.DAYS);*/
-
         Date date = Date.from(offsetDateTime.toInstant());
 
         Timer timer = new Timer("Timer");
@@ -88,10 +77,18 @@ public class StartGiveawayCommand extends SlashCommand {
         {
             public void run()
             {
-                message.editMessageEmbeds(giveawayEndEmbed(giveaway).build()).setActionRow(
+                User winner = getWinner(giveaway);
+                message.editMessageEmbeds(giveawayEndEmbed(giveaway, winner).build()).setActionRow(
                         Button.danger("1234:GAAA", "Giveaway ended!").asDisabled()
                 ).queue();
-
+                EmbedBuilder embedBuilder = new EmbedBuilder();
+                MessageChannel channel = message.getChannel();
+                embedBuilder.setTitle("Giveaway Ended!!!", message.getJumpUrl());
+                embedBuilder.setDescription("Amount of Users joined: " + giveaway.getUsers().size() + "\n" +
+                        "Odds of Winning: " + ((1/giveaway.getUsers().size()) * 100) + "%");
+                embedBuilder.setColor(Color.RED);
+                channel.sendMessage(winner.getAsMention()).queue();
+                channel.sendMessageEmbeds(embedBuilder.build()).queue();
                 DataGiveaway.giveawayHashMap.remove(message);
                 timer.cancel();
             }
@@ -99,12 +96,11 @@ public class StartGiveawayCommand extends SlashCommand {
         timer.schedule(task, date);
     }
 
-    private static EmbedBuilder giveawayEndEmbed(Giveaway giveaway) {
+    private static EmbedBuilder giveawayEndEmbed(Giveaway giveaway, User winner) {
         long credits = giveaway.getCredits();
         User starter = giveaway.getStarter();
         OffsetDateTime time = giveaway.getLength();
         String message = giveaway.getMessage();
-        User winner = getWinner(giveaway);
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(credits + " credits").setFooter("Giveaway made at", starter.getAvatarUrl());
@@ -116,7 +112,7 @@ public class StartGiveawayCommand extends SlashCommand {
                 "Message: " + message);
 
         if (winner != null) {
-            DatabaseManager.INSTANCE.setCredits(winner.getIdLong(), (int) credits);
+            RPGUser.addShekels(winner.getIdLong(), (int) credits);
         }
 
         return embedBuilder;

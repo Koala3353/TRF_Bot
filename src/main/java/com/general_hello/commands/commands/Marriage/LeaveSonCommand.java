@@ -12,7 +12,7 @@ public class LeaveSonCommand extends Command {
     @Override
     protected void execute(CommandEvent event) {
         if (MarriageData.getSon(event.getAuthor().getIdLong()) == -1) {
-            event.reply("Do you even have a son?");
+            event.reply("Do you even have a son/daughter?");
             return;
         }
 

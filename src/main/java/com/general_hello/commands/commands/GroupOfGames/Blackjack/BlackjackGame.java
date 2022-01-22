@@ -57,12 +57,12 @@ public class BlackjackGame {
     }
 
     public enum EndState{
-        WON("You won", 2),
-        LOST("You lost", -0.5),
-        BUST("You busted", -1),
-        DEALER_BUST("The dealer busted", 1.5),
+        WON("You won", 1.5),
+        LOST("You lost", -1),
+        BUST("You busted", -2),
+        DEALER_BUST("The dealer busted", 1),
         PUSH("It's a push/tie", 0),
-        BLACKJACK("Congratulations! You got a blackjack!!!", 2.5);
+        BLACKJACK("Congratulations! You got a blackjack!!!", 2);
 
         private String display;
         private double reward;
@@ -212,7 +212,7 @@ public class BlackjackGame {
         eb.setColor(Color.BLUE);
         if (hasEnded){
             int credits = getWonCreds();
-            eb.addField(String.format("%s%s", endstate.display, hasSplit ? " and " + secondEndstate.display: ""), String.format("You %s %d credits", credits > 0 ? "won" : credits == 0 ? "won/lost" : "lost", credits), hasSplit);
+            eb.addField(String.format("%s%s", endstate.display, hasSplit ? " and " + secondEndstate.display: ""), String.format("You %s %d shekels", credits > 0 ? "won" : credits == 0 ? "won/lost" : "lost", credits), hasSplit);
             eb.setColor(credits > 0 ? Color.GREEN : credits == 0 ? Color.BLUE : Color.RED);
         } else {
             final long guildID = guild.getIdLong();

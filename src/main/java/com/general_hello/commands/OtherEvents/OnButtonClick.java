@@ -2,9 +2,14 @@ package com.general_hello.commands.OtherEvents;
 
 import com.general_hello.commands.Config;
 import com.general_hello.commands.Database.DatabaseManager;
+import com.general_hello.commands.RPG.Items.Initializer;
+import com.general_hello.commands.RPG.Objects.Chest;
 import com.general_hello.commands.RPG.Objects.RPGEmojis;
+import com.general_hello.commands.RPG.RpgUser.RPGDataUtils;
+import com.general_hello.commands.RPG.RpgUser.RPGUser;
 import com.general_hello.commands.commands.Currency.BalanceCommand;
 import com.general_hello.commands.commands.Currency.DropCommand;
+import com.general_hello.commands.commands.DefaultCommands.HelpCommand;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.Giveaway.DataGiveaway;
 import com.general_hello.commands.commands.Giveaway.Giveaway;
@@ -12,7 +17,6 @@ import com.general_hello.commands.commands.GroupOfGames.Blackjack.BlackjackGame;
 import com.general_hello.commands.commands.GroupOfGames.Blackjack.GameHandler;
 import com.general_hello.commands.commands.Info.InfoUserCommand;
 import com.general_hello.commands.commands.PrefixStoring;
-import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
 import com.general_hello.commands.commands.Register.Data;
 import com.general_hello.commands.commands.User.MessageIdToReport;
 import com.general_hello.commands.commands.User.Report;
@@ -30,8 +34,8 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.io.ByteArrayOutputStream;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -96,7 +100,6 @@ public class OnButtonClick extends ListenerAdapter {
                 }));
                 break;
             case "claim":
-                event.deferEdit().queue();
                 if (!DropCommand.isClaimed.get(event.getMessageIdLong())) {
                     int randomNum = UtilNum.randomNum(-100000, 1000000);
                     DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), randomNum);
@@ -115,32 +118,22 @@ public class OnButtonClick extends ListenerAdapter {
                 }
                 break;
             case "claimdaily":
-                event.deferEdit().queue();
                 if (!DropCommand.isClaimed.get(event.getMessageIdLong())) {
-                    int randomNum = UtilNum.randomNum(0, 500000);
-                    DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), randomNum);
+                    if (!RPGDataUtils.isRPGUser(event.getUser())) {
+                        return;
+                    }
+                    Chest chest = Initializer.chestToId.get("commonchest");
+                    RPGUser.addItem(event.getUser().getIdLong(), 1, "commonchest");
                     EmbedBuilder embedBuilder = new EmbedBuilder();
-                    embedBuilder.setTitle("Christmas Gift found!").setTimestamp(OffsetDateTime.now()).setColor(InfoUserCommand.randomColor());
-                    embedBuilder.setDescription("A new christmas gift <a:present:917914791547379742> has been found! And " + event.getMember().getAsMention() + " was the first one to open it!\n" +
+                    embedBuilder.setTitle("Common Chest found!").setTimestamp(OffsetDateTime.now()).setColor(InfoUserCommand.randomColor());
+                    embedBuilder.setDescription("A new common chest " + RPGEmojis.common_chest + " has been found! And " + event.getMember().getAsMention() + " was the first one to open it!\n" +
                             "\n" +
-                            "Rewards:\n" +
-                            "```java\n" +
-                            randomNum + " credits" +
-                            "\n```");
-                    embedBuilder.setThumbnail("https://cdn.discordapp.com/emojis/917914791547379742.gif");
+                            "Rewards: " +
+                            chest.getEmojiOfItem() + " **" + chest.getName() + "**");
+                    embedBuilder.setThumbnail("https://cdn.discordapp.com/emojis/861390923640471572.gif");
                     event.getMessage().editMessageEmbeds(embedBuilder.build()).setActionRow(Button.of(ButtonStyle.SUCCESS, "OPENEDCHEST", "Opened by " + event.getMember().getEffectiveName()).asDisabled(),
-                            DropCommand.button.get(event.getMessageIdLong())).queue();
+                            Button.secondary("IGNOREMEEEE", "Dropped by Someone").asDisabled()).queue();
                     DropCommand.isClaimed.put(event.getMessageIdLong(), true);
-                }
-                break;
-            case "rank":
-                try{
-                    User member = event.getJDA().getUserById(id[2]);
-                    ByteArrayOutputStream baos = LevelPointManager.getLevelPointCard(member).getByteArrayOutputStream();
-                    event.getMessage().delete().queue();
-                    event.getChannel().sendFile(baos.toByteArray(), member.getName() + "-stats.png").queue();
-                }
-                catch(Exception ignored){
                 }
                 break;
             case "nope":
@@ -149,92 +142,50 @@ public class OnButtonClick extends ListenerAdapter {
                 break;
             case "user":
                 event.getMessage().delete().queue();
+                HelpCommand.updateDefaultActionRows(event);
+                ArrayList<ActionRow> actionRows = HelpCommand.actionRows;
                 event.getChannel().sendMessageEmbeds(helpCrap(4, event).build()).setActionRows(
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":currency", "Currency").withEmoji(Emoji.fromEmote("ignt_coins", 905999722374905857L, false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":user", "User").withEmoji(Emoji.fromEmote("user", Long.parseLong("862895295239028756"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":bot", "Bot").withEmoji(Emoji.fromEmote("discord_bot", Long.parseLong("862895574960701440"), false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
-                                Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
-                                Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
+                        actionRows
                 ).queue();
                 return;
             case "bot":
                 event.getMessage().delete().queue();
+                HelpCommand.updateDefaultActionRows(event);
+                actionRows = HelpCommand.actionRows;
                 event.getChannel().sendMessageEmbeds(helpCrap(2, event).build()).setActionRows(
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":currency", "Currency").withEmoji(Emoji.fromEmote("ignt_coins", 905999722374905857L, false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":user", "User").withEmoji(Emoji.fromEmote("user", Long.parseLong("862895295239028756"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":bot", "Bot").withEmoji(Emoji.fromEmote("discord_bot", Long.parseLong("862895574960701440"), false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
-                                Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
-                                Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
+                        actionRows
                 ).queue();
                 return;
             case "currency":
                 event.getMessage().delete().queue();
+                HelpCommand.updateDefaultActionRows(event);
+                actionRows = HelpCommand.actionRows;
                 event.getChannel().sendMessageEmbeds(helpCrap(7, event).build()).setActionRows(
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":currency", "Currency").withEmoji(Emoji.fromEmote("ignt_coins", 905999722374905857L, false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":user", "User").withEmoji(Emoji.fromEmote("user", Long.parseLong("862895295239028756"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":bot", "Bot").withEmoji(Emoji.fromEmote("discord_bot", Long.parseLong("862895574960701440"), false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
-                                Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
-                                Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
+                        actionRows
                 ).queue();
                 return;
             case "info":
                 event.getMessage().delete().queue();
+                HelpCommand.updateDefaultActionRows(event);
+                actionRows = HelpCommand.actionRows;
                 event.getChannel().sendMessageEmbeds(helpCrap(1, event).build()).setActionRows(
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":currency", "Currency").withEmoji(Emoji.fromEmote("ignt_coins", 905999722374905857L, false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":user", "User").withEmoji(Emoji.fromEmote("user", Long.parseLong("862895295239028756"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":bot", "Bot").withEmoji(Emoji.fromEmote("discord_bot", Long.parseLong("862895574960701440"), false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
-                                Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
-                                Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
+                        actionRows
                 ).queue();
                 return;
             case "mod":
                 event.getMessage().delete().queue();
+                HelpCommand.updateDefaultActionRows(event);
+                actionRows = HelpCommand.actionRows;
                 event.getChannel().sendMessageEmbeds(helpCrap(3, event).build()).setActionRows(
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":currency", "Currency").withEmoji(Emoji.fromEmote("ignt_coins", 905999722374905857L, false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":user", "User").withEmoji(Emoji.fromEmote("user", Long.parseLong("862895295239028756"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":bot", "Bot").withEmoji(Emoji.fromEmote("discord_bot", Long.parseLong("862895574960701440"), false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
-                                Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
-                                Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
+                        actionRows
                 ).queue();
                 return;
             case "rpg":
                 event.getMessage().delete().queue();
+                HelpCommand.updateDefaultActionRows(event);
+                actionRows = HelpCommand.actionRows;
                 event.getChannel().sendMessageEmbeds(helpCrap(6, event).build()).setActionRows(
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":currency", "Currency").withEmoji(Emoji.fromEmote("ignt_coins", 905999722374905857L, false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":user", "User").withEmoji(Emoji.fromEmote("user", Long.parseLong("862895295239028756"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":bot", "Bot").withEmoji(Emoji.fromEmote("discord_bot", Long.parseLong("862895574960701440"), false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromMarkdown("<:RPG:899933662185918464>")),
-                                Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
-                                Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
+                        actionRows
                 ).queue();
                 return;
             case "game":
@@ -252,37 +203,11 @@ public class OnButtonClick extends ListenerAdapter {
                 event.getChannel().sendMessageEmbeds(helpCrap(5, event).build()).setActionRows(ActionRow.of(menu), ActionRow.of(Button.of(ButtonStyle.DANGER, "0000:backgames", "Back"))).queue();
                 return;
             case "backgames":
-                final long guildID = event.getGuild().getIdLong();
-
-                String prefix = PrefixStoring.PREFIXES.computeIfAbsent(guildID, (ids) -> Config.get("prefix"));
-
-                EmbedBuilder embedBuilder = new EmbedBuilder();
-                embedBuilder.setTitle("Groups");
-                embedBuilder.setColor(Color.cyan);
-                embedBuilder.addField(Emojis.USER + " | User (10)", "Shows basic to complex commands that the user can do with the bot", false);
-                embedBuilder.addField(Emojis.DISCORD_BOT + " | Bot (3)", "Shows the commands you can do with the bot", false);
-                embedBuilder.addField(Emojis.INFO + " | Info (3)", "Shows basic to complex information about users, servers, or mods", false);
-                embedBuilder.addField(Emojis.MOD + " | Moderation (4)","Basic to advanced moderation tools used by staff to control or monitor the server.", false);
-                embedBuilder.addField(Emojis.GAME + " | Games (4)","Fun games.", false);
-                embedBuilder.addField("\uD83D\uDCDA | RPG (?)","Fun RPG commands for igniters", false);
-
-
-                embedBuilder.setFooter("Type " + prefix + " help [group name] to see their commands");
-
-                disableOrEnable = !event.getMember().hasPermission(Permission.MANAGE_SERVER) && !event.getMember().getRoles().contains(event.getGuild().getRoleById(888627140046749697L));
-
                 event.getMessage().delete().queue();
-                event.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRows(
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":currency", "Currency").withEmoji(Emoji.fromEmote("ignt_coins", 905999722374905857L, false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":user", "User").withEmoji(Emoji.fromEmote("user", Long.parseLong("862895295239028756"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":bot", "Bot").withEmoji(Emoji.fromEmote("discord_bot", Long.parseLong("862895574960701440"), false)),
-                                Button.secondary(event.getMember().getUser().getId() + ":info", "Info").withEmoji(Emoji.fromEmote("info", Long.parseLong("870871190217060393"), true))),
-                        ActionRow.of(
-                                Button.secondary(event.getMember().getUser().getId() + ":game", "Games").withEmoji(Emoji.fromEmote("games", Long.parseLong("891146612016025630"), true)),
-                                Button.secondary(event.getMember().getUser().getId() + ":rpg", "RPG").withEmoji(Emoji.fromUnicode("U+1F4DA")).asDisabled(),
-                                Button.secondary(event.getMember().getUser().getId() + ":mod", "Moderation").withDisabled(disableOrEnable).withEmoji(Emoji.fromEmote("mod", Long.parseLong("862898484041482270"), true)),
-                                Button.danger(event.getMember().getUser().getId() + ":end", "Cancel").withEmoji(Emoji.fromEmote("cancel", Long.parseLong("863204248657461298"), true)))
+                HelpCommand.updateDefaultActionRows(event);
+                actionRows = HelpCommand.actionRows;
+                event.getChannel().sendMessageEmbeds(HelpCommand.embedBuilder.build()).setActionRows(
+                        actionRows
                 ).queue();
                 return;
             case "accept":
@@ -303,7 +228,7 @@ public class OnButtonClick extends ListenerAdapter {
                 break;
             case "validreport":
                 Report report = MessageIdToReport.messageReport.get(event.getMessage());
-                embedBuilder = new EmbedBuilder();
+                EmbedBuilder embedBuilder = new EmbedBuilder();
                 User user = report.getReporter();
                 User author = report.getAuthorOfMessage();
                 UserPhoneUser userPhoneUser = Data.userUserPhoneUserHashMap.get(user);
@@ -318,12 +243,12 @@ public class OnButtonClick extends ListenerAdapter {
                         "Reported by: " + user.getName() + "\n\n" +
                         "Reporter info:\n" +
                         "Tag: `" + user.getAsTag() + "`\n" +
-                        "Real name: `" + (userPhoneUser == null ? "Not registered" : userPhoneUser.getUserPhoneUserName()) + "`\n\n" +
+                        "Real name: `" + (userPhoneUser == null ? "Not registered" : userPhoneUser.getRealName()) + "`\n\n" +
                         "Author of the Message: " + author.getName() + "\n" +
                         "\n" +
                         "Author info:\n" +
                         "Tag: `" + author.getAsTag() + "`\n" +
-                        "Real name: `" + (authorPhoneUser == null ? "Not registered" : authorPhoneUser.getUserPhoneUserName()) + "`\n\n" +
+                        "Real name: `" + (authorPhoneUser == null ? "Not registered" : authorPhoneUser.getRealName()) + "`\n\n" +
                         "\n" +
                         "Message sent in " + channel.getAsMention() + "\n" +
                         "\n" +
@@ -387,12 +312,12 @@ public class OnButtonClick extends ListenerAdapter {
                         "Reported by: " + user.getName() + "\n\n" +
                         "Reporter info:\n" +
                         "Tag: `" + user.getAsTag() + "`\n" +
-                        "Real name: `" + (userPhoneUser == null ? "Not registered" : userPhoneUser.getUserPhoneUserName()) + "`\n\n" +
+                        "Real name: `" + (userPhoneUser == null ? "Not registered" : userPhoneUser.getRealName()) + "`\n\n" +
                         "Author of the Message: " + author.getName() + "\n" +
                         "\n" +
                         "Author info:\n" +
                         "Tag: `" + author.getAsTag() + "`\n" +
-                        "Real name: `" + (authorPhoneUser == null ? "Not registered" : authorPhoneUser.getUserPhoneUserName()) + "`\n\n" +
+                        "Real name: `" + (authorPhoneUser == null ? "Not registered" : authorPhoneUser.getRealName()) + "`\n\n" +
                         "\n" +
                         "Message sent in " + report.getSourceChannelOfReport().getAsMention() + "\n" +
                         "\n" +
@@ -433,9 +358,8 @@ public class OnButtonClick extends ListenerAdapter {
                         if (bjg.hasEnded()) {
                             int d = bjg.getWonCreds();
                             GameHandler.removeBlackJackGame(event.getUser().getIdLong());
-                            LevelPointManager.feed(event.getUser(), 20);
-                            DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), d);
-                            eb.addField("Credits", "You now have " + d + " more credits", false);
+                            RPGUser.addShekels(event.getUser().getIdLong(), d);
+                            eb.addField("Shekels", "You now have " + d + " more shekels", false);
                             GameHandler.removeBlackJackGame(event.getUser().getIdLong());
                             me.set(false);
                         }
@@ -460,9 +384,8 @@ public class OnButtonClick extends ListenerAdapter {
                         if (bjg.hasEnded()) {
                             int d = bjg.getWonCreds();
                             GameHandler.removeBlackJackGame(event.getUser().getIdLong());
-                            LevelPointManager.feed(event.getUser(), 20);
-                            DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), d);
-                            eb.addField("Credits", "You now have " + d + " more credits", false);
+                            RPGUser.addShekels(event.getUser().getIdLong(), d);
+                            eb.addField("Shekels", "You now have " + d + " more shekels", false);
                             GameHandler.removeBlackJackGame(event.getUser().getIdLong());
                             me.set(false);
                         }
@@ -488,9 +411,8 @@ public class OnButtonClick extends ListenerAdapter {
                                 if (bjg.hasEnded()) {
                                     int d = bjg.getWonCreds();
                                     GameHandler.removeBlackJackGame(event.getUser().getIdLong());
-                                    LevelPointManager.feed(event.getUser(), 20);
-                                    DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), d);
-                                    eb.addField("Credits", "You now have " + d + " more credits", false);
+                                    RPGUser.addShekels(event.getUser().getIdLong(), d);
+                                    eb.addField("Shekels", "You now have " + d + " more shekels", false);
                                     me.set(false);
                                 }
                                 if (me.get()) {
@@ -500,7 +422,7 @@ public class OnButtonClick extends ListenerAdapter {
                                 }
                             });
                         } else {
-                            event.getChannel().sendMessage("You have not enough credits").queue();
+                            event.getChannel().sendMessage("You have not enough shekels").queue();
                         }
                     } else {
                         event.getChannel().sendMessage("You can't do that").queue();
@@ -519,9 +441,8 @@ public class OnButtonClick extends ListenerAdapter {
                             if (bjg.hasEnded()) {
                                 int d = bjg.getWonCreds();
                                 GameHandler.removeBlackJackGame(event.getUser().getIdLong());
-                                LevelPointManager.feed(event.getUser(), 20);
-                                DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), d);
-                                eb.addField("Credits", "You now have " + d + " more credits", false);
+                                RPGUser.addShekels(event.getUser().getIdLong(), d);
+                                eb.addField("Shekels", "You now have " + d + " more shekels", false);
                                 GameHandler.removeBlackJackGame(event.getUser().getIdLong());
                                 me.set(false);
                             }
@@ -543,7 +464,7 @@ public class OnButtonClick extends ListenerAdapter {
                         });
                     }
                 } else {
-                    event.getChannel().sendMessage("You have not enough credits").queue();
+                    event.getChannel().sendMessage("You have not enough shekels").queue();
                 }
 
                 event.deferEdit().queue();
@@ -562,9 +483,8 @@ public class OnButtonClick extends ListenerAdapter {
                         if (bjg.hasEnded()) {
                             int d = bjg.getWonCreds();
                             GameHandler.removeBlackJackGame(event.getUser().getIdLong());
-                            LevelPointManager.feed(event.getUser(), 10);
-                            DatabaseManager.INSTANCE.setCredits(event.getUser().getIdLong(), d);
-                            eb.addField("Credits", "You now have " + d + " more credits", false);
+                            RPGUser.addShekels(event.getUser().getIdLong(), d);
+                            eb.addField("Shekels", "You now have " + d + " more shekels", false);
                             GameHandler.removeBlackJackGame(event.getUser().getIdLong());
                             me.set(false);
                         }
@@ -603,7 +523,7 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.addField("3.) About Command", "`" + prefix + " about`", false);
 
 
-                embedBuilder.setFooter("\nType " + prefix + " help [command name] to see what they do");
+                embedBuilder.setFooter("Type " + prefix + " help [command name] to see what they do");
                 break;
             case 3:
                 embedBuilder.setTitle("Moderation Commands");
@@ -612,21 +532,22 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.addField("2.) Lockdown Command", "`" + prefix + " lockdown`", false);
                 embedBuilder.addField("3.) Un-lockdown Command", "`" + prefix + " unlockdown`", false);
                 embedBuilder.addField("4.) Update Ignite Coins Balance Command", "`" + prefix + " updatecoins`", false);
+                embedBuilder.addField("5.) Command Count Command", "`" + prefix + " cmdcount`", false);
+                embedBuilder.addField("6.) Add Credits Command", "`" + prefix + " addcredit`", false);
+                embedBuilder.addField("7.) Add Shekels Command", "`" + prefix + " addshekels`", false);
+                embedBuilder.addField("8.) Add Item Command", "`" + prefix + " addItems`", false);
 
-                embedBuilder.setFooter("\nType " + prefix + " help [command name] to see what they do");
+                embedBuilder.setFooter("Type " + prefix + " help [command name] to see what they do");
                 break;
             case 4:
                 embedBuilder.setTitle("User Commands");
                 embedBuilder.setColor(Color.CYAN);
-                embedBuilder.addField("1.) Calculator Command", "`" + prefix + " calculator`", false);
-                embedBuilder.addField("2.) Show a Joke Command", "`" + prefix + " joke`", false);
-                embedBuilder.addField("2.) TicTacToe Command", "`" + prefix + " ttt`", false);
-                embedBuilder.addField("3.) Animal Fact Command", "`" + prefix + " fact`", false);
-                embedBuilder.addField("4.) Lyric Search Command", "`" + prefix + " lyric`", false);
-                embedBuilder.addField("5.) Make Facts Command", "`" + prefix + " makefacts`", false);
-                embedBuilder.addField("6.) Quote Command", "`" + prefix + " quote`", false);
-                embedBuilder.addField("7.) Share code Command (Programming)", "`" + prefix + " sharecode`", false);
-                embedBuilder.addField("8.) Preview Website Command", "`" + prefix + " preview`", false);
+                embedBuilder.addField("1.) Marriage command", "`" + prefix + " marry`", false);
+                embedBuilder.addField("2.) Adopt Command", "`" + prefix + " adopt`", false);
+                embedBuilder.addField("3.) Divorce Command", "`" + prefix + " divorce`", false);
+                embedBuilder.addField("4.) Leave Son Command", "`" + prefix + " dump`", false);
+                embedBuilder.addField("5.) Family tree Command", "`" + prefix + " family`", false);
+                embedBuilder.addField("6.) Share code Command (Programming)", "`" + prefix + " sharecode`", false);
                 embedBuilder.setFooter("Type " + prefix + " help [command name] to see what they do");
                 break;
             case 5:
@@ -636,7 +557,7 @@ public class OnButtonClick extends ListenerAdapter {
                         Emojis.BLACKJACK + " **Blackjack** - Blackjack is a card game. The object of blackjack is to be dealt cards with a value of up to but not over 21 and to beat the dealer's hand. ... You place bets with the dealer on the likelihood that your hand will come equal or closer to 21 than will the dealer's.\n\n" +
                         Emojis.NUMBER + " **Guess the Number** - Your goal is to get the same number that the bot selected from 1-100 the bot will inform you if the number is *higher* or *lower*\n\n" +
                         Emojis.MARK_QUESTION + " **Trivia** - Users will be given a random question and they are to answer it.\n\n" +
-                        Emojis.BABY_YODA + " **Hangman** *BETA* - Hangman is a paper and pencil guessing game for two or more players. One player thinks of a word, phrase or sentence and the other(s) tries to guess it by suggesting letters within a certain number of guesses.");
+                        Emojis.BABY_YODA + " **Hangman** - Hangman is a paper and pencil guessing game for two or more players. One player thinks of a word, phrase or sentence and the other(s) tries to guess it by suggesting letters within a certain number of guesses.");
 
                 embedBuilder.setFooter("Type " + prefix + " help [command name] to see what they do");
                 break;
@@ -647,30 +568,27 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.addField("2.) Buy Command", "`" + prefix + " buy`", false);
                 embedBuilder.addField("3.) Sell Command", "`" + prefix + " sell`", false);
                 embedBuilder.addField("4.) Shop Command", "`" + prefix + " shop`", false);
-                embedBuilder.addField("5.) Inventory Command", "`" + prefix + " inv` or `" + prefix + " inventory'", false);
+                embedBuilder.addField("5.) Inventory Command", "`" + prefix + " inv` or `" + prefix + " inventory`", false);
                 embedBuilder.addField("6.) Fish Command", "`" + prefix + " fish`", false);
                 embedBuilder.addField("7.) Hunt Command", "`" + prefix + " hunt`", false);
                 embedBuilder.addField("8.) View Health Command", "`" + prefix + " health`", false);
                 embedBuilder.addField("9.) Cook Command", "`" + prefix + " cook`", false);
-                embedBuilder.addField("10.) Pet Command", "`" + prefix + " pet`", false);
+                embedBuilder.addField("10.) Open Loot Boxes Command", "`" + prefix + " open`", false);
 
                 embedBuilder.setFooter("Some commands here may or may not work due to it being a BETA command");
+                break;
             case 7:
                 embedBuilder.setTitle("Currency Commands");
                 embedBuilder.setColor(Color.blue);
-                embedBuilder.addField("1.) View rank Command", "`" + prefix + " rank`", false);
-                embedBuilder.addField("2.) Register Command", "`" + prefix + " register`", false);
-                embedBuilder.addField("3.) Share Credits command", "`" + prefix + " share`", false);
-                embedBuilder.addField("4.) Leaderboard Credits command", "`" + prefix + " lb`", false);
-                embedBuilder.addField("5.) Work command", "`" + prefix + " work`", false);
-                embedBuilder.addField("6.) Beg command", "`" + prefix + " beg`", false);
-                embedBuilder.addField("7.) Remind Work command", "`" + prefix + " remindbeg`", false);
-                embedBuilder.addField("8.) Remind beg command", "`" + prefix + " remindwork`", false);
-                embedBuilder.addField("9.) Marriage command", "`" + prefix + " marry`", false);
-                embedBuilder.addField("10.) Adopt Command", "`" + prefix + " adopt`", false);
-                embedBuilder.addField("11.) Divorce Command", "`" + prefix + " divorce`", false);
-                embedBuilder.addField("12.) Leave Son Command", "`" + prefix + " dump`", false);
-                embedBuilder.addField("12.) Family tree Command", "`" + prefix + " family`", false);
+                embedBuilder.addField("1.) Register Command", "`" + prefix + " register`", false);
+                embedBuilder.addField("2.) Share Credits command", "`" + prefix + " share`", false);
+                embedBuilder.addField("3.) Leaderboard Credits command", "`" + prefix + " lb`", false);
+                embedBuilder.addField("4.) Work command", "`" + prefix + " work`", false);
+                embedBuilder.addField("5.) Beg command", "`" + prefix + " beg`", false);
+                embedBuilder.addField("6.) Remind Work command", "`" + prefix + " remindbeg`", false);
+                embedBuilder.addField("7.) Remind beg command", "`" + prefix + " remindwork`", false);
+                embedBuilder.addField("8.) Deposit Command", "`" + prefix + " deposit`", false);
+                embedBuilder.addField("9.) Withdraw Command", "`" + prefix + " withdraw`", false);
 
                 embedBuilder.setFooter("Type " + prefix + " help [command name] to see what they do");
         }

@@ -2,12 +2,12 @@ package com.general_hello.commands.commands.Currency;
 
 import com.general_hello.commands.Bot;
 import com.general_hello.commands.Config;
-import com.general_hello.commands.Database.DatabaseManager;
+import com.general_hello.commands.RPG.RpgUser.RPGDataUtils;
+import com.general_hello.commands.RPG.RpgUser.RPGUser;
 import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.ICommand;
-import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
 import com.general_hello.commands.commands.Register.Data;
 import com.general_hello.commands.commands.User.UserPhoneUser;
 import com.general_hello.commands.commands.Utils.UtilNum;
@@ -26,6 +26,9 @@ public class BegCommand implements ICommand {
     @Override
     public void handle(CommandContext ctx) throws InterruptedException, IOException, SQLException {
         User author = ctx.getAuthor();
+        if (RPGDataUtils.checkUser(ctx)) {
+            return;
+        }
         if (cooldown.containsKey(author)) {
             OffsetDateTime offsetDateTime = cooldown.get(author);
             if (offsetDateTime.plusMinutes(10).isAfter(OffsetDateTime.now())) {
@@ -36,17 +39,11 @@ public class BegCommand implements ICommand {
 
         cooldown.put(author, OffsetDateTime.now());
 
-        int i = (int) LevelPointManager.calculateLevel(author);
-
-        if (OffsetDateTime.now().getDayOfWeek().name().equalsIgnoreCase("saturday")) {
-            i = 200;
-        }
-
         UserPhoneUser bankUser = Data.userUserPhoneUserHashMap.get(ctx.getSelfUser());
         int bankCredits = bankUser.getCredits();
 
         int minRobOrFine = 0;
-        int maxRobOrFine = 200_000;
+        int maxRobOrFine = 2_500;
 
         if (maxRobOrFine > bankCredits) {
             maxRobOrFine = bankCredits;
@@ -56,18 +53,15 @@ public class BegCommand implements ICommand {
 
         DecimalFormat formatter = new DecimalFormat("#,###.00");
 
-        if (robOrNoRob(i)) {
-            DatabaseManager.INSTANCE.setCredits(author.getIdLong(), randomNum);
-            DatabaseManager.INSTANCE.setCredits(ctx.getSelfUser().getIdLong(), (-randomNum));
-
-            ctx.getChannel().sendMessage(author.getAsMention() + " " + begSuccessMessages() + " " + Emojis.credits + " " + formatter.format(randomNum)).queue();
+        if (robOrNoRob(UtilNum.randomNum(10, 50))) {
+            RPGUser.addShekels(ctx.getSelfUser().getIdLong(), (randomNum));
+            ctx.getChannel().sendMessage(author.getAsMention() + " " + begSuccessMessages() + " " + Emojis.shekels + " " + formatter.format(randomNum)).queue();
         } else {
             //fine stuff
             randomNum = randomNum / 4;
-            DatabaseManager.INSTANCE.setCredits(author.getIdLong(), (-randomNum));
-            DatabaseManager.INSTANCE.setCredits(ctx.getSelfUser().getIdLong(), (randomNum));
+            RPGUser.addShekels(ctx.getSelfUser().getIdLong(), (-randomNum));
 
-            ctx.getChannel().sendMessage(author.getAsMention() + " The duck got " + Emojis.credits + formatter.format(randomNum) + " from your pocket! Better luck next time!!!").queue();
+            ctx.getChannel().sendMessage(author.getAsMention() + " The duck got " + Emojis.shekels + formatter.format(randomNum) + " from your pocket! Better luck next time!!!").queue();
         }
 
         if (ctx.getMember().getRoles().contains(ctx.getJDA().getGuildById(843769353040298011L).getRolesByName("beg reminder", true).get(0))) {

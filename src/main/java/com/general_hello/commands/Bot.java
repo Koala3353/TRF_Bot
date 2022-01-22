@@ -3,9 +3,12 @@ package com.general_hello.commands;
 import com.general_hello.commands.Database.DatabaseManager;
 import com.general_hello.commands.OtherEvents.*;
 import com.general_hello.commands.RPG.Commands.*;
+import com.general_hello.commands.RPG.Commands.Fight.FightCommand;
 import com.general_hello.commands.RPG.Items.Initializer;
+import com.general_hello.commands.commands.Currency.DepositCommand;
 import com.general_hello.commands.commands.Currency.RemindBeg;
 import com.general_hello.commands.commands.Currency.RemindWork;
+import com.general_hello.commands.commands.Currency.WithdrawCommand;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.Giveaway.StartGiveawayCommand;
 import com.general_hello.commands.commands.Hangman.VirtualBotManager;
@@ -13,8 +16,10 @@ import com.general_hello.commands.commands.Marriage.AdoptCommand;
 import com.general_hello.commands.commands.Marriage.DivorceCommand;
 import com.general_hello.commands.commands.Marriage.FamilyTreeCommand;
 import com.general_hello.commands.commands.Marriage.LeaveSonCommand;
+import com.general_hello.commands.commands.Others.CommandCountCommand;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import me.duncte123.botcommons.messaging.EmbedUtils;
 import me.duncte123.botcommons.web.WebUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -27,6 +32,8 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.awt.*;
@@ -38,8 +45,19 @@ public class Bot {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLUE = "\u001B[34m";
     public static final String ANSI_RED = "\u001B[31m";
+    private static Bot bot;
+    private final EventWaiter eventWaiter;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
+    public EventWaiter getEventWaiter() {
+        return eventWaiter;
+    }
 
-    private Bot() throws LoginException {
+    public static Bot getBot() {
+        return bot;
+    }
+
+    public Bot() throws LoginException, InterruptedException {
+        bot = this;
         DatabaseManager.INSTANCE.getPrefix(-1);
         WebUtils.setUserAgent("IgnBot");
         EmbedUtils.setEmbedBuilder(
@@ -55,13 +73,15 @@ public class Bot {
         client.useDefaultGame();
         client.setOwnerId(Config.get("owner_id"));
         client.setCoOwnerIds(Config.get("owner_id_partner"));
-        client.setPrefix(Config.get("prefix") + " ");
+        client.setPrefix(Config.get("prefix") + " ").setAlternativePrefix(Config.get("prefix"));
         client.setEmojis(Emojis.BABY_YODA, Emojis.MOD, Emojis.ERROR);
 
         client.useHelpBuilder(false);
-        addCommands(client);
 
+        addCommands(client);
+        eventWaiter = new EventWaiter();
         // Finalize the command client
+        client.addSlashCommand(new StartGiveawayCommand());
         CommandClient commandClient = client.build();
 
         jda = JDABuilder.createDefault(Config.get("token"),
@@ -76,28 +96,26 @@ public class Bot {
                 GatewayIntent.GUILD_INVITES
         )
                 .enableCache(CacheFlag.VOICE_STATE)
-                .addEventListeners(new Listener())
-                .addEventListeners(new OnButtonClick())
-                .addEventListeners(new OnPrivateMessage())
-                .addEventListeners(new OtherEvents())
-                .addEventListeners(new OnSelectionMenu())
-                .addEventListeners(new OnReadyEvent())
-                .addEventListeners(new OnRPGButtonClick())
-                .addEventListeners(new OnButtonClickAuction())
-                .addEventListeners(new OnSetupMessage())
-                .addEventListeners(new OnApiRequest())
-                .addEventListeners(new VirtualBotManager(true))
-                .addEventListeners(commandClient)
+                .addEventListeners(new VirtualBotManager(true),
+                        new OnButtonClick(), new OnRPGButtonClick(), eventWaiter, commandClient, new OnApiRequest(), new OnSetupMessage(), new OnButtonClickAuction(),
+                        new OnReadyEvent(), new OnSelectionMenu(),
+                        new OtherEvents(), new OnPrivateMessage(),
+                        new Listener(), new CommandCounter())
                 .setActivity(Activity.watching("ignt help"))
                 .setStatus(OnlineStatus.ONLINE)
                 .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(CacheFlag.ACTIVITY)
                 .enableCache(CacheFlag.ONLINE_STATUS)
-                .build();
+                .build().awaitReady();
     }
 
     public static void main(String[] args) throws LoginException {
+        final int cores = Runtime.getRuntime().availableProcessors();
+        if (cores <= 1) {
+            System.out.println("Available Cores \"" + cores + "\", setting Parallelism Flag");
+            System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "1");
+        }
         Initializer.initializer();
         commandPrompt();
     }
@@ -109,7 +127,7 @@ public class Bot {
 
         Scanner scanner = new Scanner(System.in);
         System.out.println(ANSI_RED + "Program Loaded!\n" +
-                "Welcome to Ignite Bot Command Line (UBCL) ! Have a great day!" + ANSI_RESET);
+                "Welcome to Ignite Bot Command Line! Have a great day!" + ANSI_RESET);
         while (true) {
             String s = scanner.nextLine();
             JDA jda = Listener.jda;
@@ -125,21 +143,6 @@ public class Bot {
                 jda.getTextChannelById(891816519498096650L).sendMessageEmbeds(embedBuilder.build()).queue();
                 System.out.println("Successfully sent the message!");
             }
-
-//            if (s.equalsIgnoreCase("setup")) {
-//                List<TextChannel> channels = jda.getGuildById(904386187446325299L).getTextChannels();
-//
-//                int x = 0;
-//                Guild guildById = jda.getGuildById(904386187446325299L);
-//
-//                while (x < channels.size()) {
-//                    Role lockdown = guildById.getRolesByName("lockdown", true).get(0);
-//                    channels.get(x).upsertPermissionOverride(lockdown).setDeny(Permission.MESSAGE_WRITE).queue();
-//                    x++;
-//                    System.out.println("Lockdown setup in " + channels.get(x));
-//                }
-//                System.out.println("Mission accomplished!");
-//            }
 
             if (s.equalsIgnoreCase("help")) {
                 System.out.println(ANSI_BLUE + "Option 1: startbot = To start the bot\n" +
@@ -191,7 +194,11 @@ public class Bot {
 
             if (s.equalsIgnoreCase("startbot")) {
                 System.out.println("Starting the bot up!");
-                new Bot();
+                try {
+                    new Bot();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         
 
@@ -224,7 +231,6 @@ public class Bot {
         //add here
         clientBuilder.addCommand(new RemindBeg());
         clientBuilder.addCommand(new RemindWork());
-        clientBuilder.addSlashCommand(new StartGiveawayCommand());
         clientBuilder.addCommand(new ShopCommand());
         clientBuilder.addCommand(new BuyCommand());
         clientBuilder.addCommand(new SellCommand());
@@ -238,5 +244,11 @@ public class Bot {
         clientBuilder.addCommand(new HealthCommand());
         clientBuilder.addCommand(new DivorceCommand());
         clientBuilder.addCommand(new LeaveSonCommand());
+        clientBuilder.addCommand(new FightCommand());
+        clientBuilder.addCommand(new WithdrawCommand());
+        clientBuilder.addCommand(new DepositCommand());
+        clientBuilder.addCommand(new CommandCountCommand());
+        clientBuilder.addCommand(new OpenCommand());
+        clientBuilder.addCommand(new AddItemCommand());
     }
 }

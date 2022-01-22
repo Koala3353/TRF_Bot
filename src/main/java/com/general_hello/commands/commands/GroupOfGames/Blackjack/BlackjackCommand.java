@@ -1,11 +1,11 @@
 package com.general_hello.commands.commands.GroupOfGames.Blackjack;
 
 import com.general_hello.commands.Database.DatabaseManager;
+import com.general_hello.commands.RPG.RpgUser.RPGUser;
 import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.ICommand;
-import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -39,12 +39,12 @@ public class BlackjackCommand implements ICommand {
         }
 
         if (Integer.parseInt(e.getArgs().get(0)) > 400_000) {
-            e.getChannel().sendMessage("You can not blackjack more than " + Emojis.credits + " 400,000!!!").queue();
+            e.getChannel().sendMessage("You can not blackjack more than " + Emojis.shekels + " 400,000!!!").queue();
             return;
         }
 
         if (Integer.parseInt(e.getArgs().get(0)) < 1) {
-            e.getChannel().sendMessage("You can not blackjack less than " + Emojis.credits + " 1!!!").queue();
+            e.getChannel().sendMessage("You can not blackjack less than " + Emojis.shekels + " 1!!!").queue();
             return;
         }
 
@@ -56,9 +56,8 @@ public class BlackjackCommand implements ICommand {
                         GameHandler.putBlackJackGame(playerId, bjg);
                     } else {
                         double d = bjg.getWonCreds();
-                        LevelPointManager.feed(author, 20);
-                        DatabaseManager.INSTANCE.setCredits(author.getIdLong(), (int) d);
-                        eb.addField("Credits", "You now have " + d + " more credits", false);
+                        RPGUser.addShekels(e.getAuthor().getIdLong(), (int) d);
+                        eb.addField("Shekels", "You now have " + d + " more shekels", false);
                     }
 
                     if (!bjg.hasEnded()) {
@@ -94,10 +93,9 @@ public class BlackjackCommand implements ICommand {
     }
 
     public static int getInt(String s) {
-        if (s.matches("(?i)[0-9]*k?m?")) {
-            s = s.replaceAll("m", "000000");
-            s = s.replaceAll("k", "000");
-        }
+        s = s.replaceAll("m", "000000");
+        s = s.replaceAll("k", "000");
+
         int i;
         try {
             i = Integer.parseInt(s);

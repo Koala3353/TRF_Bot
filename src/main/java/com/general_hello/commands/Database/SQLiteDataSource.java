@@ -54,17 +54,11 @@ public class SQLiteDataSource implements DatabaseManager {
                             "UserName TEXT NOT NULL, " +
                             "Credits INTEGER DEFAULT 1000," +
                             "PRIMARY KEY(UserId) ) WITHOUT ROWID",
-                    "CREATE TABLE IF NOT EXISTS XPSystemUser (" +
-                            "userId INTEGER UNIQUE," +
-                            "xpPoints INTEGER DEFAULT 0" +
-                            ");",
-                    "CREATE TABLE IF NOT EXISTS GuildSettings (" +
-                            "XPSystem INTEGER DEFAULT 0," +
-                            "GuildId INTEGER" +
-                            ");",
                     "CREATE TABLE IF NOT EXISTS RPGData (" +
                             "UserId INTEGER," +
                             "Shekels INTEGER," +
+                            "Bank INTEGER," +
+                            "BankLimit INTEGER," +
                             "Level INTEGER," +
                             "Health INTEGER," + items() +
                             ")",
@@ -77,6 +71,10 @@ public class SQLiteDataSource implements DatabaseManager {
                             "Happiness INTEGER," +
                             "Love INTEGER," +
                             "House INTEGER" +
+                            ")",
+                    "CREATE TABLE IF NOT EXISTS CommandCount (" +
+                            "name VARCHAR(30)," +
+                            "count INTEGER" +
                             ")"
             };
 
@@ -273,7 +271,6 @@ public class SQLiteDataSource implements DatabaseManager {
             preparedStatement.setString(2, userName);
 
             preparedStatement.executeUpdate();
-            preparedStatement.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

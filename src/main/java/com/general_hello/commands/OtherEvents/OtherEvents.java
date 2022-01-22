@@ -10,7 +10,10 @@ import com.general_hello.commands.commands.Uno.UnoHand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.*;
+import net.dv8tion.jda.api.events.DisconnectEvent;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.ReconnectedEvent;
+import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -20,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -165,19 +167,5 @@ public class OtherEvents extends ListenerAdapter {
         String guildName = event.getGuild().getName().replace(" ", "+");
         String pngUrl = "https://api.popcat.xyz/welcomecard?background=https://media.discordapp.net/attachments/862860280963137576/894423966968598558/images_78.png&text1=" + name + "&text2=Left+" + guildName + "&text3=" + event.getGuild().getMembers().size() + "+Members+Left&avatar=" + event.getUser().getEffectiveAvatarUrl();
         event.getGuild().getDefaultChannel().sendMessage(pngUrl).queue();
-    }
-
-    @Override
-    public void onResumed(@NotNull ResumedEvent event)  {
-        EmbedBuilder em = new EmbedBuilder().setColor(Color.RED).setTitle("🔴 Disconnected");
-        disconnectCount++;
-        em.setDescription("The bot disconnected for " +
-                (OffsetDateTime.now().getHour() - timeDisconnected.getHour())  + " hour(s) " +
-                (OffsetDateTime.now().getMinute() - timeDisconnected.getMinute()) + " minute(s) " +
-                (OffsetDateTime.now().getSecond() - timeDisconnected.getSecond()) + " second(s) and " +
-                (timeDisconnected.getNano() /1000000) + " milliseconds due to connectivity issues!\n" +
-                "Response number: " + event.getResponseNumber()).setTimestamp(OffsetDateTime.now()).setFooter("The bot disconnected " + disconnectCount + " times already since the last restart!");
-        User owner_id = event.getJDA().getUserById(Config.get("owner_id"));
-        owner_id.openPrivateChannel().complete().sendMessageEmbeds(em.build()).queue();
     }
 }

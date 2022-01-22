@@ -33,7 +33,7 @@ public class UnoCommand implements ICommand {
                     return;
                 }
             } else {
-                e.getChannel().sendMessage("You need to place a bet for at least 10 credits").queue();
+                e.getChannel().sendMessage("You need to place a bet for at least 100 shekels").queue();
                 return;
             }
         } else if (e.getArgs().size() > 1) {
@@ -46,7 +46,7 @@ public class UnoCommand implements ICommand {
         eb.setColor(Color.cyan);
         eb.setTitle("A game of uno is going to start!");
         if (bet != 0)
-            eb.setDescription(String.format("This game requires a %d credits bet.\nThe winner receives the sum of all bets", bet));
+            eb.setDescription(String.format("This game requires a %d shekels bet.\nThe winner receives the sum of all bets", bet));
         eb.addField("Players", "No Players yet", false);
         eb.setFooter("React with \uD83D\uDD90️ to join, ▶️ to start and ❌ to cancel the game");
         e.getChannel().sendMessageEmbeds(eb.build()).queue(m -> {

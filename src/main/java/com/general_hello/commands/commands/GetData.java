@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,19 +54,6 @@ public class GetData {
 
             x++;
         }
-    }
-
-    public static long getLevelPoints(User member) throws SQLException {
-        if (xpMember.containsKey(member)) {
-            return xpMember.get(member);
-        }
-
-        return DatabaseManager.INSTANCE.getXpPoints(member.getIdLong());
-    }
-
-    public static void setLevelPoints(User user, long points) {
-        DatabaseManager.INSTANCE.setXpPoints(user.getIdLong(), points);
-        xpMember.put(user, points);
     }
 
     public static void setName(User user, String name) {

@@ -19,6 +19,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,14 +56,21 @@ public class BalanceCommand implements ICommand {
         }
         EmbedBuilder embedBuilder = new EmbedBuilder();
         int shekels = RPGUser.getShekels(user.getIdLong());
+        int bank = RPGUser.getBank(user.getIdLong());
+        int bankMax = RPGUser.getBankStorage(user.getIdLong());
+        double percentageBank = ((double)bank/(double)bankMax) * 1000;
+        int percentageBankDisplay = (int) percentageBank;
+        percentageBank = (double) percentageBankDisplay/10;
+
         System.out.println(shekels);
         embedBuilder.setColor(Color.RED);
         embedBuilder.setThumbnail("https://images-ext-2.discordapp.net/external/dSmBwljIOT0xUFDxjc5_KNUZx9g3dNviWTCkCZ6oleY/https/cdn.discordapp.com/emojis/718138332982280272.gif");
-        DecimalFormat formatter = new DecimalFormat("#,###.00");
-        embedBuilder.setTitle(user.getName() + "'s Balance").setFooter("Hohoho Merry Christmas 🎄");
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        embedBuilder.setTitle(user.getName() + "'s Balance").setFooter("😏").setTimestamp(OffsetDateTime.now());
         embedBuilder.setDescription(Emojis.igntCoins + " Ignite Coins: **" + (balance == null ? "You are not in the coin database**\n" :"Press the button for your ignite coins**\n") +
                 Emojis.credits + " Credits: ** " + formatter.format(userPhoneUser.getCredits()) + " credits**\n" +
-                Emojis.shekels + " Shekels: **" + (shekels != -1 ? formatter.format(shekels) : "You didn't start your journey yet") + "**");
+                Emojis.shekels + " Shekels: **" + (shekels != -1 ? formatter.format(shekels) + " shekels" : "You didn't start your journey yet!") + "**\n" +
+                "🏦 Bank: **" + (bank != -1 ? formatter.format(bank) + " / " + formatter.format(bankMax) + "** `(" + percentageBank + "%)`" : "You didn't start your journey yet!**") + "");
         ctx.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(Button.of(ButtonStyle.PRIMARY, user.getIdLong() + ":balance", "View Coins").withEmoji(Emoji.fromEmote("ignt_coins", 905999722374905857L, false)).withDisabled(balance == null)).queue();
 
         if (balance != null) {

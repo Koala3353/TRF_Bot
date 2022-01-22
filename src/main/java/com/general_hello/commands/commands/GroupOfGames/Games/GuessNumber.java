@@ -1,8 +1,8 @@
 package com.general_hello.commands.commands.GroupOfGames.Games;
 
-import com.general_hello.commands.Database.DatabaseManager;
+import com.general_hello.commands.RPG.Objects.RPGEmojis;
+import com.general_hello.commands.RPG.RpgUser.RPGUser;
 import com.general_hello.commands.commands.GroupOfGames.Blackjack.GameHandler;
-import com.general_hello.commands.commands.RankingSystem.LevelPointManager;
 import com.general_hello.commands.commands.Utils.UtilNum;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -56,10 +56,9 @@ public class GuessNumber implements Game {
 
 
             e.getChannel().sendMessage(e.getAuthor().getAsMention() + " won! The number was " + number + ".\n" +
-                    "\uD83E\uDE99 " + (100_000) + " was added to your account").queue();
+                    RPGEmojis.shekels + " " + (3_000) + " was added to your account").queue();
             GameHandler.removeBlackJackGame(e.getAuthor().getIdLong());
-            LevelPointManager.feed(e.getAuthor(), 30);
-            DatabaseManager.INSTANCE.setCredits(e.getAuthor().getIdLong(), 100_000);
+            RPGUser.addShekels(e.getAuthor().getIdLong(), 3_000);
             GameHandler.removeBlackJackGame(e.getAuthor().getIdLong());
             endGame(event.getAuthor());
             return;

@@ -2,6 +2,7 @@ package com.general_hello.commands.commands.Marriage;
 
 import com.general_hello.commands.Bot;
 import com.general_hello.commands.Database.SQLiteDataSource;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 
 import java.sql.Connection;
@@ -59,6 +60,24 @@ public class MarriageData {
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return resultSet.getLong("Son");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static long getFather(long userId) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT MainUser FROM MarriageData WHERE Son = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong("MainUser");
                 }
             }
         } catch (SQLException e) {
@@ -298,7 +317,16 @@ public class MarriageData {
                 MarriageData.addHouseStatus(idLong, -decreaseBy);
                 MarriageData.addLove(idLong, -decreaseBy);
                 if (MarriageData.getHappiness(idLong) < 1 || MarriageData.getLove(idLong) < 1 || MarriageData.getHouseStatus(idLong) < 1) {
+                    long wife = MarriageData.getWife(idLong);
+                    JDA jda = Bot.jda;
+                    jda.getUserById(idLong).openPrivateChannel().queue((privateChannel -> {
+                        privateChannel.sendMessage("You and your partner left each other.... Next time be sure to type `ignt marry` to see your marriage status!").queue();
+                    }));
+                    jda.getUserById(wife).openPrivateChannel().queue((privateChannel -> {
+                        privateChannel.sendMessage("You and your partner left each other.... Next time be sure to type `ignt marry` to see your marriage status!").queue();
+                    }));
                     MarriageData.divorce(idLong);
+                    MarriageData.divorce(wife);
                 }
             }
             x++;

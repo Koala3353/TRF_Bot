@@ -24,7 +24,26 @@ public class FamilyTreeCommand extends Command {
         long authorIdLong = author.getIdLong();
 
         if (MarriageData.getWife(authorIdLong) == -1) {
-            event.reply("You don't even have a family 🤪");
+            if (MarriageData.getFather(authorIdLong) == -1) {
+                event.reply("You don't even have a family 🤪");
+                return;
+            }
+        }
+
+        if (MarriageData.getWife(authorIdLong) == -1) {
+            authorIdLong = MarriageData.getFather(authorIdLong);
+            long wifeIdLong = MarriageData.getWife(authorIdLong);
+            User wife = event.getJDA().getUserById(wifeIdLong);
+            User father = event.getJDA().getUserById(authorIdLong);
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            embedBuilder.setAuthor(author.getName() + "'s Family", null, author.getAvatarUrl());
+            embedBuilder.setDescription("Father/Mother: **" + father.getName() + "** (" + father.getAsMention() + ")\n\n\n\n" +
+                    "Father/Mother: **" + (wife != null ? wife.getName():"None") +  "** (" + (wife != null ? wife.getAsMention():"None") + ")");
+            embedBuilder.setThumbnail(father.getAvatarUrl());
+            embedBuilder.setImage(wife.getAvatarUrl());
+            embedBuilder.setColor(InfoUserCommand.randomColor());
+            embedBuilder.setFooter("Happy or sad family?").setTimestamp(OffsetDateTime.now());
+            event.reply(embedBuilder.build());
             return;
         }
 
@@ -35,7 +54,7 @@ public class FamilyTreeCommand extends Command {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setAuthor(author.getName() + "'s Family", null, author.getAvatarUrl());
         embedBuilder.setDescription("Wife/Husband: **" + wife.getName() + "** (" + wife.getAsMention() + ")\n\n\n\n" +
-                "Son: **" + (son != null ? son.getName():"None") +  "** (" + (son != null ? son.getAsMention():"None") + ")");
+                "Son/daughter: **" + (son != null ? son.getName():"None") +  "** (" + (son != null ? son.getAsMention():"None") + ")");
         embedBuilder.setThumbnail(wife.getAvatarUrl());
         embedBuilder.setImage((son != null ? son.getAvatarUrl():null));
         embedBuilder.setColor(InfoUserCommand.randomColor());

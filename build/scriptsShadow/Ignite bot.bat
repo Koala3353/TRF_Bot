@@ -63,7 +63,7 @@ set CMD_LINE_ARGS=%*
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\Ignite bot-3.1.0-all.jar
+set CLASSPATH=%APP_HOME%\lib\Ignite.jar
 
 @rem Execute Ignite bot
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %IGNITE_BOT_OPTS%  -jar "%CLASSPATH%" %CMD_LINE_ARGS%

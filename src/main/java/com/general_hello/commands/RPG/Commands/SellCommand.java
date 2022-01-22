@@ -17,6 +17,7 @@ public class SellCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
+        if (RPGDataUtils.checkUser(event)) return;
         long authorId = event.getAuthor().getIdLong();
         if (event.getArgs().isEmpty()) {
             event.replyError("Kindly place what item you'll sell, and the quantity (Optional)\n" +
@@ -33,10 +34,16 @@ public class SellCommand extends Command {
                 amount = Integer.parseInt(args[1]);
             } catch (Exception e) {
                 event.replyError("Invalid number placed! Try again!");
+                return;
             }
         }
 
-        if (!Initializer.allItems.containsKey(args[0])) {
+        if (amount < 1) {
+            event.replyError("Don't try to do the hacks 😒");
+            return;
+        }
+
+        if (!Initializer.allItems.containsKey(RPGDataUtils.filter(args[0]))) {
             event.replyError("There is no such item that you want to sell.");
             return;
         }

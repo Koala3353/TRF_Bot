@@ -44,7 +44,13 @@ public class CookCommand extends Command {
                 amount = Integer.parseInt(args[1]);
             } catch (Exception e) {
                 event.replyError("Invalid number placed! Try again!");
+                return;
             }
+        }
+
+        if (amount < 1) {
+            event.replyError("Don't try to do the hacks 😒");
+            return;
         }
         long authorId = event.getAuthor().getIdLong();
         if (RPGUser.getItemCount(authorId, RPGDataUtils.filter(itemName)) < amount) {

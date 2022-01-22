@@ -1,5 +1,6 @@
 package com.general_hello.commands.commands.Currency;
 
+import com.general_hello.commands.RPG.Objects.RPGEmojis;
 import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.ICommand;
@@ -7,6 +8,7 @@ import com.general_hello.commands.commands.Info.InfoUserCommand;
 import com.general_hello.commands.commands.Register.Data;
 import com.general_hello.commands.commands.User.UserPhoneUser;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 
@@ -106,11 +108,11 @@ public class LeaderboardCommand implements ICommand {
             embedBuilder.setColor(InfoUserCommand.randomColor());
             embedBuilder.setThumbnail("https://images-ext-1.discordapp.net/external/CldQTLK4UezxcAi3qvvrGrFCFa-1aFY_Miz5czSDPdY/https/cdn.discordapp.com/emojis/716848179022397462.gif");
             SelectionMenu menu = SelectionMenu.create("menu:leaderboard")
-                    .setPlaceholder("Choose the type of leaderboard you want") // shows the placeholder indicating what this menu is for
+                    .setPlaceholder("Leaderboard types") // shows the placeholder indicating what this menu is for
                     .setRequiredRange(1, 1) // only one can be selected
-                    .addOption("Credits", "credit")
-                    .addOption("Shekels", "shekel")
-                    .addOption("Marriage", "marry")
+                    .addOption("Credits", "credit", "Old Currency", Emoji.fromMarkdown(RPGEmojis.credits))
+                    .addOption("Shekels", "shekel", "RPG Currency", Emoji.fromMarkdown(RPGEmojis.shekels))
+                    .addOption("Marriage", "marry", "Marriage XP", Emoji.fromMarkdown("<:sparkle_blue:917915035236458608>"))
                     .build();
             ctx.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(menu).queue();
         } catch (Exception e) {

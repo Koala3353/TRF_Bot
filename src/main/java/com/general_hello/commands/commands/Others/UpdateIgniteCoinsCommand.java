@@ -11,12 +11,16 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
 public class UpdateIgniteCoinsCommand implements ICommand {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateIgniteCoinsCommand.class);
+
     @Override
     public void handle(CommandContext ctx) throws InterruptedException, IOException, SQLException {
         if (!ctx.getMember().getRoles().contains(ctx.getGuild().getRoleById(888627140046749697L))) {
@@ -89,7 +93,6 @@ public class UpdateIgniteCoinsCommand implements ICommand {
                 }
             }
         }
-
         return values;
     }
 }

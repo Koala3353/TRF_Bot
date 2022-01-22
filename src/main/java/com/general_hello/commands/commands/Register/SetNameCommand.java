@@ -22,7 +22,7 @@ public class SetNameCommand implements ICommand {
         getData.checkIfContainsData(ctx.getAuthor(), ctx);
 
         if (Data.userUserPhoneUserHashMap.containsKey(ctx.getAuthor())) {
-            Data.userUserPhoneUserHashMap.get(ctx.getAuthor()).setUserPhoneUserName(name);
+            Data.userUserPhoneUserHashMap.get(ctx.getAuthor()).setRealName(name);
             GetData.setName(ctx.getAuthor(), name);
             ctx.getChannel().sendMessage("Successfully set the name to `" + name + "`").queue();
             return;

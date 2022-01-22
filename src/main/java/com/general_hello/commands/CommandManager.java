@@ -19,9 +19,7 @@ import com.general_hello.commands.commands.Info.AboutCommand;
 import com.general_hello.commands.commands.Info.InfoServerCommand;
 import com.general_hello.commands.commands.Info.InfoUserCommand;
 import com.general_hello.commands.commands.Marriage.MarriageCommand;
-import com.general_hello.commands.commands.Math.MathCommand;
 import com.general_hello.commands.commands.Others.*;
-import com.general_hello.commands.commands.RankingSystem.ViewRank;
 import com.general_hello.commands.commands.Register.RegisterCommand;
 import com.general_hello.commands.commands.Register.SetNameCommand;
 import com.general_hello.commands.commands.Uno.ChallengeCommand;
@@ -50,8 +48,9 @@ public class CommandManager {
     private final long GAMESC1 = 908202386999361567L;
     private final long MUSICC = 891568732810408007L;
     private final long WALLETC = 891570475220754462L;
+    private final long WALLETC1 = 894432361868066846L;
     private final boolean testing = false;
-    private final long OTHERSC = 894432361868066846L;
+    private final long OTHERSC = 891568495098200084L;
 
     public CommandManager() {
 
@@ -63,11 +62,10 @@ public class CommandManager {
         addCommand(new StartAuctionCommand());
         addCommand(new InfoUserCommand());
         addCommand(new InfoServerCommand());
-        addCommand(new ShareCreditCommand());
+        addCommand(new ShareShekelsCommand());
         addCommand(new RegisterCommand());
         addCommand(new SetPrefixCommand());
         addCommand(new DropCommand());
-        addCommand(new MathCommand());
         addCommand(new LeaderboardCommand());
 
         //mini Games
@@ -91,10 +89,6 @@ public class CommandManager {
         addCommand(new HitCommand());
         addCommand(new SplitCommand());
         addCommand(new StandCommand());
-
-        //rank
-        addCommand(new ViewRank());
-
         //others
         addCommand(new JokeCommand());
         addCommand(new LockDownCommand());
@@ -106,9 +100,7 @@ public class CommandManager {
         addCommand(new SetNameCommand());
         addCommand(new WorkCommand());
         addCommand(new AddCreditsCommand());
-        addCommand(new PreviewCommand());
         addCommand(new ResetWorkCooldown());
-        addCommand(new EvalCommand());
         addCommand(new BegCommand());
 
 
@@ -195,9 +187,9 @@ public class CommandManager {
                                 }
                                 break;
                             case WALLET:
-                                if (event.getChannel().getIdLong() != (WALLETC)) {
+                                if (event.getChannel().getIdLong() != (WALLETC) && event.getChannel().getIdLong() != (WALLETC1)) {
                                     embedBuilder.setDescription(Emojis.ERROR + " Incorrect text channel!\n" +
-                                            "Go to " + event.getGuild().getGuildChannelById(WALLETC).getAsMention() + " and send \n" +
+                                            "Go to " + event.getGuild().getGuildChannelById(WALLETC).getAsMention() + " or " + event.getGuild().getGuildChannelById(WALLETC1).getAsMention() + " and send \n" +
                                             "```java\n" +
                                             prefix + " " + invoke + "\n" +
                                             "```");
