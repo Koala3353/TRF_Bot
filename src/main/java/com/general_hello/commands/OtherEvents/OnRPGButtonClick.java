@@ -70,7 +70,7 @@ public class OnRPGButtonClick extends ListenerAdapter {
                     event.getChannel().sendMessageEmbeds(e.build()).setActionRow(Button.success("1234:IGNORE", event.getButton().getLabel()).asDisabled()).queue();
                 } else {
                     int minRobOrFine = 0;
-                    int maxRobOrFine = 2_000;
+                    int maxRobOrFine = 900;
 
                     int randomNum = UtilNum.randomNum(minRobOrFine, maxRobOrFine);
 

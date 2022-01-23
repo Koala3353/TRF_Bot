@@ -29,7 +29,7 @@ public class OpenCommand extends Command {
         long authorId = event.getAuthor().getIdLong();
         if (event.getArgs().isEmpty()) {
             event.replyError("Kindly place what item you'll open (Loot boxes)\n" +
-                    "`ignt open legendarychest` or `ignt open commonchest`");
+                    "`ignt open legendarychest 5` or `ignt open commonchest`");
             return;
         }
 
@@ -41,7 +41,18 @@ public class OpenCommand extends Command {
             return;
         }
 
-        if (RPGUser.getItemCount(authorId, RPGDataUtils.filter(args[0])) < 1) {
+        int toOpenCount = 1;
+        if (args.length > 1) {
+            int countReq = Integer.parseInt(args[1]);
+            if (countReq < 1) {
+                event.replyError("You can't open stuff that's below 1 🤪");
+                return;
+            }
+
+            toOpenCount = countReq;
+        }
+
+        if (RPGUser.getItemCount(authorId, RPGDataUtils.filter(args[0])) < toOpenCount) {
             event.replyError("You don't have any chests!");
             return;
         }
@@ -51,13 +62,14 @@ public class OpenCommand extends Command {
         EmbedBuilder openingEmbed = new EmbedBuilder();
         openingEmbed.setTitle("Opening " + chest.getName())
                 .setThumbnail(chest.getEmojiUrl())
-                .setFooter("1x " + chest.getName() + " being opened");
-        RPGUser.addItem(authorId, -1, RPGDataUtils.filter(args[0]));
+                .setFooter(toOpenCount + "x " + chest.getName() + " being opened");
+        RPGUser.addItem(authorId, -toOpenCount, RPGDataUtils.filter(args[0]));
+        int finalToOpenCount = toOpenCount;
         event.getChannel().sendMessageEmbeds(openingEmbed.build()).queue(
                 (message -> {
                     int shekelsReward = chest.getRandomShekels();
                     RPGUser.addShekels(authorId, shekelsReward);
-                    List<Objects> tempItems = chest.getRandomItems();
+                    List<Objects> tempItems = chest.getRandomItems(finalToOpenCount);
                     List<Objects> randomItems = new ArrayList<>();
                     int x = 0;
                     HashMap<Objects, Integer> randomItemsToCount = new HashMap<>();
@@ -67,7 +79,7 @@ public class OpenCommand extends Command {
                             randomItemsToCount.put(objectA, 1);
                             randomItems.add(objectA);
                         } else {
-                            Integer count = randomItemsToCount.get(objectA);
+                            Integer count = randomItemsToCount.get(objectA) + 1;
                             randomItemsToCount.put(objectA, count);
                         }
                         x++;
@@ -81,11 +93,16 @@ public class OpenCommand extends Command {
                         stringBuilder.append("`x").append(countOfObject).append("` - ")
                                 .append(randomObject.getEmojiOfItem()).append(" ")
                                 .append(randomObject.getName()).append("\n");
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         x++;
                     }
                     EmbedBuilder openedEmbed = new EmbedBuilder();
                     openedEmbed.setTitle(event.getAuthor().getName() + "'s Loot Haul!")
-                            .setFooter("1x " + chest.getName() + " opened")
+                            .setFooter(finalToOpenCount + "x " + chest.getName() + " opened")
                             .setDescription("**Shekels:** \n" +
                                     RPGEmojis.shekels + " " + RPGDataUtils.formatter.format(shekelsReward) + "\n\n" +
                                     "**Items:**" + "\n" +

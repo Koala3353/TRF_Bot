@@ -45,6 +45,7 @@ public class ErrorUtils {
                 .flatMap(c -> c.sendMessageEmbeds(builder.build()))
                 .queue();
 
+        e.printStackTrace();
         event.getMessage().reply(Emojis.ERROR + " An unknown error occurred! The owner of the bot has been notified of this!").queue(s -> {}, ex -> {});
     }
 }

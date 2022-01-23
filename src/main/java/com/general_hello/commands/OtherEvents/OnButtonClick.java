@@ -117,7 +117,7 @@ public class OnButtonClick extends ListenerAdapter {
                     DropCommand.isClaimed.put(event.getMessageIdLong(), true);
                 }
                 break;
-            case "claimdaily":
+            case "claimcommondrop":
                 if (!DropCommand.isClaimed.get(event.getMessageIdLong())) {
                     if (!RPGDataUtils.isRPGUser(event.getUser())) {
                         return;
@@ -130,9 +130,47 @@ public class OnButtonClick extends ListenerAdapter {
                             "\n" +
                             "Rewards: " +
                             chest.getEmojiOfItem() + " **" + chest.getName() + "**");
-                    embedBuilder.setThumbnail("https://cdn.discordapp.com/emojis/861390923640471572.gif");
+                    embedBuilder.setThumbnail(RPGEmojis.customEmojiUrl(Emoji.fromMarkdown(RPGEmojis.common_chest)));
                     event.getMessage().editMessageEmbeds(embedBuilder.build()).setActionRow(Button.of(ButtonStyle.SUCCESS, "OPENEDCHEST", "Opened by " + event.getMember().getEffectiveName()).asDisabled(),
                             Button.secondary("IGNOREMEEEE", "Dropped by Someone").asDisabled()).queue();
+                    DropCommand.isClaimed.put(event.getMessageIdLong(), true);
+                }
+                break;
+            case "claimuncommondrop":
+                if (!DropCommand.isClaimed.get(event.getMessageIdLong())) {
+                    if (!RPGDataUtils.isRPGUser(event.getUser())) {
+                        return;
+                    }
+                    Chest chest = Initializer.chestToId.get("uncommonchest");
+                    RPGUser.addItem(event.getUser().getIdLong(), 1, "uncommonchest");
+                    EmbedBuilder embedBuilder = new EmbedBuilder();
+                    embedBuilder.setTitle("Uncommon Chest found!").setTimestamp(OffsetDateTime.now()).setColor(InfoUserCommand.randomColor());
+                    embedBuilder.setDescription("A new uncommon chest " + RPGEmojis.uncommon_chest + " has been found! And " + event.getMember().getAsMention() + " was the first one to open it!\n" +
+                            "\n" +
+                            "Rewards: " +
+                            chest.getEmojiOfItem() + " **" + chest.getName() + "**");
+                    embedBuilder.setThumbnail(RPGEmojis.customEmojiUrl(Emoji.fromMarkdown(RPGEmojis.uncommon_chest)));
+                    event.getMessage().editMessageEmbeds(embedBuilder.build()).setActionRow(Button.of(ButtonStyle.SUCCESS, "OPENEDCHEST", "Opened by " + event.getMember().getEffectiveName()).asDisabled(),
+                            Button.secondary("IGNOREMEEEE", "Dropped by the Kraken").asDisabled()).queue();
+                    DropCommand.isClaimed.put(event.getMessageIdLong(), true);
+                }
+                break;
+            case "claimraredrop":
+                if (!DropCommand.isClaimed.get(event.getMessageIdLong())) {
+                    if (!RPGDataUtils.isRPGUser(event.getUser())) {
+                        return;
+                    }
+                    Chest chest = Initializer.chestToId.get("rarechest");
+                    RPGUser.addItem(event.getUser().getIdLong(), 1, "rarechest");
+                    EmbedBuilder embedBuilder = new EmbedBuilder();
+                    embedBuilder.setTitle("Common Chest found!").setTimestamp(OffsetDateTime.now()).setColor(InfoUserCommand.randomColor());
+                    embedBuilder.setDescription("A new rare chest " + RPGEmojis.rare_chest + " has been found! And " + event.getMember().getAsMention() + " was the first one to open it!\n" +
+                            "\n" +
+                            "Rewards: " +
+                            chest.getEmojiOfItem() + " **" + chest.getName() + "**");
+                    embedBuilder.setThumbnail(RPGEmojis.customEmojiUrl(Emoji.fromMarkdown(RPGEmojis.rare_chest)));
+                    event.getMessage().editMessageEmbeds(embedBuilder.build()).setActionRow(Button.of(ButtonStyle.SUCCESS, "OPENEDCHEST", "Opened by " + event.getMember().getEffectiveName()).asDisabled(),
+                            Button.secondary("IGNOREMEEEE", "Dropped by Bruno").asDisabled()).queue();
                     DropCommand.isClaimed.put(event.getMessageIdLong(), true);
                 }
                 break;
@@ -574,8 +612,9 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.addField("8.) View Health Command", "`" + prefix + " health`", false);
                 embedBuilder.addField("9.) Cook Command", "`" + prefix + " cook`", false);
                 embedBuilder.addField("10.) Open Loot Boxes Command", "`" + prefix + " open`", false);
+                embedBuilder.addField("11.) Use Power ups Command", "`" + prefix + " use`", false);
 
-                embedBuilder.setFooter("Some commands here may or may not work due to it being a BETA command");
+                embedBuilder.setFooter("Some commands here may or may not work due to it being a BETA feature");
                 break;
             case 7:
                 embedBuilder.setTitle("Currency Commands");

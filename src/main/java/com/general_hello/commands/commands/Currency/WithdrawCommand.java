@@ -53,7 +53,7 @@ public class WithdrawCommand extends Command {
         }
 
         if (money < 1) {
-            event.replyError("Don't bother test me 😡");
+            event.replyError("Don't place negatives bro....");
             return;
         }
 

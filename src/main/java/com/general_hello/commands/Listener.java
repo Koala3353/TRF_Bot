@@ -1,7 +1,6 @@
 package com.general_hello.commands;
 
 import com.general_hello.commands.Database.DatabaseManager;
-import com.general_hello.commands.RPG.Items.Initializer;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.GetData;
 import com.general_hello.commands.commands.GroupOfGames.Blackjack.GameHandler;
@@ -60,7 +59,10 @@ public class Listener extends ListenerAdapter {
         }
         try {
             Data.userUserPhoneUserHashMap.get(event.getAuthor()).getCredits();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            GetData getData = new GetData();
+            getData.checkIfContainsData(event.getAuthor(), event);
+        }
 
         Data.users.add(event.getAuthor());
 

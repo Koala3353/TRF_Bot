@@ -1,7 +1,7 @@
 package com.general_hello.commands.OtherEvents;
 
 import com.general_hello.commands.Bot;
-import com.general_hello.commands.commands.Currency.DailyDrop;
+import com.general_hello.commands.commands.Currency.CommonDrop;
 import com.general_hello.commands.commands.Marriage.MarriageData;
 import com.general_hello.commands.commands.Others.UpdateIgniteCoinsCommand;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -25,7 +25,7 @@ public class OnReadyEvent extends ListenerAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        DailyDrop.runDrop();
+        CommonDrop.runDrop();
         MarriageData.runDeduct();
         LOGGER.info("Started the auto drop and auto deduct marriage xp.");
     }

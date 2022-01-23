@@ -428,17 +428,8 @@ public class OnSelectionMenu extends ListenerAdapter {
                 TriviaCommand.storeAnswer.remove(event.getUser());
             } else {
                 if (WorkCommand.job.containsKey(event.getUser())) {
-
-                    UserPhoneUser bankUser = Data.userUserPhoneUserHashMap.get(event.getJDA().getSelfUser());
-                    int bankCredits = bankUser.getCredits();
-
                     int minRobOrFine = 0;
                     int maxRobOrFine = 2_000;
-
-                    if (maxRobOrFine > bankCredits) {
-                        maxRobOrFine = bankCredits;
-                    }
-
                     int randomNum = UtilNum.randomNum(minRobOrFine, maxRobOrFine);
 
                     DecimalFormat formatter = new DecimalFormat("#,###.00");
@@ -457,7 +448,7 @@ public class OnSelectionMenu extends ListenerAdapter {
                 } else {
                     EmbedBuilder e = new EmbedBuilder();
                     e.setTitle("Incorrect answer");
-                    e.setFooter("A correct answer gives you " + RPGEmojis.shekels + " " + reward);
+                    e.setFooter("A correct answer gives you " + reward + " shekels");
                     e.addField("Question: `" + question + "`\n" + "Difficulty: **" + difficulty +
                             "**\nThe correct answer is " + TriviaCommand.storeAnswer.get(event.getUser()), "Better luck next time", false).setColor(Color.RED);
                     event.getChannel().sendMessageEmbeds(e.build()).queue();

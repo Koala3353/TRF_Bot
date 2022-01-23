@@ -39,13 +39,17 @@ public class Chest extends Objects {
         return objects;
     }
 
-    public List<Objects> getRandomItems() {
+    public List<Objects> getRandomItems(int openCounts) {
         List<String> randomItems = new ArrayList<>();
-        do {
-            int randomNum = UtilNum.randomNum(0, itemsInChest.size()-1);
-            randomItems.add(itemsInChest.get(randomNum));
+        int x = 0;
+        while (x < openCounts) {
+            do {
+                int randomNum = UtilNum.randomNum(0, itemsInChest.size() - 1);
+                randomItems.add(itemsInChest.get(randomNum));
 
-        } while (UtilNum.randomNum(0, 3) >= 1);
+            } while (UtilNum.randomNum(0, 2) >= 1);
+            x++;
+        }
         return convertStringToObjects(randomItems);
     }
 

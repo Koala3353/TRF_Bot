@@ -12,6 +12,7 @@ public class Initializer {
     public static HashMap<String, SeaAnimal> seaAnimalToId = new HashMap<>();
     public static HashMap<String, Artifact> artifactToId = new HashMap<>();
     public static HashMap<String, Tool> toolToId = new HashMap<>();
+    public static HashMap<String, Powerup> powerUpToId = new HashMap<>();
     public static HashMap<String, Objects> allItems = new HashMap<>();
     public static HashMap<String, Animal> allAnimals = new HashMap<>();
     public static HashMap<String, Weapon> weaponToId = new HashMap<>();
@@ -23,6 +24,7 @@ public class Initializer {
     public static ArrayList<Tool> tools = new ArrayList<>();
     public static ArrayList<Weapon> weapons = new ArrayList<>();
     public static ArrayList<Chest> chests = new ArrayList<>();
+    public static ArrayList<Powerup> powerUps = new ArrayList<>();
     public static ArrayList<String> allNames = new ArrayList<>();
     public static ArrayList<SeaAnimal> commonSea = new ArrayList<>();
     public static ArrayList<SeaAnimal> uncommonSea = new ArrayList<>();
@@ -97,11 +99,15 @@ public class Initializer {
         new Artifact(Rarity.LEGENDARY, "Rod of Moses", "<:moses_rod:905961435891372083>", "A rod used by Moses to perform miracles.", 80_000_000);
         new Artifact(Rarity.MYTHICAL, "Part of Ten Commandments", "<:tencommandment:905241910644461569>", "The Ten Commandments. Nothing more. Nothing less.", 100_000_000);
 
-        new Chest("Common Chest", Rarity.COMMON, RPGEmojis.common_chest, 1_000, 10_000,"Common", "Seaweed", "Gnat", "Locust", "Goat", "Donkey", "Dove");
-        new Chest("Uncommon Chest", Rarity.UNCOMMON, RPGEmojis.uncommon_chest, 5_000, 20_000, "Pig", "Dog", "Sheep", "Cow", "Eagle", "Uncommon", "Peters");
-        new Chest("Rare Chest", Rarity.RARE, RPGEmojis.rare_chest, 10_000, 30_000, "Rare", "Jelly", "Cuttle", "Puffer", "Shrimp", "Camel", "Sparrow", "Lion", "Serpent");
-        new Chest("Legendary Chest", Rarity.LEGENDARY, RPGEmojis.legendary_chest, 100_000, 1_000_000, "Dinosaur", "Legendary", "Octopus", "Crab", "Lobster", "Jonahs");
-        new Chest("Mythical Chest", Rarity.MYTHICAL, RPGEmojis.mythical_chest, 500_000, 5_000_000, "Mythical", "Kraken", "Rhino");
+        //Chests
+        new Chest("Common Chest", Rarity.COMMON, RPGEmojis.common_chest, 1_000, 10_000,"Common", "Seaweed", "Gnat", "Locust", "Goat", "Donkey", "Dove", "Claypot", "Sackcloth", "banknote");
+        new Chest("Uncommon Chest", Rarity.UNCOMMON, RPGEmojis.uncommon_chest, 5_000, 20_000, "Pig", "Dog", "Sheep", "Cow", "Eagle", "Uncommon", "Peters", "Wineskin");
+        new Chest("Rare Chest", Rarity.RARE, RPGEmojis.rare_chest, 10_000, 30_000, "Rare", "Jelly", "Cuttle", "Puffer", "Shrimp", "Camel", "Sparrow", "Lion", "Serpent", "ruby", "stonesofdavid", "coatofjoseph");
+        new Chest("Legendary Chest", Rarity.LEGENDARY, RPGEmojis.legendary_chest, 100_000, 1_000_000, "Dinosaur", "Legendary", "Octopus", "Crab", "Lobster", "Jonahs", "Diamond", "Rodofmoses");
+        new Chest("Mythical Chest", Rarity.MYTHICAL, RPGEmojis.mythical_chest, 500_000, 5_000_000, "Mythical", "Kraken", "Rhino", "partoftencommandments");
+
+        //Power-ups
+        new Powerup("Bank note", Rarity.COMMON, null, "<:bank_note:934617740369612930>", "Used to increase your bank storage");
         backEndInitializer();
     }
 

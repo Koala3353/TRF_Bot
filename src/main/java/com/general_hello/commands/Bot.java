@@ -101,8 +101,8 @@ public class Bot {
                         new OnReadyEvent(), new OnSelectionMenu(),
                         new OtherEvents(), new OnPrivateMessage(),
                         new Listener(), new CommandCounter())
-                .setActivity(Activity.watching("ignt help"))
-                .setStatus(OnlineStatus.ONLINE)
+                .setActivity(Activity.watching(Config.get("prefix") + " help"))
+                .setStatus(OnlineStatus.IDLE)
                 .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(CacheFlag.ACTIVITY)
@@ -250,5 +250,6 @@ public class Bot {
         clientBuilder.addCommand(new CommandCountCommand());
         clientBuilder.addCommand(new OpenCommand());
         clientBuilder.addCommand(new AddItemCommand());
+        clientBuilder.addCommand(new UseCommand());
     }
 }

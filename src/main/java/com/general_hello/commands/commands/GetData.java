@@ -60,7 +60,7 @@ public class GetData {
         DatabaseManager.INSTANCE.setName(user.getIdLong(), name);
     }
     private int retrieveData(Long userId, GuildMessageReceivedEvent ctx) {
-        if (blackListedUser.contains(ctx.getAuthor())) return -1;
+        if (blackListedUser.contains(ctx.getAuthor()) && Data.userUserPhoneUserHashMap.get(ctx.getAuthor()) != null) return -1;
 
         String name = DatabaseManager.INSTANCE.getName(userId);
 
@@ -75,7 +75,7 @@ public class GetData {
 
     private int addData(Long userId, String name, JDA jda) {
         if (name != null) {
-            User userById = jda.getUserById(userId);
+            User userById = jda.retrieveUserById(userId).complete();
 
             int credits = DatabaseManager.INSTANCE.getCredits(userId);
             UserPhoneUser user = new UserPhoneUser(name, userById, credits);

@@ -147,6 +147,24 @@ public class ShopCommand extends Command {
                 )).queue();
                 return;
             }
+
+            if (Initializer.powerUpToId.containsKey(name)) {
+                Powerup powerup = Initializer.powerUpToId.get(name);
+                EmbedBuilder embedBuilder = new EmbedBuilder().setTitle(powerup.getName() + " (" + RPGUser.getItemCount(event.getAuthor().getIdLong(), RPGDataUtils.filter(name)) + " owned)");
+                embedBuilder.setColor(Color.cyan);
+                embedBuilder.setDescription("> " + powerup.getDescription() + "\n\n" +
+                        "**BUY** - " + (powerup.getCostToBuy() == null ? "Out of Stock" : RPGEmojis.shekels + " [" + powerup.getFormattedPrice() + "](https://discord.com)") + "\n" +
+                        "**SELL** - " + RPGEmojis.shekels + " [" + powerup.getFormattedSellPrice() + "](https://discord.com)\n" +
+                        "**TRADE** - Unknown");
+                embedBuilder.addField("Rarity", "`" + powerup.getRarity().getName() + "`", true);
+                embedBuilder.addField("Type", "`Power Up`", true);
+                embedBuilder.addField("ID", "`" + name + "`", true);
+                try {
+                    embedBuilder.setThumbnail(powerup.getEmojiUrl());
+                } catch (IllegalArgumentException ignored) {}
+                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                return;
+            }
         } catch (Exception e) {
             event.getTextChannel().sendMessage("The item you searched for is not there!").queue();
             e.printStackTrace();
@@ -212,6 +230,17 @@ public class ShopCommand extends Command {
             content.add(chest.getEmojiOfItem() + " **" + chest.getName() + "** " +
                     "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(chest.getName())) + ") — " + "<:shekels:906039266650505256> " + (chest.getCostToBuy() == null ? "[Out of stock" : "<:shekels:906039266650505256> [" + formatter.format(chest.getCostToBuy())) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
                     chest.getDescription() + "\n");
+            x++;
+        }
+
+        ArrayList<Powerup> powerUps = Initializer.powerUps;
+
+        x = 0;
+        while (x < powerUps.size()) {
+            Powerup powerup = powerUps.get(x);
+            content.add(powerup.getEmojiOfItem() + " **" + powerup.getName() + "** " +
+                    "(" + RPGUser.getItemCount(userId, RPGDataUtils.filter(powerup.getName())) + ") — " + "<:shekels:906039266650505256> " + (powerup.getCostToBuy() == null ? "[Out of stock" : "<:shekels:906039266650505256> [" + formatter.format(powerup.getCostToBuy())) + "](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n" +
+                    powerup.getDescription() + "\n");
             x++;
         }
 

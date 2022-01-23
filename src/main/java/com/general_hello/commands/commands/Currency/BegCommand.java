@@ -8,8 +8,6 @@ import com.general_hello.commands.commands.CommandContext;
 import com.general_hello.commands.commands.CommandType;
 import com.general_hello.commands.commands.Emoji.Emojis;
 import com.general_hello.commands.commands.ICommand;
-import com.general_hello.commands.commands.Register.Data;
-import com.general_hello.commands.commands.User.UserPhoneUser;
 import com.general_hello.commands.commands.Utils.UtilNum;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -39,15 +37,8 @@ public class BegCommand implements ICommand {
 
         cooldown.put(author, OffsetDateTime.now());
 
-        UserPhoneUser bankUser = Data.userUserPhoneUserHashMap.get(ctx.getSelfUser());
-        int bankCredits = bankUser.getCredits();
-
         int minRobOrFine = 0;
         int maxRobOrFine = 2_500;
-
-        if (maxRobOrFine > bankCredits) {
-            maxRobOrFine = bankCredits;
-        }
 
         int randomNum = UtilNum.randomNum(minRobOrFine, maxRobOrFine);
 
