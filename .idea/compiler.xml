@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="1.8" />
+    <bytecodeTargetLevel target="1.8">
+      <module name="Escape_Room" target="16" />
+      <module name="Escape_Room.main" target="16" />
+      <module name="Escape_Room.test" target="16" />
+      <module name="Ignite_bot" target="16" />
+      <module name="Ignite_bot.main" target="16" />
+      <module name="Ignite_bot.test" target="16" />
+      <module name="Invite_Tracker" target="16" />
+      <module name="Invite_Tracker.main" target="16" />
+      <module name="Invite_Tracker.test" target="16" />
+      <module name="Kaijuto_Era" target="16" />
+      <module name="Kaijuto_Era.main" target="16" />
+      <module name="Kaijuto_Era.test" target="16" />
+      <module name="School_Helper" target="16" />
+      <module name="School_Helper.main" target="16" />
+      <module name="School_Helper.test" target="16" />
+    </bytecodeTargetLevel>
   </component>
 </project>
