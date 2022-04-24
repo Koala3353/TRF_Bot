@@ -1,8 +1,10 @@
 package com.general_hello;
 
 import com.general_hello.commands.Items.Initializer;
+import com.general_hello.commands.OtherEvents.OnButtonClick;
 import com.general_hello.commands.OtherEvents.OnReadyEvent;
 import com.general_hello.commands.OtherEvents.OnSelectionMenu;
+import com.general_hello.commands.commands.*;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
@@ -20,6 +22,8 @@ import javax.security.auth.login.LoginException;
 
 public class Bot {
     public static JDA jda;
+    public static final String PAYPAL_LINK = Config.get("paypal");
+    public static final String PATREON_LINK = Config.get("patreon");
     private static Bot bot;
     private final EventWaiter eventWaiter;
     // If you want to log stuff
@@ -62,7 +66,7 @@ public class Bot {
                 GatewayIntent.GUILD_EMOJIS,
                 GatewayIntent.DIRECT_MESSAGES)
                 .addEventListeners(eventWaiter, commandClient,
-                        new OnReadyEvent(), new OnSelectionMenu())
+                        new OnReadyEvent(), new OnSelectionMenu(), new OnButtonClick())
                 .setStatus(OnlineStatus.IDLE)
                 .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
@@ -82,7 +86,11 @@ public class Bot {
 
     private static void addCommands(CommandClientBuilder clientBuilder) {
         // commands here
-        clientBuilder.addSlashCommands();
+        clientBuilder.addSlashCommands(new StartCommand(), new SupporterCommand(), new ShopCommand(),
+                new InventoryCommand(), new PaypalCommand(), new PatreonCommand(),
+                new SkillInfoCommand(), new ItemInfoCommand(), new AchievementCommand(), new MySkillsList(),
+                new ProfileCommand());
+        clientBuilder.addCommands(new SenseiCommand());
         LOGGER.info("Added the slash commands");
     }
 

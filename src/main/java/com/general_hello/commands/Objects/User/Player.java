@@ -1,8 +1,11 @@
 package com.general_hello.commands.Objects.User;
 
 import com.general_hello.Bot;
+import com.general_hello.Config;
 import com.general_hello.commands.Database.SQLiteDataSource;
+import com.general_hello.commands.Items.Initializer;
 import com.general_hello.commands.Objects.RPGEmojis;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.entities.User;
 
 import java.sql.Connection;
@@ -11,7 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Player {
-    private final int userId;
+    private final long userId;
     private int hp;
     private int melee;
     private int magic;
@@ -42,40 +45,40 @@ public class Player {
     private int rainbowShards;
     private int skillSlotsCap;
 
-    public Player(int userId) {
+    public Player(long userId) {
         this.userId = userId;
-        this.hp = gotMynt("hp");
-        this.melee = gotMynt("melee");
-        this.magic = gotMynt("magic");
-        this.neoDevilFruit = gotMynt("neoDevilFruit");
+        this.hp = getDatabaseThing("hp");
+        this.melee = getDatabaseThing("melee");
+        this.magic = getDatabaseThing("magic");
+        this.neoDevilFruit = getDatabaseThing("neoDevilFruit");
         this.profession = getSavedThingFromDatabase("profession");
-        this.professionExp = gotMynt("professionExp");
-        this.strength = gotMynt("strength");
-        this.endurance = gotMynt("endurance");
-        this.intelligence = gotMynt("intelligence");
-        this.willpower = gotMynt("willpower");
-        this.speed = gotMynt("speed");
-        this.rank = getRankFromInt(gotMynt("rank"));
-        this.exp = gotMynt("exp");
-        this.level = gotMynt("level");
-        this.aiDefeated = gotMynt("aiDefeated");
-        this.pvpWon = gotMynt("pvpWon");
-        this.pvpLost = gotMynt("pvpLost");
+        this.professionExp = getDatabaseThing("professionExp");
+        this.strength = getDatabaseThing("strength");
+        this.endurance = getDatabaseThing("endurance");
+        this.intelligence = getDatabaseThing("intelligence");
+        this.willpower = getDatabaseThing("willpower");
+        this.speed = getDatabaseThing("speed");
+        this.rank = getRankFromInt(getDatabaseThing("rank"));
+        this.exp = getDatabaseThing("exp");
+        this.level = getDatabaseThing("level");
+        this.aiDefeated = getDatabaseThing("aiDefeated");
+        this.pvpWon = getDatabaseThing("pvpWon");
+        this.pvpLost = getDatabaseThing("pvpLost");
         this.pvpFought = this.pvpWon + this.pvpLost;
-        this.rankWins = gotMynt("rankWins");
-        this.rankLoss = gotMynt("rankLoss");
+        this.rankWins = getDatabaseThing("rankWins");
+        this.rankLoss = getDatabaseThing("rankLoss");
         this.rankFought = this.rankWins + this.rankLoss;
         this.bounty = getSavedThingFromDatabase("bounty");
         this.achievementTitle = getSavedThingFromDatabase("achievementTitle");
-        this.likes = gotMynt("likes");
+        this.likes = getDatabaseThing("likes");
         this.marriagePartnerId = getSavedThingFromDatabaseLong("marriagePartnerId");
         this.senseiId = getSavedThingFromDatabaseLong("senseiId");
-        this.berri = gotMynt("berri");
-        this.rainbowShards = gotMynt("rainbowShards");
-        this.skillSlotsCap = gotMynt("skillSlotsCap");
+        this.berri = getDatabaseThing("berri");
+        this.rainbowShards = getDatabaseThing("rainbowShards");
+        this.skillSlotsCap = getDatabaseThing("skillSlotsCap");
     }
 
-    private int gotMynt(String thing) {
+    private int getDatabaseThing(String thing) {
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
                      .prepareStatement("SELECT " + thing + " FROM Player WHERE userId = " + userId)) {
@@ -90,6 +93,133 @@ public class Player {
         }
 
         return -1;
+    }
+
+    public static void addItem(long userId, int amount, String item) {
+        item = SQLiteDataSource.filter(Initializer.allObjects.get(item).getName());
+        int total = (amount) + getItemCount(userId, item);
+
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE Skills SET " + item + "=? WHERE UserId=?"
+                )) {
+
+            preparedStatement.setString(2, String.valueOf(userId));
+            preparedStatement.setString(1, String.valueOf(total));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addSkills(long userId, String item) {
+        item = SQLiteDataSource.filter(Initializer.allObjects.get(item).getName());
+        int total = 1;
+
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE Skills SET " + item + "=? WHERE UserId=?"
+                )) {
+
+            preparedStatement.setString(2, String.valueOf(userId));
+            preparedStatement.setString(1, String.valueOf(total));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeSkills(long userId, String item) {
+        item = SQLiteDataSource.filter(Initializer.allObjects.get(item).getName());
+        int total = 0;
+
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE Skills SET " + item + "=? WHERE UserId=?"
+                )) {
+
+            preparedStatement.setString(2, String.valueOf(userId));
+            preparedStatement.setString(1, String.valueOf(total));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static int getItemCount(long userId, String item) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT " + SQLiteDataSource.filter(Initializer.allObjects.get(item).getName()) + " FROM Skills WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(SQLiteDataSource.filter(Initializer.allObjects.get(item).getName()));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static boolean hasSkill(long userId, String skill) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT " + SQLiteDataSource.filter(Initializer.allObjects.get(skill).getName()) + " FROM Skills WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(SQLiteDataSource.filter(Initializer.allObjects.get(skill).getName())) == 1;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean hasUnlockedAchievement(long userId, String achievement) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT " + SQLiteDataSource.filter(Initializer.allAchievements.get(achievement).getName()) + " FROM Achievement WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(SQLiteDataSource.filter(Initializer.allAchievements.get(achievement).getName())) == 1;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static void setAchievement(long userId, String achievement, boolean setter) {
+        achievement = SQLiteDataSource.filter(Initializer.allAchievements.get(achievement).getName());
+        int total = (setter ? 1 : 0);
+
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE Achievement SET " + achievement + "=? WHERE UserId=?"
+                )) {
+
+            preparedStatement.setString(2, String.valueOf(userId));
+            preparedStatement.setString(1, String.valueOf(total));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean isPatreon(User member) {
+        return Bot.jda.getGuildById(Config.get("server")).getMemberById(member.getIdLong()).getRoles().contains(Bot.jda.getGuildById(Config.get("server")).getRoleById(Config.get("premium")));
+    }
+
+    public static boolean isPatreon(SlashCommandEvent event) {
+        return isPatreon(event.getUser());
     }
 
     private long getSavedThingFromDatabaseLong(String thing) {
@@ -148,7 +278,7 @@ public class Player {
         };
     }
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
 
@@ -289,7 +419,7 @@ public class Player {
 
     public static void setInDatabase(long userId, int toChange, String setting) {
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                .prepareStatement("UPDATE Settings SET " + setting + "=? WHERE UserId=?"
+                .prepareStatement("UPDATE Player SET " + setting + "=? WHERE UserId=?"
                 )) {
 
             preparedStatement.setString(2, String.valueOf(userId));
@@ -303,7 +433,7 @@ public class Player {
 
     public static void setInDatabase(long userId, String toChange, String setting) {
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                .prepareStatement("UPDATE Settings SET " + setting + "=? WHERE UserId=?"
+                .prepareStatement("UPDATE Player SET " + setting + "=? WHERE UserId=?"
                 )) {
 
             preparedStatement.setString(2, String.valueOf(userId));
@@ -317,7 +447,7 @@ public class Player {
 
     public static void setInDatabase(long userId, long toChange, String setting) {
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                .prepareStatement("UPDATE Settings SET " + setting + "=? WHERE UserId=?"
+                .prepareStatement("UPDATE Player SET " + setting + "=? WHERE UserId=?"
                 )) {
 
             preparedStatement.setString(2, String.valueOf(userId));

@@ -6,9 +6,9 @@ import java.awt.*;
 
 public class EmbedUtil
 {
-    public static final int DEFAULT_COLOR = 0x452350;
+    public static final int DEFAULT_COLOR = 0x0099E1;
 
-    public static final int SUCCESS_COLOR = 0x3EB489;
+    public static final int SUCCESS_COLOR = 0x0099E1 ;
     public static final int ERROR_COLOR = 0x790604;
     public static final int WARNING_COLOR = 0xFFEA17;
 
@@ -47,6 +47,36 @@ public class EmbedUtil
         return new EmbedBuilder()
                 .setDescription(content)
                 .setColor(DEFAULT_COLOR)
+                .build();
+    }
+
+    public static MessageEmbed defaultEmbed(String content, String image)
+    {
+        return new EmbedBuilder()
+                .setDescription(content)
+                .setColor(DEFAULT_COLOR)
+                .setImage(image)
+                .build();
+    }
+
+    public static MessageEmbed defaultEmbed(String content, String image, String thumbnail, Color color)
+    {
+        return new EmbedBuilder()
+                .setDescription(content)
+                .setImage(image)
+                .setThumbnail(thumbnail)
+                .setColor(color)
+                .build();
+    }
+
+    public static MessageEmbed defaultEmbed(String title, String content, String image, String thumbnail)
+    {
+        return new EmbedBuilder()
+                .setDescription(content)
+                .setTitle(title)
+                .setImage(image)
+                .setThumbnail(thumbnail)
+                .setColor(SUCCESS_COLOR)
                 .build();
     }
 

@@ -2,6 +2,7 @@ package com.general_hello.commands.Objects;
 
 import com.general_hello.commands.Database.DataUtils;
 import com.general_hello.commands.Items.Initializer;
+import com.general_hello.commands.Objects.User.Rank;
 import net.dv8tion.jda.api.entities.Emoji;
 
 public class Object {
@@ -9,12 +10,16 @@ public class Object {
     private final Integer costToBuy;
     private final String emoji;
     private final String description;
+    private final Rank rank;
+    private final boolean patreonOnly;
 
-    public Object(String name, Integer costToBuy, String emoji, String description) {
+    public Object(String name, Integer costToBuy, String emoji, String description, Rank rank, boolean patreonOnly) {
         this.name = name;
         this.costToBuy = costToBuy;
         this.emoji = emoji;
         this.description = description;
+        this.rank = rank;
+        this.patreonOnly = patreonOnly;
         Initializer.allObjects.put(name, this);
         Initializer.allNames.add(name);
     }
@@ -40,6 +45,14 @@ public class Object {
         return emoji.getIdLong();
     }
 
+    public Rank getRank() {
+        return rank;
+    }
+
+    public boolean isPatreonOnly() {
+        return patreonOnly;
+    }
+
     public String getEmojiUrl() {
         if (getEmojiOfItem().equals("")) {
             return "";
@@ -53,6 +66,6 @@ public class Object {
     }
 
     public String getFormattedPrice() {
-        return DataUtils.formatter.format(this.costToBuy);
+        return RPGEmojis.berri + " " + DataUtils.formatter.format(this.costToBuy);
     }
 }

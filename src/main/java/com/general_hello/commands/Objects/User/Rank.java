@@ -1,5 +1,9 @@
 package com.general_hello.commands.Objects.User;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
 public enum Rank {
     R1(5_000, 10_000, -1, -1, -1, 5_000, 5_000, 5_000, 5_000, 5_000, 100_000, "Newbie", "Newbie", "Newbie", 0, 0, 0),
     R2(10_000, 50_000, 50_000, -1, -1, 10_000, 10_000, 10_000, 10_000, 10_000, 500_000, "Pirates Trainee", "Marines Trainee", "Street Thug", 5, 25, 0),
@@ -114,5 +118,19 @@ public enum Rank {
 
     public int getSpeed() {
         return speed;
+    }
+
+    public static boolean isHigherOrEqual(Rank supposedLowerRank, Rank userRank) {
+        HashMap<Rank, List<Rank>> hashMap = new HashMap<>();
+        hashMap.put(R1, Collections.singletonList(R1));
+        hashMap.put(R2, List.of(R1, R2));
+        hashMap.put(R3, List.of(R1, R2, R3));
+        hashMap.put(R4, List.of(R1, R2, R3, R4));
+        hashMap.put(R5, List.of(R1, R2, R3, R4, R5));
+        hashMap.put(R6, List.of(R1, R2, R3, R4, R5, R6));
+        hashMap.put(R7, List.of(R1, R2, R3, R4, R5, R6, R7));
+        hashMap.put(R8, List.of(R1, R2, R3, R4, R5, R6, R7, R8));
+
+        return hashMap.get(supposedLowerRank).contains(userRank);
     }
 }
