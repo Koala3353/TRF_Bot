@@ -1,4 +1,4 @@
-package com.general_hello.commands.Objects;
+package com.general_hello.commands.Objects.Others;
 
 public enum EffectTypes {
     // The effects (Fully documented will be on stage 4)

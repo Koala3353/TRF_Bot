@@ -27,34 +27,34 @@ public class SenseiCommand extends Command {
 
             Player player = DataUtils.getPlayer(event.getAuthor());
             if (player.getSenseiId() != -1) {
-                event.reply("You already have a sensei.");
+                event.reply("You already have a Sensei.");
                 return;
             }
 
             List<User> mentionedUsers = event.getMessage().getMentionedUsers();
             if (mentionedUsers.isEmpty()) {
-                event.reply("Mention someone to be your sensei");
+                event.reply("Mention someone to be your Sensei");
                 return;
             }
 
             User user = mentionedUsers.get(0);
 
             if (user.getId().equals(event.getAuthor().getId())) {
-                event.reply("You can't be your own sensei!");
+                event.reply("You can't be your own Sensei!");
                 return;
             }
 
             if (DataUtils.hasAccount(user) == -1) {
-                event.reply(user.getAsMention() + "has to register and make an account first.");
+                event.reply(user.getAsMention() + " has to register and make an account first.");
                 return;
             }
 
             if (DataUtils.getPlayer(user).getSenseiId() != -1) {
-                event.reply("The user already has a sensei.");
+                event.reply("The user already has a Sensei.");
                 return;
             }
             // Accepting message
-            event.getChannel().sendMessageEmbeds(EmbedUtil.defaultEmbed(user.getAsMention() + ", " + event.getAuthor().getAsMention() + " wants you to become their sensei!\n" +
+            event.getChannel().sendMessageEmbeds(EmbedUtil.defaultEmbed(user.getAsMention() + ", " + event.getAuthor().getAsMention() + " wants you to become their Sensei!\n" +
                     "> **Do you accept?**")).setActionRow(Button.primary(user.getId() + ":sensei:yes:" + event.getAuthor().getId(), "Yes"), Button.danger(user.getId() + ":sensei:no", "No")).queue();
         } catch (Exception ignored) {}
     }

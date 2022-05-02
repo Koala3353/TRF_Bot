@@ -1,9 +1,9 @@
  package com.general_hello.commands.OtherEvents;
 
  import com.general_hello.commands.Items.Initializer;
- import com.general_hello.commands.Objects.Object;
- import com.general_hello.commands.Objects.RPGEmojis;
- import com.general_hello.commands.Objects.Trade;
+ import com.general_hello.commands.Objects.Items.Object;
+ import com.general_hello.commands.Objects.Emojis.RPGEmojis;
+ import com.general_hello.commands.Objects.Trade.Trade;
  import me.xdrop.fuzzywuzzy.FuzzySearch;
  import net.dv8tion.jda.api.EmbedBuilder;
  import net.dv8tion.jda.api.entities.Emoji;
@@ -162,13 +162,14 @@
                 .addOption("Add Berri", "addberri", "Resets the berri and place your offer for it", Emoji.fromMarkdown(RPGEmojis.berri))
                 .addOption("Add Rainbow Shards", "addrainbowshards", "Resets the rainbow shards and place your offer for it", Emoji.fromMarkdown(RPGEmojis.rainbowShards))
                 .build();
-        event.replyEmbeds(embedBuilder.build())
-                .addActionRows(
+        event.getInteraction().editMessageEmbeds(embedBuilder.build())
+                .setActionRows(
                         ActionRow.of(menu),
                         ActionRow.of(
                                 Button.secondary(event.getUser().getId() + ":switch", "Switch Editing Offer").withEmoji(Emoji.fromMarkdown("<:right:915425310592356382>")),
                                 Button.danger(event.getUser().getId() + ":reset", "Reset Trade").withEmoji(Emoji.fromMarkdown("<:xmark:957420842898292777>")),
-                                Button.success(event.getUser().getId() + ":submit", "Submit Trade").withEmoji(Emoji.fromMarkdown("<:check:957420541256531969>"))
+                                Button.success(event.getUser().getId() + ":submit", "Submit Trade").withEmoji(Emoji.fromMarkdown("<:check:957420541256531969>")),
+                                Button.danger(event.getUser().getId() + ":cancel", "Cancel Trade").withEmoji(Emoji.fromMarkdown("<:xmark:957420842898292777>"))
                         )
                 ).queue();
     }

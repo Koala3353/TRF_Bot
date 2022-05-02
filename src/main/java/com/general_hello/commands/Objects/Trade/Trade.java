@@ -1,4 +1,4 @@
-package com.general_hello.commands.Objects;
+package com.general_hello.commands.Objects.Trade;
 
 import com.general_hello.Bot;
 import net.dv8tion.jda.api.EmbedBuilder;

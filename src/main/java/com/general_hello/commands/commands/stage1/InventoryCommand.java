@@ -4,13 +4,16 @@ import com.general_hello.Bot;
 import com.general_hello.commands.ButtonPaginator;
 import com.general_hello.commands.Database.DataUtils;
 import com.general_hello.commands.Items.Initializer;
-import com.general_hello.commands.Objects.Object;
+import com.general_hello.commands.Objects.Items.Object;
 import com.general_hello.commands.Objects.User.Player;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 public class InventoryCommand extends SlashCommand {
@@ -23,6 +26,7 @@ public class InventoryCommand extends SlashCommand {
         // Setting the name, cooldown, and help
         this.name = "inventory";
         this.help = "Displays your inventory";
+        this.options = Collections.singletonList(new OptionData(OptionType.USER, "user", "The user you want to check the inventory of"));
         this.cooldown = 10;
     }
 
@@ -34,7 +38,10 @@ public class InventoryCommand extends SlashCommand {
         }
         // Stores the users and all the names of items
         User author = event.getUser();
-        ArrayList<String> allNames = Initializer.allNames;
+        if (event.getOption("user") != null) {
+            author = event.getOption("user").getAsUser();
+        }
+        ArrayList<String> allNames = new ArrayList<>(Initializer.nameToItem.keySet());
         long authorId = author.getIdLong();
         int x = 0;
         int y = 0;
@@ -68,7 +75,7 @@ public class InventoryCommand extends SlashCommand {
         }
 
         if (inventories.isEmpty()) {
-            event.reply("You do not have anything in your inventory").queue();
+            event.reply(author.getAsMention() + " does not have anything in their inventory").setEphemeral(true).queue();
             return;
         }
 

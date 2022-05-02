@@ -1,6 +1,7 @@
-package com.general_hello.commands.Objects;
+package com.general_hello.commands.Objects.Items;
 
 import com.general_hello.commands.Items.Initializer;
+import com.general_hello.commands.Objects.Others.EffectTypes;
 import com.general_hello.commands.Objects.User.Rank;
 
 import java.util.ArrayList;

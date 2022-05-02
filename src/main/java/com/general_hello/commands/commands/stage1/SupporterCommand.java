@@ -1,7 +1,7 @@
 package com.general_hello.commands.commands.stage1;
 
 import com.general_hello.commands.Database.DataUtils;
-import com.general_hello.commands.Objects.RPGEmojis;
+import com.general_hello.commands.Objects.Emojis.RPGEmojis;
 import com.general_hello.commands.Objects.User.Player;
 import com.general_hello.commands.Utils.EmbedUtil;
 import com.jagrosh.jdautilities.command.SlashCommand;

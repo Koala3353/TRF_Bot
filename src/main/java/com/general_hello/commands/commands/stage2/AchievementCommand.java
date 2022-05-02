@@ -4,7 +4,7 @@ import com.general_hello.Bot;
 import com.general_hello.commands.ButtonPaginator;
 import com.general_hello.commands.Database.DataUtils;
 import com.general_hello.commands.Items.Initializer;
-import com.general_hello.commands.Objects.Achievement;
+import com.general_hello.commands.Objects.Others.Achievement;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 

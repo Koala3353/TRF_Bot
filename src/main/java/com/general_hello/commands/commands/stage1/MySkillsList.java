@@ -4,7 +4,7 @@ import com.general_hello.Bot;
 import com.general_hello.commands.ButtonPaginator;
 import com.general_hello.commands.Database.DataUtils;
 import com.general_hello.commands.Items.Initializer;
-import com.general_hello.commands.Objects.Skill;
+import com.general_hello.commands.Objects.Items.Skill;
 import com.general_hello.commands.Objects.User.Player;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;

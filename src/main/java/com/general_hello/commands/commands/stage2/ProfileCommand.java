@@ -1,7 +1,7 @@
 package com.general_hello.commands.commands.stage2;
 
 import com.general_hello.commands.Database.DataUtils;
-import com.general_hello.commands.Objects.RPGEmojis;
+import com.general_hello.commands.Objects.Emojis.RPGEmojis;
 import com.general_hello.commands.Objects.User.Player;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -54,23 +54,39 @@ public class ProfileCommand extends SlashCommand {
                 event.getJDA().getSelfUser().getEffectiveAvatarUrl());
 
         // Builds their info
-        embedBuilder.setDescription("**Discord Name:** " + user.getName() + "\n" +
-                "**Level:** " + getLevel(player.getExp()) + "\n" +
-                "**Total AIs beaten:** 0\n" +
-                "**PvP win/lose record:** 0 wins 0 loss\n" +
-                "**Ranked matches win/lose record:** 0 wins 0 loss (Leaderboard Position: UNKNOWN)\n" +
-                "**Tournament win/lose record:** 0 wins 0 loss\n" +
-                "**Bounty:** None\n" +
-                "**Inventory:** Empty\n" +
-                "**Berri:** " + RPGEmojis.berri + " " + player.getBerri() + "\n" +
-                "**Rainbow shards:** " + RPGEmojis.rainbowShards + " " + player.getRainbowShardsTotal() + "\n" +
-                "**Neo Devil Fruit:** None\n" +
-                "**Rx:** " + player.getRank().getMarineName() + "\n" +
-                "**Profession:** None\n" +
-                "**Achievement Title:** None\n" +
-                "**Likes:** " + player.getLikes() + "\n" +
-                "**Married to:** None\n" +
-                "**Sensei:** " + (player.getSenseiUser() == null ? "None" : player.getSenseiUser().getName()));
+        if (event.getUser().getId().equals(user.getId())) {
+            embedBuilder.setDescription("**Name:** " + user.getName() + "\n" +
+                    "**Level:** " + getLevel(player.getExp()) + " (" + player.getExp() + " EXP)\n\n" +
+                    "**Total AIs beaten:** 0\n" +
+                    "**PvP win/lose record:** 0 wins 0 loss\n" +
+                    "**Ranked matches win/lose record:** 0 wins 0 loss (Leaderboard Position: UNKNOWN)\n" +
+                    "**Tournament win/lose record:** 0 wins 0 loss\n" +
+                    "**Bounty:** None\n\n" +
+                    "**Berri:** " + RPGEmojis.berri + " " + player.getBerri() + "\n" +
+                    "**Rainbow shards:** " + RPGEmojis.rainbowShards + " " + player.getRainbowShardsTotal() + "\n" +
+                    "**Neo Devil Fruit:** None\n" +
+                    "**Rx:** " + player.getRank().getMarineName() + "\n" +
+                    "**Profession:** None\n\n" +
+                    "**Achievement Title:** None\n" +
+                    "**Likes:** " + player.getLikes() + "\n" +
+                    "**Married to:** None\n" +
+                    "**Sensei or Student:** " + (player.getSenseiUser() == null ? "None" : player.getSenseiUser().getName()));
+        } else {
+            embedBuilder.setDescription("**Name:** " + user.getName() + "\n" +
+                    "**Level:** " + getLevel(player.getExp()) + " (" + player.getExp() + " EXP)\n\n" +
+                    "**Total AIs beaten:** 0\n" +
+                    "**PvP win/lose record:** 0 wins 0 loss\n" +
+                    "**Ranked matches win/lose record:** 0 wins 0 loss (Leaderboard Position: UNKNOWN)\n" +
+                    "**Tournament win/lose record:** 0 wins 0 loss\n" +
+                    "**Bounty:** None\n\n" +
+                    "**Neo Devil Fruit:** None\n" +
+                    "**Rx:** " + player.getRank().getMarineName() + "\n" +
+                    "**Profession:** None\n\n" +
+                    "**Achievement Title:** None\n" +
+                    "**Likes:** " + player.getLikes() + "\n" +
+                    "**Married to:** None\n" +
+                    "**Sensei or Student:** " + (player.getSenseiUser() == null ? "None" : player.getSenseiUser().getName()));
+        }
         // Sends the message
         event.replyEmbeds(embedBuilder.build())
                 .addActionRow(Button.secondary(user.getId() + ":profile", "Like")

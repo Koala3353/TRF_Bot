@@ -2,9 +2,9 @@ package com.general_hello.commands.commands.stage2;
 
 import com.general_hello.Config;
 import com.general_hello.commands.Database.DataUtils;
-import com.general_hello.commands.Objects.Offer;
-import com.general_hello.commands.Objects.RPGEmojis;
-import com.general_hello.commands.Objects.Trade;
+import com.general_hello.commands.Objects.Trade.Offer;
+import com.general_hello.commands.Objects.Emojis.RPGEmojis;
+import com.general_hello.commands.Objects.Trade.Trade;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -29,6 +29,11 @@ public class TradeCommand extends SlashCommand {
     protected void execute(SlashCommandEvent event) {
         if (!event.getGuild().getId().equals(Config.get("guild"))) {
             event.reply("This command can only be used in the main discord server.").queue();
+            return;
+        }
+
+        if (!event.getTextChannel().getId().equals(Config.get("trade")) && !event.getTextChannel().getId().equals(Config.get("tradepaid"))) {
+            event.reply("Go to " + event.getGuild().getTextChannelById(Config.get("trade")).getAsMention() + " to trade.").queue();
             return;
         }
 

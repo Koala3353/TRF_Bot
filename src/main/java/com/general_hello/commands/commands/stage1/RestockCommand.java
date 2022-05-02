@@ -2,8 +2,8 @@ package com.general_hello.commands.commands.stage1;
 
 import com.general_hello.commands.Database.DataUtils;
 import com.general_hello.commands.Items.Initializer;
-import com.general_hello.commands.Objects.Item;
-import com.general_hello.commands.Objects.LimitedItems;
+import com.general_hello.commands.Objects.Items.Item;
+import com.general_hello.commands.Objects.Items.LimitedItems;
 import com.general_hello.commands.Objects.User.Player;
 import com.general_hello.commands.Utils.UtilNum;
 import com.jagrosh.jdautilities.command.SlashCommand;

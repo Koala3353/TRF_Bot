@@ -1,7 +1,8 @@
-package com.general_hello.commands.Objects;
+package com.general_hello.commands.Objects.Items;
 
 import com.general_hello.commands.Database.DataUtils;
 import com.general_hello.commands.Items.Initializer;
+import com.general_hello.commands.Objects.Emojis.RPGEmojis;
 import com.general_hello.commands.Objects.User.Rank;
 import net.dv8tion.jda.api.entities.Emoji;
 

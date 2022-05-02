@@ -1,6 +1,6 @@
 package com.general_hello.commands.commands.stage2;
 
-import com.general_hello.commands.Objects.BotEmojis;
+import com.general_hello.commands.Objects.Emojis.BotEmojis;
 import com.general_hello.commands.Utils.EmbedUtil;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;

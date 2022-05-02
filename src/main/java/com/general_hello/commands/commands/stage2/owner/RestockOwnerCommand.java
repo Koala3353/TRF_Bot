@@ -2,8 +2,8 @@ package com.general_hello.commands.commands.stage2.owner;
 
 import com.general_hello.commands.Database.DataUtils;
 import com.general_hello.commands.Items.Initializer;
-import com.general_hello.commands.Objects.Item;
-import com.general_hello.commands.Objects.LimitedItems;
+import com.general_hello.commands.Objects.Items.Item;
+import com.general_hello.commands.Objects.Items.LimitedItems;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import me.xdrop.fuzzywuzzy.FuzzySearch;

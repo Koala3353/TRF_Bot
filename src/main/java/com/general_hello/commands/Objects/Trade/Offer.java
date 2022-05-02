@@ -1,4 +1,7 @@
-package com.general_hello.commands.Objects;
+package com.general_hello.commands.Objects.Trade;
+
+import com.general_hello.commands.Objects.Emojis.RPGEmojis;
+import com.general_hello.commands.Objects.Items.Object;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,9 +87,7 @@ public class Offer {
             }
             content.append("\n**Rainbow shards:** " + RPGEmojis.rainbowShards + " ").append(getRainbowShards()).append("\n");
             content.append("**Berri:** " + RPGEmojis.berri + " ").append(getBerri());
-        }
-
-        if (this.rainbowShards != 0 || this.berri != 0) {
+        } else if (this.rainbowShards != 0 || this.berri != 0) {
             content.append("**Rainbow shards:** " + RPGEmojis.rainbowShards + " ").append(getRainbowShards()).append("\n");
             content.append("**Berri:** " + RPGEmojis.berri + " ").append(getBerri());
         }

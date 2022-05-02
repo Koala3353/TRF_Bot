@@ -4,8 +4,8 @@ import com.general_hello.Bot;
 import com.general_hello.commands.ButtonPaginator;
 import com.general_hello.commands.Database.DataUtils;
 import com.general_hello.commands.Items.Initializer;
-import com.general_hello.commands.Objects.Item;
-import com.general_hello.commands.Objects.LimitedItems;
+import com.general_hello.commands.Objects.Items.Item;
+import com.general_hello.commands.Objects.Items.LimitedItems;
 import com.general_hello.commands.Objects.User.Player;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.general_hello.commands.Objects.RPGEmojis.berri;
+import static com.general_hello.commands.Objects.Emojis.RPGEmojis.berri;
 
 public class ShopCommand extends SlashCommand {
     public static final DecimalFormat formatter = new DecimalFormat("#,###.00");

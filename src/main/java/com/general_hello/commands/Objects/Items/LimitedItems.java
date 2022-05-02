@@ -1,4 +1,4 @@
-package com.general_hello.commands.Objects;
+package com.general_hello.commands.Objects.Items;
 
 import com.general_hello.commands.Objects.User.Rank;
 

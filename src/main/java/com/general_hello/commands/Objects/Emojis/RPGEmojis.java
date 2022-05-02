@@ -1,4 +1,4 @@
-package com.general_hello.commands.Objects;
+package com.general_hello.commands.Objects.Emojis;
 
 public class RPGEmojis {
     //Edit this to your custom emoji

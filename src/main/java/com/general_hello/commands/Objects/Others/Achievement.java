@@ -1,4 +1,4 @@
-package com.general_hello.commands.Objects;
+package com.general_hello.commands.Objects.Others;
 
 import com.general_hello.commands.Items.Initializer;
 

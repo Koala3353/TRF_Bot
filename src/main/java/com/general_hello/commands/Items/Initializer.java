@@ -1,8 +1,12 @@
 package com.general_hello.commands.Items;
 
 import com.general_hello.commands.Database.SQLiteDataSource;
-import com.general_hello.commands.Objects.*;
-import com.general_hello.commands.Objects.Object;
+import com.general_hello.commands.Objects.Items.Item;
+import com.general_hello.commands.Objects.Items.LimitedItems;
+import com.general_hello.commands.Objects.Items.Object;
+import com.general_hello.commands.Objects.Items.Skill;
+import com.general_hello.commands.Objects.Others.Achievement;
+import com.general_hello.commands.Objects.Others.EffectTypes;
 import com.general_hello.commands.Objects.User.Rank;
 
 import java.sql.PreparedStatement;

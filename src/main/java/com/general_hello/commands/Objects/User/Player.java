@@ -5,7 +5,7 @@ import com.general_hello.Config;
 import com.general_hello.commands.Database.DataUtils;
 import com.general_hello.commands.Database.SQLiteDataSource;
 import com.general_hello.commands.Items.Initializer;
-import com.general_hello.commands.Objects.RPGEmojis;
+import com.general_hello.commands.Objects.Emojis.RPGEmojis;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
