@@ -23,7 +23,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-// I didn't really used this class. Feel free to use it.
+// Button Paginator
+// It simply makes a button paginator and you can build it by setting the data and calling this class
 public class ButtonPaginator {
     private static final Button first = Button.secondary("first", Emoji.fromMarkdown("<:first:930264043564961822>"));
     private static final Button previous = Button.secondary("previous", Emoji.fromMarkdown("<:left:915425233215827968>"));

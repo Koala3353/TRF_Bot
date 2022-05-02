@@ -1,4 +1,4 @@
-package com.general_hello.commands.commands;
+package com.general_hello.commands.commands.stage1;
 
 import com.general_hello.Bot;
 import com.general_hello.Config;
@@ -21,21 +21,26 @@ public class PatreonCommand extends SlashCommand {
 
     @Override
     protected void execute(SlashCommandEvent event) {
+        // Checks if the user made an account or not
         if (DataUtils.makeCheck(event)) {
             return;
         }
 
+        // Checks if they're patreon
         if (Player.isPatreon(event)) {
+            // Loops through the roles
             List<Role> tierRoles = event.getJDA().getGuildById(Config.get("server")).getMember(event.getUser()).getRoles();
             String tier = "None";
             for (Role role : tierRoles) {
-                if (role.getName().toLowerCase().contains("tier")) {
+                if (Bot.patreonRoles.contains(role.getIdLong())) {
                     tier = role.getName();
                 }
             }
+            // Sends their tier
             event.replyEmbeds(EmbedUtil.defaultEmbed("Patreon Tier: **" + tier + "**")).addActionRow(Button.success("extra", "You already subscribed").asDisabled()).queue();
         } else {
-            event.replyEmbeds(EmbedUtil.defaultEmbed("Subscribe and support us using **Patreon**!")).addActionRow(Button.link(Bot.PATREON_LINK, "Patreon")).queue();
+            // They don't have patreon so it sends this instead
+            event.replyEmbeds(EmbedUtil.defaultEmbed("Subscribe & Support us by using **Patreon**!")).addActionRow(Button.link(Bot.PATREON_LINK, "Patreon")).queue();
         }
     }
 }

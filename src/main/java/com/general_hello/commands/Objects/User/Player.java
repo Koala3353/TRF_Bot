@@ -2,17 +2,21 @@ package com.general_hello.commands.Objects.User;
 
 import com.general_hello.Bot;
 import com.general_hello.Config;
+import com.general_hello.commands.Database.DataUtils;
 import com.general_hello.commands.Database.SQLiteDataSource;
 import com.general_hello.commands.Items.Initializer;
 import com.general_hello.commands.Objects.RPGEmojis;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
+// The player object and what it has
 public class Player {
     private final long userId;
     private int hp;
@@ -43,8 +47,10 @@ public class Player {
     private long senseiId;
     private int berri;
     private int rainbowShards;
+    private int rainbowShardsBought;
     private int skillSlotsCap;
 
+    // Initializer that gets the info from the database
     public Player(long userId) {
         this.userId = userId;
         this.hp = getDatabaseThing("hp");
@@ -75,9 +81,11 @@ public class Player {
         this.senseiId = getSavedThingFromDatabaseLong("senseiId");
         this.berri = getDatabaseThing("berri");
         this.rainbowShards = getDatabaseThing("rainbowShards");
+        this.rainbowShards = getDatabaseThing("rainbowShardsBought");
         this.skillSlotsCap = getDatabaseThing("skillSlotsCap");
     }
 
+    // Makes the request to the database
     private int getDatabaseThing(String thing) {
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
@@ -95,12 +103,21 @@ public class Player {
         return -1;
     }
 
+    // From here to below is just getters and setters for the object
+    // For the setters it'll make a request to the database and edits the info
+    // For the getter it'll simply get the variable from above
+    // The setters prefix is either "set", "remove", "has", or "add"
+    // For the getter it'll be "get"
+    public int getRainbowShardsBought() {
+        return rainbowShardsBought;
+    }
+
     public static void addItem(long userId, int amount, String item) {
-        item = SQLiteDataSource.filter(Initializer.allObjects.get(item).getName());
+        item = (Initializer.nameToItem.get(item).getName());
         int total = (amount) + getItemCount(userId, item);
 
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                .prepareStatement("UPDATE Skills SET " + item + "=? WHERE UserId=?"
+                .prepareStatement("UPDATE Skills SET " + DataUtils.filter(item) + "=? WHERE UserId=?"
                 )) {
 
             preparedStatement.setString(2, String.valueOf(userId));
@@ -113,7 +130,7 @@ public class Player {
     }
 
     public static void addSkills(long userId, String item) {
-        item = SQLiteDataSource.filter(Initializer.allObjects.get(item).getName());
+        item = SQLiteDataSource.filter(Initializer.nameToSkill.get(item).getName());
         int total = 1;
 
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
@@ -149,12 +166,12 @@ public class Player {
     public static int getItemCount(long userId, String item) {
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
-                     .prepareStatement("SELECT " + SQLiteDataSource.filter(Initializer.allObjects.get(item).getName()) + " FROM Skills WHERE UserId = ?")) {
+                     .prepareStatement("SELECT " + SQLiteDataSource.filter(Initializer.nameToItem.get(item).getName()) + " FROM Skills WHERE UserId = ?")) {
 
             preparedStatement.setString(1, String.valueOf(userId));
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getInt(SQLiteDataSource.filter(Initializer.allObjects.get(item).getName()));
+                    return resultSet.getInt(SQLiteDataSource.filter(Initializer.nameToItem.get(item).getName()));
                 }
             }
         } catch (SQLException e) {
@@ -166,18 +183,35 @@ public class Player {
     public static boolean hasSkill(long userId, String skill) {
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
-                     .prepareStatement("SELECT " + SQLiteDataSource.filter(Initializer.allObjects.get(skill).getName()) + " FROM Skills WHERE UserId = ?")) {
+                     .prepareStatement("SELECT " + SQLiteDataSource.filter(Initializer.nameToSkill.get(skill).getName()) + " FROM Skills WHERE UserId = ?")) {
 
             preparedStatement.setString(1, String.valueOf(userId));
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getInt(SQLiteDataSource.filter(Initializer.allObjects.get(skill).getName())) == 1;
+                    return resultSet.getInt(SQLiteDataSource.filter(Initializer.nameToSkill.get(skill).getName())) == 1;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static String hasSkillFancy(long userId, String skill) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT " + SQLiteDataSource.filter(Initializer.nameToSkill.get(skill).getName()) + " FROM Skills WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return (resultSet.getInt(SQLiteDataSource.filter(Initializer.nameToSkill.get(skill).getName())) == 1) ? "Owner" : "Not owned";
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Not owned";
     }
 
     public static boolean hasUnlockedAchievement(long userId, String achievement) {
@@ -215,7 +249,23 @@ public class Player {
     }
 
     public static boolean isPatreon(User member) {
+        List<Role> roles = Bot.jda.getGuildById(Config.get("server")).getMemberById(member.getIdLong()).getRoles();
+        boolean isPatreon = false;
+        for (Role role : roles) {
+            if (Bot.patreonRoles.contains(role.getIdLong())) {
+                isPatreon = true;
+            }
+        }
+
+        return isPatreon;
+    }
+
+    public static boolean isPremium(User member) {
         return Bot.jda.getGuildById(Config.get("server")).getMemberById(member.getIdLong()).getRoles().contains(Bot.jda.getGuildById(Config.get("server")).getRoleById(Config.get("premium")));
+    }
+
+    public static boolean isPremium(long userId) {
+        return Bot.jda.getGuildById(Config.get("server")).getMemberById(userId).getRoles().contains(Bot.jda.getGuildById(Config.get("server")).getRoleById(Config.get("premium")));
     }
 
     public static boolean isPatreon(SlashCommandEvent event) {
@@ -344,6 +394,10 @@ public class Player {
 
     public int getRainbowShards() {
         return rainbowShards;
+    }
+
+    public int getRainbowShardsTotal() {
+        return rainbowShards + rainbowShardsBought;
     }
 
     public int getSkillSlotsCap() {
@@ -637,6 +691,12 @@ public class Player {
 
     public Player setRainbowShards(int rainbowShards) {
         this.rainbowShards = rainbowShards;
+        setInDatabase(this.userId, rainbowShards, "rainbowShards");
+        return this;
+    }
+
+    public Player setRainbowShardsBought(int rainbowShardsBought) {
+        this.rainbowShardsBought = rainbowShardsBought;
         setInDatabase(this.userId, rainbowShards, "rainbowShards");
         return this;
     }

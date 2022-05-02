@@ -1,4 +1,4 @@
-package com.general_hello.commands.commands;
+package com.general_hello.commands.commands.stage1;
 
 import com.general_hello.commands.Database.DataUtils;
 import com.general_hello.commands.Objects.RPGEmojis;
@@ -20,7 +20,12 @@ public class SupporterCommand extends SlashCommand {
         if (DataUtils.makeCheck(event)) {
             return;
         }
+        // Gets the player and checks their rainbow shards and sends the message that contains their info
         Player player = DataUtils.getPlayer(event.getUser());
-        event.replyEmbeds(EmbedUtil.defaultEmbed("**Rainbow Shards**: " + RPGEmojis.rainbowShards + " " + player.getRainbowShards())).addActionRow(Button.primary("hi", "Go to the shop to get some").asDisabled()).queue();
+        event.replyEmbeds(EmbedUtil.defaultEmbed(
+                "**Rainbow Shards (Paid)**: " + RPGEmojis.rainbowShards + " " + player.getRainbowShardsBought() + "\n" +
+                "**Rainbow Shards (Obtained)**: " + RPGEmojis.rainbowShards + " " + player.getRainbowShards() + "\n" +
+                "**Total Rainbow Shards**: " + RPGEmojis.rainbowShards + " " + (player.getRainbowShards() + player.getRainbowShardsBought())))
+                .addActionRow(Button.primary("hi", "Go to the shop to get some").asDisabled()).queue();
     }
 }

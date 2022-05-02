@@ -23,10 +23,33 @@ public class Initializer {
 
     public static void initializer() {
         // A basic skill for testing
-        new Skill("The Summoner", 1_000, "<:blackhole:939699625600888852>", "Summons a powerful attack and heals yourself by 100HP", Rank.R1, true, 10, true, EffectTypes.COPY_SKILLS, EffectTypes.BARRIER);
+        // Format: new Skills("NAME", COST, "EMOJI", "DESCRIPTION", Rank.[RANK], [Patreon skill or not (true/false)], ENERGY_TO_USE_SKILL, [Neo Devil fruit skill or not (true/false)], [Premium skill or not (true/false)], EffectTypes.EFECTNAME,.... (Can add up to however you want));
+        new Skill("The Summoner", 1_000, "<:blackhole:939699625600888852>", "Summons a powerful attack and heals yourself by 100HP", Rank.R1, false, 10, true, false, EffectTypes.COPY_SKILLS, EffectTypes.DESTRUCTIBLE_BARRIER);
+        new Skill("The Summoner More Skills", 1_000, "<:blackhole:939699625600888852>", "Summons a powerful attack and heals yourself by 100HP", Rank.R1, false, 10, true, false, EffectTypes.DAMAGE, EffectTypes.COMPOUND_RESIDUAL, EffectTypes.DROWN);
+        new Skill("The Summoner Premium", 1_000, "<:blackhole:939699625600888852>", "Summons a powerful attack and heals yourself by 100HP", Rank.R1, true, 10, false, true, EffectTypes.COPY_SKILLS, EffectTypes.INDESTRUCTIBLE_BARRIER);
+        // Limited items
+        // Format: new LimitedItems("NAME", COST, "EMOJI", "DESCRIPTION", Rank.[RANK], [Patreon item or not (true/false)], MAX_STOCK, CURRENT_STOCK, [Premium item or not (true/false)]);
+        new LimitedItems("The Healing Card", 8_000, "<a:king_card:939699732513701910>", "Heals you", Rank.R1, false, 1000, 999, true);
+        // Items
+        // Format: new Item("NAME", COST, "EMOJI", "DESCRIPTION", Rank.[RANK], [Premium item or not (true/false)], [Patreon item or not (true/false)]);
+        new Item("The Plane of Health Premium", 10_000, "<a:blue_airplane:939704592067878952>", "Heals you by 100HP", Rank.R1, true, true);
+        new Item("The Plane of Health", 10_000, "<a:blue_airplane:939704592067878952>", "Heals you by 100HP", Rank.R1, false, true);
+        new Item("The Item", 10_000, "<a:blue_airplane:939704592067878952>", "Heals you by 100HP", Rank.R1, false, false);
+        // Limited items
+        // Format: new LimitedItems("NAME", COST, "EMOJI", "DESCRIPTION", Rank.[RANK], [Patreon item or not (true/false)], MAX_STOCK, CURRENT_STOCK, [Premium item or not (true/false)]);
+        new LimitedItems("The Card", 8_000, "<a:king_card:939699732513701910>", "Heals you", Rank.R1, false, 1000, 999, false);
+        // You need to call the achievement to add it to /achievements
         Achievement run = Achievement.NEW_ACCOUNT;
+        run = Achievement.REACH_R2;
+        run = Achievement.REACH_R3;
+        run = Achievement.REACH_R4;
+        run = Achievement.REACH_R5;
+        run = Achievement.REACH_R6;
+        run = Achievement.REACH_R7;
+        run = Achievement.REACH_R8;
     }
 
+    // Sends a request to the SQLite database and makes a new "info" to it
     public static void newUser(long userId) {
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
                 .prepareStatement("INSERT INTO Player" +

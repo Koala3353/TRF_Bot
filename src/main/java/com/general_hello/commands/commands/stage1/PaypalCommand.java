@@ -1,4 +1,4 @@
-package com.general_hello.commands.commands;
+package com.general_hello.commands.commands.stage1;
 
 import com.general_hello.Bot;
 import com.general_hello.commands.Database.DataUtils;
@@ -19,6 +19,9 @@ public class PaypalCommand extends SlashCommand {
         if (DataUtils.makeCheck(event)) {
             return;
         }
-        event.replyEmbeds(EmbedUtil.defaultEmbed("**Rainbow Shards**: [Buy here now!](" + Bot.PATREON_LINK + ")")).addActionRow(Button.link(Bot.PAYPAL_LINK, "Paypal")).queue();
+
+        // Sends the embed
+        event.replyEmbeds(EmbedUtil.defaultEmbed("**Rainbow Shards Packages**: [Buy here now!](" + Bot.PATREON_LINK + ")"))
+                .addActionRow(Button.link(Bot.PAYPAL_LINK, "Paypal")).queue();
     }
 }

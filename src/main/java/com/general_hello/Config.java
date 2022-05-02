@@ -3,7 +3,7 @@ package com.general_hello;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class Config {
-    // Simple Config getter
+    // Simple Config getter (.env file)
     private static final Dotenv dotenv = Dotenv.load();
 
     public static String get(String key) {

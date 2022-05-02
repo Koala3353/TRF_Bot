@@ -6,6 +6,8 @@ import com.general_hello.commands.Objects.User.Rank;
 import net.dv8tion.jda.api.entities.Emoji;
 
 public class Object {
+    // The main object that is extended by Skill and Item
+    // Variables
     private final String name;
     private final Integer costToBuy;
     private final String emoji;
@@ -13,6 +15,7 @@ public class Object {
     private final Rank rank;
     private final boolean patreonOnly;
 
+    // Constructor
     public Object(String name, Integer costToBuy, String emoji, String description, Rank rank, boolean patreonOnly) {
         this.name = name;
         this.costToBuy = costToBuy;
@@ -24,6 +27,7 @@ public class Object {
         Initializer.allNames.add(name);
     }
 
+    // Getters
     public String getEmojiOfItem() {
         return emoji == null ? "" : emoji;
     }

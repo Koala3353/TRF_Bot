@@ -1,6 +1,5 @@
 package com.general_hello.commands.Database;
 
-import com.general_hello.commands.Objects.BotEmojis;
 import com.general_hello.commands.Objects.User.Player;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -18,50 +17,12 @@ public class DataUtils {
     public static final DecimalFormat formatter = new DecimalFormat("#,###");
 
     public static String filter(String filterWord) {
+        // Removes all none letter text from the word
         return filterWord.toLowerCase().replace("'", "").replaceAll("\\s+", "");
     }
 
-    public static String getBarFromPercentage(int percentage) {
-        String bar = "";
-
-        if (percentage < 10) {
-            bar = BotEmojis.bar1Empty + BotEmojis.bar2Empty + BotEmojis.bar2Empty + BotEmojis.bar3Empty;
-        } else if (percentage < 20) {
-            bar = BotEmojis.bar1Half + BotEmojis.bar2Empty + BotEmojis.bar2Empty + BotEmojis.bar3Empty;
-        } else if (percentage < 30) {
-            bar = BotEmojis.bar1Full + BotEmojis.bar2Empty + BotEmojis.bar2Empty + BotEmojis.bar3Empty;
-        } else if (percentage < 40) {
-            bar = BotEmojis.bar1Full + BotEmojis.bar2Half + BotEmojis.bar2Empty + BotEmojis.bar3Empty;
-        } else if (percentage < 50) {
-            bar = BotEmojis.bar1Full + BotEmojis.bar2High + BotEmojis.bar2Empty + BotEmojis.bar3Empty;
-        } else if (percentage < 65) {
-            bar = BotEmojis.bar1Full + BotEmojis.bar2Full + BotEmojis.bar2Half + BotEmojis.bar3Empty;
-        } else if (percentage < 70) {
-            bar = BotEmojis.bar1Full + BotEmojis.bar2Full + BotEmojis.bar2High + BotEmojis.bar3Empty;
-        } else if (percentage < 85) {
-            bar = BotEmojis.bar1Full + BotEmojis.bar2Full + BotEmojis.bar2Full + BotEmojis.bar3Half;
-        } else if (percentage < 101) {
-            bar = BotEmojis.bar1Full + BotEmojis.bar2Full + BotEmojis.bar2Full + BotEmojis.bar3Full;
-        }
-
-        return bar;
-    }
-
-    public static int getPercentage(int firstNumber, int secondNumber) {
-        double solving = (double) firstNumber/secondNumber;
-        solving = solving * 100;
-        return (int) solving;
-    }
-
-    public static String getEmojiFromBoolean(boolean bool) {
-        return (bool ? BotEmojis.check : BotEmojis.xmark);
-    }
-
-    public static boolean getSettingBooleanFromNumber(int number) {
-        return (number == 100);
-    }
-
     public static boolean makeCheck(SlashCommandEvent event) {
+        // Checks if the user made an account or not
         int test = hasAccount(event);
 
         if (test == -1) {
@@ -73,6 +34,7 @@ public class DataUtils {
     }
 
     public static boolean makeCheck(CommandEvent event) {
+        // Checks if the user made an account or not
         int test = hasAccount(event.getAuthor());
 
         if (test == -1) {
@@ -83,10 +45,12 @@ public class DataUtils {
         return false;
     }
 
+    // Checks if the user made an account or not
     public static int hasAccount(SlashCommandEvent event) {
         return hasAccount(event.getUser());
     }
 
+    // Checks if the user made an account or not
     public static int hasAccount(User user) {
         int test = -1;
         long userId = user.getIdLong();
@@ -108,6 +72,7 @@ public class DataUtils {
         return test;
     }
 
+    // Gets the player from the hashmap, if it isn't there it'll make a new player object
     public static Player getPlayer(User user) {
         if (players.containsKey(user)) {
             return players.get(user);

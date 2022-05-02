@@ -12,6 +12,7 @@ public class SQLiteDataSource {
     public static Connection connection = null;
 
     public static Connection getConnection() throws SQLException {
+        // Gets the database connection and makes if it isn't there
         if (connection == null) {
             connection = DriverManager.getConnection("jdbc:sqlite:database.db");
         }
@@ -22,6 +23,7 @@ public class SQLiteDataSource {
         return connection;
     }
 
+    // Removes all none letter text from the word
     public static String filter(String word) {
         return word.replaceAll("\\s+", "").replaceAll("'", "").toLowerCase();
     }
