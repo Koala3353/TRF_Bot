@@ -1,82 +1,142 @@
 package com.general_hello.commands.Database;
 
-import com.general_hello.commands.Objects.User.Player;
-import com.jagrosh.jdautilities.command.CommandEvent;
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import net.dv8tion.jda.api.entities.User;
+import com.general_hello.commands.Objects.Level.Level;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
-import java.util.HashMap;
 
 public class DataUtils {
-    private static HashMap<User, Player> players = new HashMap<>();
-    public static final DecimalFormat formatter = new DecimalFormat("#,###");
-
-    public static String filter(String filterWord) {
-        // Removes all none letter text from the word
-        return filterWord.toLowerCase().replace("'", "").replaceAll("\\s+", "");
+    public static boolean hasAccount(long userId, Level level) {
+        return getPoints(userId, level) != -1;
     }
 
-    public static boolean makeCheck(SlashCommandEvent event) {
-        // Checks if the user made an account or not
-        int test = hasAccount(event);
-
-        if (test == -1) {
-            event.reply("Make an account first before using the command.").setEphemeral(true).queue();
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean makeCheck(CommandEvent event) {
-        // Checks if the user made an account or not
-        int test = hasAccount(event.getAuthor());
-
-        if (test == -1) {
-            event.reply("Make an account first before using the command.");
-            return true;
-        }
-
-        return false;
-    }
-
-    // Checks if the user made an account or not
-    public static int hasAccount(SlashCommandEvent event) {
-        return hasAccount(event.getUser());
-    }
-
-    // Checks if the user made an account or not
-    public static int hasAccount(User user) {
-        int test = -1;
-        long userId = user.getIdLong();
+    public static int getPoints(long userId, Level level) {
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
-                     .prepareStatement("SELECT berri FROM Player WHERE UserId = ?")) {
+                     .prepareStatement("SELECT points FROM " + level.getDatabaseName() + " WHERE userid = ?")) {
 
             preparedStatement.setString(1, String.valueOf(userId));
 
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    test = resultSet.getInt("berri");
+                    return resultSet.getInt("points");
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return test;
+        return -1;
     }
 
-    // Gets the player from the hashmap, if it isn't there it'll make a new player object
-    public static Player getPlayer(User user) {
-        if (players.containsKey(user)) {
-            return players.get(user);
+    public static int getRange(String type) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT location FROM Range WHERE name = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(type));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("location");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return new Player(user.getIdLong());
+        return -1;
+    }
+
+    public static int getGamesFoughtToday(long userId, Level level) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT gamesfoughttoday FROM " + level.getDatabaseName() + " WHERE userid = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("gamesfoughttoday");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static void newAccount(long userId, Level level) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("INSERT INTO " + level.getDatabaseName() +
+                        "(userid)" +
+                        "VALUES (?);")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void newRange(String name) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("INSERT INTO Range(name)" +
+                        "VALUES (?);")) {
+
+            preparedStatement.setString(1, String.valueOf(name));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addGamesFoughtToday(long userId, Level level) {
+        int gamesFought = getGamesFoughtToday(userId, level) + 1;
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE " + level.getDatabaseName() + " SET gamesfoughttoday=" + gamesFought + " WHERE userid=" + userId
+                )) {
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void resetGamesFoughtToday(long userId, Level level) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE " + level.getDatabaseName() + " SET gamesfoughttoday=0 WHERE userid=" + userId
+                )) {
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addPoints(long userId, int points, Level level) {
+        int pointsToSet = getPoints(userId, level) + points;
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE " + level.getDatabaseName() + " SET points=" + pointsToSet + " WHERE userid=" + userId
+                )) {
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void setRange(String name) {
+        int newRange = getRange(name) + 1;
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE Range SET location=" + newRange + " WHERE name=" + Level.valueOf(name).name()
+                )) {
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+        }
     }
 }

@@ -14,6 +14,9 @@
       <module name="Kaijuto_Era" target="16" />
       <module name="Kaijuto_Era.main" target="16" />
       <module name="Kaijuto_Era.test" target="16" />
+      <module name="Legends_Of_Pirates" target="16" />
+      <module name="Legends_Of_Pirates.main" target="16" />
+      <module name="Legends_Of_Pirates.test" target="16" />
       <module name="School_Helper" target="16" />
       <module name="School_Helper.main" target="16" />
       <module name="School_Helper.test" target="16" />
