@@ -11,6 +11,8 @@
         <set>
           <option value="x-rapidapi-host" />
           <option value="x-rapidapi-key" />
+          <option value="X-RapidAPI-Host" />
+          <option value="X-RapidAPI-Key" />
         </set>
       </option>
     </inspection_tool>

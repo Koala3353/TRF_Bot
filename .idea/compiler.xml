@@ -17,6 +17,9 @@
       <module name="Legends_Of_Pirates" target="16" />
       <module name="Legends_Of_Pirates.main" target="16" />
       <module name="Legends_Of_Pirates.test" target="16" />
+      <module name="Pvp_Bot" target="16" />
+      <module name="Pvp_Bot.main" target="16" />
+      <module name="Pvp_Bot.test" target="16" />
       <module name="School_Helper" target="16" />
       <module name="School_Helper.main" target="16" />
       <module name="School_Helper.test" target="16" />

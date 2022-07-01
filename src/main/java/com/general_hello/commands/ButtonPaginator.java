@@ -1,13 +1,13 @@
 package com.general_hello.commands;
 
-import com.general_hello.commands.Utils.EmbedUtil;
+import com.general_hello.commands.utils.EmbedUtil;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -26,10 +26,10 @@ import java.util.concurrent.TimeUnit;
 // Button Paginator
 // It simply makes a button paginator and you can build it by setting the data and calling this class
 public class ButtonPaginator {
-    private static final Button first = Button.secondary("first", Emoji.fromMarkdown("<:first:930264043564961822>"));
-    private static final Button previous = Button.secondary("previous", Emoji.fromMarkdown("<:left:915425233215827968>"));
-    private static final Button next = Button.secondary("next", Emoji.fromMarkdown("<:right:915425310592356382>"));
-    private static final Button last = Button.secondary("last", Emoji.fromMarkdown("<:last:930264202331975701>"));
+    private static final Button first = Button.secondary("first", Emoji.fromCustom("first", 930264043564961822L, false));
+    private static final Button previous = Button.secondary("previous", Emoji.fromCustom("left", 915425233215827968L, false));
+    private static final Button next = Button.secondary("next", Emoji.fromCustom("right", 915425310592356382L, false));
+    private static final Button last = Button.secondary("last", Emoji.fromCustom("last", 930264202331975701L, false));
     private static final Button delete = Button.danger("stop", Emoji.fromUnicode("\uD83D\uDDD1"));
 
     private final EventWaiter waiter;
