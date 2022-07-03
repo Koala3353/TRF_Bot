@@ -265,6 +265,8 @@ public class OddsGetter {
         } else if (timesUpdated == 2) {
             color = Color.ORANGE;
         } else if (timesUpdated == 3) {
+            color = Color.CYAN;
+        } else if (timesUpdated == 4) {
             color = Color.GREEN;
         } else {
             lastCall = true;

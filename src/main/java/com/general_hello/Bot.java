@@ -8,6 +8,7 @@ import com.general_hello.commands.events.OnButtonClick;
 import com.general_hello.commands.events.ChampsEvents;
 import com.general_hello.commands.events.OnModalEvent;
 import com.general_hello.commands.events.OnReadyEvent;
+import com.general_hello.commands.objects.GlobalVariables;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
@@ -84,6 +85,7 @@ public class Bot {
     }
 
     public static void main(String[] args) throws LoginException {
+        LOGGER.info("Starting program v." + GlobalVariables.VERSION);
         try {
             new Bot();
         } catch (InterruptedException e) {

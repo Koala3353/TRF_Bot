@@ -25,4 +25,5 @@ public class GlobalVariables {
     public static String LINK = Config.get("link");
     public static String BOOKMAKERS = Config.get("bookmakers");
     public static long CHAMPS = Long.parseLong(Config.get("champs"));
+    public static String VERSION = "1.2.1";
 }

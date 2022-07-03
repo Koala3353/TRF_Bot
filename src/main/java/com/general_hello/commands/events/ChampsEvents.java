@@ -1,6 +1,7 @@
 package com.general_hello.commands.events;
 
 import com.general_hello.Config;
+import com.general_hello.commands.objects.GlobalVariables;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -27,7 +28,7 @@ public class ChampsEvents extends ListenerAdapter {
             }
         });
 
-        if (event.getTextChannel().getIdLong() != Config.getLong("champs")) {
+        if (event.getTextChannel().getIdLong() != GlobalVariables.CHAMPS) {
             return;
         }
 
