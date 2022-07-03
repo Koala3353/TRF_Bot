@@ -13,8 +13,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class OnModalEvent extends ListenerAdapter {
     @Override
@@ -35,7 +35,7 @@ public class OnModalEvent extends ListenerAdapter {
                 return;
             }
             Game game = OddsGetter.gameIdToGame.get(gameId);
-            List<String> teams = Arrays.asList(game.getHomeTeam(), game.getAwayTeam());
+            ArrayList<String> teams = new ArrayList<>(Arrays.asList(game.getHomeTeam(), game.getAwayTeam()));
             teamName = FuzzySearch.extractAll(teamName, teams).get(0).getString();
             String finalTeamName = teamName;
             DataUtils.getUsers(gameId).forEach(userID -> {
@@ -48,7 +48,7 @@ public class OnModalEvent extends ListenerAdapter {
             });
 
             EmbedBuilder embed = OddsGetter.getEmbedPersonal(game);
-            teams.remove(finalTeamName);
+            teams.remove(teamName);
             long textChannelId = game.getSportType().getChannelId();
             MessageChannel channel = Bot.getJda().getTextChannelById(textChannelId);
             long messageId = OddsGetter.gameIdToMessageId.get(gameId);
@@ -59,6 +59,9 @@ public class OnModalEvent extends ListenerAdapter {
             });
 
             event.reply("Successfully set the result of the game.").setEphemeral(true).queue();
+            OddsGetter.gameIdToGame.remove(gameId);
+            OddsGetter.games.remove(game);
+            OddsGetter.gameIdToMessageId.remove(gameId);
         }
     }
 }

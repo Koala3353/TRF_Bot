@@ -122,6 +122,6 @@ public class OnReadyEvent extends ListenerAdapter {
 
         new OddsGetter.GetOddsTask().run();
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(new OddsGetter.GetOddsTask(),1, 1, TimeUnit.DAYS);
+        scheduler.scheduleAtFixedRate(new OddsGetter.GetOddsTask(),1, 1, TimeUnit.HOURS);
     }
 }

@@ -82,6 +82,58 @@ public class OddsGetter {
         }
     }
 
+    public static List<Game> getOdds() {
+        List<Game> gamesList = new ArrayList<>();
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://odds.p.rapidapi.com/v4/sports/upcoming/odds?regions=us&oddsFormat=decimal&markets=h2h&dateFormat=unix"))
+                    .header("X-RapidAPI-Key", GlobalVariables.API_KEY)
+                    .header("X-RapidAPI-Host", "odds.p.rapidapi.com")
+                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .build();
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            JSONArray jsonArray = new JSONArray(response.body());
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String sportTitle = jsonObject.getString("sport_title");
+                if (SportType.sportExists(sportTitle)) {
+                    JSONArray bookmakers = jsonObject.getJSONArray("bookmakers");
+                    for (int j = 0; j < bookmakers.length(); j++) {
+                        JSONObject market = bookmakers.getJSONObject(j);
+                        if (market.getString("title").equals(GlobalVariables.BOOKMAKERS)) {
+                            JSONArray markets = market.getJSONArray("markets");
+                            for (int a = 0; a < markets.length(); a++) {
+                                if (markets.getJSONObject(a).getString("key").equals("h2h")) {
+                                    JSONArray outcomes = markets.getJSONObject(a).getJSONArray("outcomes");
+                                    JSONObject outcome = outcomes.getJSONObject(0);
+                                    double homePrice = outcome.getDouble("price");
+                                    outcome = outcomes.getJSONObject(1);
+                                    double awayPrice = outcome.getDouble("price");
+                                    long commence_time = jsonObject.getLong("commence_time");
+                                    if (commence_time > Instant.now().getEpochSecond()) {
+                                        Game game = new Game(SportType.getSportTypeFromSport(sportTitle),
+                                                commence_time, jsonObject.getString("home_team"),
+                                                jsonObject.getString("away_team"), jsonObject.getString("id"), sportTitle,
+                                                homePrice, awayPrice, true);
+                                        LOGGER.info("Game saved: " + game);
+                                        gamesList.add(game);
+                                    } else {
+                                        LOGGER.info("Game is in the past: " + jsonObject.getString("id"));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return gamesList;
+    }
+
     public static void saveGame(Game game) {
         if (game == null) {
             throw new IllegalArgumentException("Game is null");
@@ -134,14 +186,24 @@ public class OddsGetter {
     public static class GetOddsTask extends TimerTask {
         @Override
         public void run() {
-            try {
-                LOGGER.info("Starting the general get odds task");
-                games = new ArrayList<>();
-                gameIdToGame = new HashMap<>();
-                getOddsAndSave();
-                LOGGER.info("Done running the general odds retrieving task. " + games.size() + " games were retrieved");
-            } catch (Exception ex) {
-                System.out.println("error running thread GetOddsTask" + ex.getMessage());
+            if (games.isEmpty()) {
+                try {
+                    LOGGER.info("Starting the general get odds task");
+                    games = new ArrayList<>();
+                    gameIdToGame = new HashMap<>();
+                    getOddsAndSave();
+                    LOGGER.info("Done running the general odds retrieving task. " + games.size() + " games were retrieved");
+                } catch (Exception ex) {
+                    System.out.println("error running thread GetOddsTask" + ex.getMessage());
+                }
+            } else {
+                getOdds().forEach(game -> {
+                    if (!gameIdToGame.containsKey(game.getId())) {
+                        Game newGame = new Game(game.getSportType(), game.getGameTime(), game.getHomeTeam(), game.getAwayTeam(), game.getId(), game.getSportKey(), game.getHomePrice(), game.getAwayPrice());
+                        games.add(newGame);
+                        gameIdToGame.put(newGame.getId(), newGame);
+                    }
+                });
             }
         }
     }
@@ -162,24 +224,19 @@ public class OddsGetter {
                 Result result = getOdds(sportKey, gameId);
                 Game newGame = findAndEdit(gameId, result);
                 EmbedBuilder embed = getEmbed(newGame);
-                boolean lock = false;
-                if (newGame.getEditCount() >= 4) {
-                    lock = true;
-                }
+                boolean lock = newGame.getEditCount() >= 4;
                 long textChannelId = newGame.getSportType().getChannelId();
                 MessageChannel channel = Bot.getJda().getTextChannelById(textChannelId);
                 if (gameIdToMessageId.containsKey(gameId)) {
                     long messageId = gameIdToMessageId.get(gameId);
                     LOGGER.info("Updating the message with id " + messageId);
-                    Game finalNewGame = newGame;
-                    boolean finalLock = lock;
                     channel.retrieveMessageById(messageId).queue((message) -> {
                         message.editMessageEmbeds(embed.build())
                                 .setActionRow(Button.secondary(
-                                                "0000:bet:" + finalNewGame.getHomeTeam() + ":" + finalNewGame.getId(),
-                                                finalNewGame.getHomeTeam()).withDisabled(finalLock),
-                                        Button.secondary("0000:bet:" + finalNewGame.getAwayTeam() + ":" + finalNewGame.getId(),
-                                                finalNewGame.getAwayTeam()).withDisabled(finalLock)).queue();
+                                                "0000:bet:" + newGame.getHomeTeam() + ":" + newGame.getId(),
+                                                newGame.getHomeTeam()).withDisabled(lock),
+                                        Button.secondary("0000:bet:" + newGame.getAwayTeam() + ":" + newGame.getId(),
+                                                newGame.getAwayTeam()).withDisabled(lock)).queue();
                     });
                 } else {
                     LOGGER.info("Creating a new message");

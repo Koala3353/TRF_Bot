@@ -59,6 +59,21 @@ public class Game {
         }
     }
 
+    public Game(SportType sportType, long gameTime, String homeTeam, String awayTeam, String id, String sportKey, double homePrice, double awayPrice, boolean startTask) {
+        this.sportType = sportType;
+        this.gameTime = gameTime;
+        this.homeTeam = homeTeam;
+        this.awayTeam = awayTeam;
+        this.homePrice = homePrice;
+        this.awayPrice = awayPrice;
+        this.id = id;
+        this.sport = sportKey;
+        this.sportKey = OddsGetter.KEY_OF_SPORT.get(sportKey);
+        long timeBeforeTheGame = getGameTime() - Instant.now().getEpochSecond();
+        int hoursBeforeTheGame = (int) (timeBeforeTheGame / 3600);
+        LOGGER.info("For game " + getId() + " the game will start in " + hoursBeforeTheGame + " hours");
+    }
+
 
     public double getHomePrice() {
         return homePrice;

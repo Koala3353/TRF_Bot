@@ -24,4 +24,5 @@ public class GlobalVariables {
     public static String API_KEY = Config.get("key");
     public static String LINK = Config.get("link");
     public static String BOOKMAKERS = Config.get("bookmakers");
+    public static long CHAMPS = Long.parseLong(Config.get("champs"));
 }

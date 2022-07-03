@@ -5,6 +5,7 @@ import com.general_hello.commands.commands.DashboardCommand;
 import com.general_hello.commands.commands.GetGameInfo;
 import com.general_hello.commands.commands.RegisterCommand;
 import com.general_hello.commands.events.OnButtonClick;
+import com.general_hello.commands.events.ChampsEvents;
 import com.general_hello.commands.events.OnModalEvent;
 import com.general_hello.commands.events.OnReadyEvent;
 import com.jagrosh.jdautilities.command.CommandClient;
@@ -73,7 +74,7 @@ public class Bot {
                 GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                 GatewayIntent.DIRECT_MESSAGES)
                 .addEventListeners(eventWaiter, commandClient, new OnModalEvent(), new OnReadyEvent(),
-                        new OnButtonClick())
+                        new OnButtonClick(), new ChampsEvents())
                 .setStatus(OnlineStatus.IDLE)
                 .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
                 .setMemberCachePolicy(MemberCachePolicy.ALL)

@@ -1,21 +1,22 @@
 package com.general_hello.commands.objects;
 
+import com.general_hello.Config;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 
 import java.util.Arrays;
 import java.util.List;
 
 public enum SportType {
-    AMERICAN_FOOTBALL("American Football", 990836205035851826L, "NCAAF", "NFL"),
-    BASEBALL("Baseball", 990836225466310687L, "MLB", "NBA"),
-    CRICKET("Cricket", 990836244214853662L, "ICC World Cup", "IPL", "One Day Internationals", "Test Match"),
-    GOLF("Golf", 990836255690489856L, "Masters Tournament", "PGA Championship", "The Open", "US Open"),
-    ICE_HOCKEY("Ice Hockey", 990836272815800340L, "NHL"),
-    MIXED_MARTIAL_ARTS("Mixed Martial Arts", 990836306131173386L, "MMA"),
-    SOCCER("Soccer", 990836322686079006L, "EPL", "FA Cup", "Fifa World Cup", "Ligue 1 - France",
+    AMERICAN_FOOTBALL("American Football", Config.getLong("football"), "NCAAF", "NFL"),
+    BASEBALL("Baseball", Config.getLong("baseball"), "MLB", "NBA"),
+    CRICKET("Cricket", Config.getLong("cricket"), "ICC World Cup", "IPL", "One Day Internationals", "Test Match"),
+    GOLF("Golf", Config.getLong("golf"), "Masters Tournament", "PGA Championship", "The Open", "US Open"),
+    ICE_HOCKEY("Ice Hockey", Config.getLong("hockey"), "NHL"),
+    MIXED_MARTIAL_ARTS("Mixed Martial Arts", Config.getLong("mixed_arts"), "MMA"),
+    SOCCER("Soccer", Config.getLong("soccer"), "EPL", "FA Cup", "Fifa World Cup", "Ligue 1 - France",
             "Bundesliga - Germany", "Serie A - Italy", "Dutch Eresdivisie - Netherlands",
             "La Liga - Spain", "UEFA Champions League"),
-    TENNIS("Tennis", 990836334212034600L, "ATP French Open", "ATP US Open", "ATP Wimbledon");
+    TENNIS("Tennis", Config.getLong("tennis"), "ATP French Open", "ATP US Open", "ATP Wimbledon");
 
     private final String name;
     private final List<String> sport;
