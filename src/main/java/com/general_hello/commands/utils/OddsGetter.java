@@ -224,7 +224,7 @@ public class OddsGetter {
                 Result result = getOdds(sportKey, gameId);
                 Game newGame = findAndEdit(gameId, result);
                 EmbedBuilder embed = getEmbed(newGame);
-                boolean lock = newGame.getEditCount() >= 4;
+                boolean lock = newGame.getEditCount() >= 5;
                 long textChannelId = newGame.getSportType().getChannelId();
                 MessageChannel channel = Bot.getJda().getTextChannelById(textChannelId);
                 if (gameIdToMessageId.containsKey(gameId)) {
