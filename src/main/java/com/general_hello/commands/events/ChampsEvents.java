@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ChampsEvents extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        if (!event.isFromGuild()) return;
         if (event.getGuild().getIdLong() != Config.getLong("guild")) {
             return;
         }
@@ -50,15 +51,18 @@ public class ChampsEvents extends ListenerAdapter {
                 embedBuilder.setDescription(contentRaw);
                 event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue((post -> {
                     DataUtils.newChampMessage(post.getIdLong(), member.getIdLong());
+                    embedBuilder.setAuthor(member.getEffectiveName(), post.getJumpUrl(), member.getEffectiveAvatarUrl());
                 }));
                 List<Long> followers = DataUtils.getFollowersOfChamp(event.getAuthor().getIdLong());
-                if (followers != null) {
+                if (followers != null && !followers.isEmpty()) {
                     for (Long follower : followers) {
                         User target = event.getJDA().getUserById(follower);
-                        target.openPrivateChannel().flatMap(channel ->
+                        if (target != null) {
+                            target.openPrivateChannel().flatMap(channel ->
                                         channel.sendMessageEmbeds(embedBuilder.build()))
                                 .queue(null, new ErrorHandler()
                                         .ignore(ErrorResponse.UNKNOWN_USER, ErrorResponse.CANNOT_SEND_TO_USER, ErrorResponse.UNKNOWN_CHANNEL));
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -66,6 +70,7 @@ public class ChampsEvents extends ListenerAdapter {
                         .queue((message1 -> {
                             message1.delete().queueAfter(10, TimeUnit.SECONDS);
                         }));
+                e.printStackTrace();
             }
         }
     }

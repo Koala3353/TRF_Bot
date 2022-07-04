@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.util.Collections;
 
@@ -49,7 +50,10 @@ public class GetGameInfo extends SlashCommand {
         if (event.getOption("id") == null) {
             StringBuilder ids = new StringBuilder();
             for (String id : OddsGetter.gameIdToGame.keySet()) {
-                ids.append(id).append("\n");
+                Game game = OddsGetter.gameIdToGame.get(id);
+                ids.append("**").append(id).append("** - ").append(game.getHomeTeam())
+                        .append(" vs ").append(game.getAwayTeam()).append(" ")
+                        .append(TimeFormat.RELATIVE.format(game.getGameTime())).append("\n");
             }
 
             event.reply("**Here are the list of ids:**\n```\n" + ids + "```").setEphemeral(true).queue();

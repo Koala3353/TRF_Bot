@@ -46,13 +46,13 @@ public class Game {
                 scheduler.schedule(new OddsGetter.GetOddsSpecificTask(getSportKey(), id), timeBeforeTheGame, TimeUnit.SECONDS);
             } else if (hoursBeforeTheGame >= 3) {
                 this.editCount = 2;
-                scheduler.schedule(new OddsGetter.GetOddsSpecificTask(getSportKey(), id), 120, TimeUnit.SECONDS);
+                scheduler.schedule(new OddsGetter.GetOddsSpecificTask(getSportKey(), id), 60, TimeUnit.SECONDS);
                 scheduler.schedule(new OddsGetter.GetOddsSpecificTask(getSportKey(), id), timeBeforeTheGame, TimeUnit.SECONDS);
                 scheduler.schedule(new OddsGetter.GetOddsSpecificTask(getSportKey(), id), delay, TimeUnit.SECONDS);
                 scheduler.schedule(new OddsGetter.GetOddsSpecificTask(getSportKey(), id), delay + (3600*2), TimeUnit.SECONDS);
             } else if (hoursBeforeTheGame >= 1) {
                 this.editCount = 3;
-                scheduler.schedule(new OddsGetter.GetOddsSpecificTask(getSportKey(), id), 120, TimeUnit.SECONDS);
+                scheduler.schedule(new OddsGetter.GetOddsSpecificTask(getSportKey(), id), 60, TimeUnit.SECONDS);
                 scheduler.schedule(new OddsGetter.GetOddsSpecificTask(getSportKey(), id), timeBeforeTheGame, TimeUnit.SECONDS);
                 scheduler.schedule(new OddsGetter.GetOddsSpecificTask(getSportKey(), id), delay, TimeUnit.SECONDS);
             }
