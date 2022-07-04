@@ -1,9 +1,6 @@
 package com.general_hello;
 
-import com.general_hello.commands.commands.AddRemoveBanMenu;
-import com.general_hello.commands.commands.DashboardCommand;
-import com.general_hello.commands.commands.GetGameInfo;
-import com.general_hello.commands.commands.RegisterCommand;
+import com.general_hello.commands.commands.*;
 import com.general_hello.commands.events.OnButtonClick;
 import com.general_hello.commands.events.ChampsEvents;
 import com.general_hello.commands.events.OnModalEvent;
@@ -59,7 +56,7 @@ public class Bot {
         client.setPrefix(Config.get("prefix"));
         client.setStatus(OnlineStatus.IDLE);
         client.setActivity(Activity.listening("Whatever you want to place here, let me know."));
-        client.addContextMenu(new AddRemoveBanMenu());
+        client.addContextMenus(new AddRemoveBanMenu(), new FollowMenu());
         addCommands(client);
         eventWaiter = new EventWaiter();
         // Finalize the command client

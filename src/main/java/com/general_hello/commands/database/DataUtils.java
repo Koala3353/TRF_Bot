@@ -114,6 +114,59 @@ public class DataUtils {
         return false;
     }
 
+    public static boolean newFollower(long userId, long champ) {
+        LOGGER.info("Made a new follower for " + champ + " by the user id of " + userId + ".");
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("INSERT INTO Follow" +
+                        "(UserId, ChampId)" +
+                        "VALUES (?, ?);")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+            preparedStatement.setString(2, String.valueOf(champ));
+
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean newChampMessage(long messageId, long champ) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("INSERT INTO Follow" +
+                        "(UserId, ChampId)" +
+                        "VALUES (?, ?);")) {
+
+            preparedStatement.setString(1, String.valueOf(messageId));
+            preparedStatement.setString(2, String.valueOf(champ));
+
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static long getAuthorOfPost(long messageId) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT ChampId FROM Follow WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(messageId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong("ChampId");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public static String getBetTeam(long userId, String gameId) {
         LOGGER.info("Made a request to get the bet of " + userId + " in the game " + gameId + ".");
         try (Connection connection = SQLiteDataSource.getConnection();
@@ -127,6 +180,27 @@ public class DataUtils {
                 if (resultSet.next()) {
                     return resultSet.getString("TeamNameBet");
                 }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static List<Long> getFollowersOfChamp(long champ) {
+        LOGGER.info("Made a request to get the users who followed " + champ + ".");
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT UserId FROM Follow WHERE ChampId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(champ));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                List<Long> users = new ArrayList<>();
+                while (resultSet.next()) {
+                    users.add(resultSet.getLong("UserId"));
+                }
+                return users;
             }
         } catch (SQLException e) {
             e.printStackTrace();

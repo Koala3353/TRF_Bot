@@ -143,6 +143,7 @@ public class OddsGetter {
     }
 
     public static Result getOdds(String sportKey, String gameId) {
+        String json = "";
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://odds.p.rapidapi.com/v4/sports/" + sportKey + "/odds?regions=us&oddsFormat=decimal&markets=h2h&dateFormat=unix"))
@@ -151,6 +152,7 @@ public class OddsGetter {
                     .method("GET", HttpRequest.BodyPublishers.noBody())
                     .build();
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            json = response.body();
             JSONArray jsonArray = new JSONArray(response.body());
 
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -178,6 +180,7 @@ public class OddsGetter {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println(json);
         }
 
         return null;

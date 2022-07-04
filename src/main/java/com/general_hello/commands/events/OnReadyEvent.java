@@ -80,6 +80,17 @@ public class OnReadyEvent extends ListenerAdapter {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+
+            // Make a new Follow table if it doesn't exist
+            try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS Follow ( UserId INTEGER NOT NULL, " +
+                            "ChampId INTEGER NOT NULL);"
+                    )) {
+                LOGGER.info("Made a new table (Follow)");
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             LOGGER.error("An exception was thrown", e);
         }
@@ -100,6 +111,7 @@ public class OnReadyEvent extends ListenerAdapter {
                 String sportKey = jsonObject.getString("key");
                 String sportName = jsonObject.getString("title");
                 OddsGetter.KEY_OF_SPORT.put(sportName, sportKey);
+                OddsGetter.KEY_OF_SPORT.put(sportKey, sportKey);
                 LOGGER.debug("Sport name = " + sportName + ", Sport key = " + sportKey);
             }
             LOGGER.info("Successfully retrieved the sport keys! (Enable debug mode to see more details)");

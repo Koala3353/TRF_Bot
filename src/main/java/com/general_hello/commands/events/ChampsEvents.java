@@ -1,15 +1,20 @@
 package com.general_hello.commands.events;
 
 import com.general_hello.Config;
+import com.general_hello.commands.database.DataUtils;
 import com.general_hello.commands.objects.GlobalVariables;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -28,7 +33,7 @@ public class ChampsEvents extends ListenerAdapter {
             }
         });
 
-        if (event.getTextChannel().getIdLong() != GlobalVariables.CHAMPS) {
+        if (!event.getTextChannel().getName().startsWith(GlobalVariables.CHAMPS)) {
             return;
         }
 
@@ -43,7 +48,19 @@ public class ChampsEvents extends ListenerAdapter {
                 embedBuilder.setTimestamp(OffsetDateTime.now());
                 embedBuilder.setAuthor(member.getEffectiveName(), null, member.getEffectiveAvatarUrl());
                 embedBuilder.setDescription(contentRaw);
-                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue((post -> {
+                    DataUtils.newChampMessage(post.getIdLong(), member.getIdLong());
+                }));
+                List<Long> followers = DataUtils.getFollowersOfChamp(event.getAuthor().getIdLong());
+                if (followers != null) {
+                    for (Long follower : followers) {
+                        User target = event.getJDA().getUserById(follower);
+                        target.openPrivateChannel().flatMap(channel ->
+                                        channel.sendMessageEmbeds(embedBuilder.build()))
+                                .queue(null, new ErrorHandler()
+                                        .ignore(ErrorResponse.UNKNOWN_USER, ErrorResponse.CANNOT_SEND_TO_USER, ErrorResponse.UNKNOWN_CHANNEL));
+                    }
+                }
             } catch (Exception e) {
                 event.getTextChannel().sendMessage("Check if your message exceeded 4096 characters. " + member.getAsMention())
                         .queue((message1 -> {

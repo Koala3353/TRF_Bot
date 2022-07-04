@@ -1,6 +1,7 @@
 package com.general_hello.commands.objects;
 
 import com.general_hello.Config;
+
 /**
  * <p>Make a <b>.env</b> file with the following contents and replace the <b>?</b> with the proper values</p>
  */
@@ -24,6 +25,6 @@ public class GlobalVariables {
     public static String API_KEY = Config.get("key");
     public static String LINK = Config.get("link");
     public static String BOOKMAKERS = Config.get("bookmakers");
-    public static long CHAMPS = Long.parseLong(Config.get("champs"));
-    public static String VERSION = "1.2.1";
+    public static String CHAMPS = Config.get("champ_prefix").toLowerCase();
+    public static String VERSION = "2.0.1";
 }
