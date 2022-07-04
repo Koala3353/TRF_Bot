@@ -26,5 +26,5 @@ public class GlobalVariables {
     public static String LINK = Config.get("link");
     public static String BOOKMAKERS = Config.get("bookmakers");
     public static String CHAMPS = Config.get("champ_prefix").toLowerCase();
-    public static String VERSION = "2.0.1";
+    public static String VERSION = "2.0.2";
 }
