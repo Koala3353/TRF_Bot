@@ -53,10 +53,10 @@ public class GetGameInfo extends SlashCommand {
                 Game game = OddsGetter.gameIdToGame.get(id);
                 ids.append("**").append(id).append("** - ").append(game.getHomeTeam())
                         .append(" vs ").append(game.getAwayTeam()).append(" ")
-                        .append(TimeFormat.RELATIVE.format(game.getGameTime())).append("\n");
+                        .append(TimeFormat.RELATIVE.format(game.getGameTime() * 1000)).append("\n");
             }
 
-            event.reply("**Here are the list of ids:**\n```\n" + ids + "```").setEphemeral(true).queue();
+            event.reply("**Here are the list of ids:**\n" + ids).setEphemeral(true).queue();
             return;
         }
         String id = event.getOption("id").getAsString();

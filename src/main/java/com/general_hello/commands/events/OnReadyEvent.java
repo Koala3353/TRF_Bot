@@ -91,6 +91,41 @@ public class OnReadyEvent extends ListenerAdapter {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+
+            // Make a new PostInteractions table if it doesn't exist
+            try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS PostInteractions ( UserId INTEGER NOT NULL, " +
+                            "PostId INTEGER NOT NULL, Interaction INTEGER DEFAULT 0);"
+                    )) {
+                LOGGER.info("Made a new table (PostInteractions)");
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            // Make a new SpecialPosts table if it doesn't exist
+            try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                    .prepareStatement("CREATE TABLE SpecialPosts (" +
+                            "UnixTimePost INTEGER, ChannelId INTEGER, " +
+                            "ChannelName INTEGER, PosterId INTEGER, " +
+                            "PosterName INTEGER, Content TEXT, InteractionCount INTEGER);"
+                    )) {
+                LOGGER.info("Made a new table (SpecialPosts)");
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            // Make a new HasInteracted table if it doesn't exist
+            try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS HasInteracted ( UserId INTEGER NOT NULL, " +
+                            "PostId INTEGER NOT NULL, Interacted INTEGER DEFAULT 1);"
+                    )) {
+                LOGGER.info("Made a new table (HasInteracted)");
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             LOGGER.error("An exception was thrown", e);
         }
@@ -125,7 +160,9 @@ public class OnReadyEvent extends ListenerAdapter {
         File jsonFile = new File("records.json");
         if (!jsonFile.exists()) {
             try {
-                jsonFile.createNewFile();
+                if (jsonFile.createNewFile()) {
+                    LOGGER.info("Successfully made a new JSON file");
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -22,7 +22,7 @@ public class DataUtils {
         return getSolanaAddress(userId) != null;
     }
 
-    public static String getSolanaAddress(long userId) {
+    public static synchronized String getSolanaAddress(long userId) {
         LOGGER.info("Made a request to get the Solana Address of " + userId + ".");
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
@@ -41,7 +41,7 @@ public class DataUtils {
         return null;
     }
 
-    public static boolean isBanned(long userId) {
+    public static synchronized boolean isBanned(long userId) {
         LOGGER.info("Made a request to get if the user (" + userId + ") is banned or not.");
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
@@ -60,7 +60,7 @@ public class DataUtils {
         return false;
     }
 
-    public static void setBan(long userId, boolean isBan) {
+    public static synchronized void setBan(long userId, boolean isBan) {
         LOGGER.info("Made a request to " + (!isBan ? "remove the ban of" : "ban") + " (" + userId + ") from the bot.");
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
                 .prepareStatement("UPDATE UserData SET Ban=? WHERE UserId=?"
@@ -75,7 +75,7 @@ public class DataUtils {
         }
     }
 
-    public static void newAccount(long userId, String solanaAddress) {
+    public static synchronized void newAccount(long userId, String solanaAddress) {
         LOGGER.info("Made a new info for " + solanaAddress + " with the user id of " + userId + ".");
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
                 .prepareStatement("INSERT INTO UserData" +
@@ -91,7 +91,7 @@ public class DataUtils {
         }
     }
 
-    public static boolean newBet(long userId, String teamName, String gameID) {
+    public static synchronized boolean newBet(long userId, String teamName, String gameID) {
         LOGGER.info("Made a new bet for " + teamName + " by the user id of " + userId + ".");
         if (getBetTeam(userId, gameID) != null) {
             LOGGER.info("The user already has a bet for this game.");
@@ -114,7 +114,7 @@ public class DataUtils {
         return false;
     }
 
-    public static boolean newFollower(long userId, long champ) {
+    public static synchronized void newFollower(long userId, long champ) {
         LOGGER.info("Made a new follower for " + champ + " by the user id of " + userId + ".");
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
                 .prepareStatement("INSERT INTO Follow" +
@@ -125,40 +125,114 @@ public class DataUtils {
             preparedStatement.setString(2, String.valueOf(champ));
 
             preparedStatement.executeUpdate();
-            return true;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
     }
 
-    public static boolean newChampMessage(long messageId, long champ) {
+    public static synchronized void newChampMessage(long messageId, long champ) {
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                .prepareStatement("INSERT INTO Follow" +
-                        "(UserId, ChampId)" +
+                .prepareStatement("INSERT INTO PostInteractions" +
+                        "(PostId, UserId)" +
                         "VALUES (?, ?);")) {
 
             preparedStatement.setString(1, String.valueOf(messageId));
             preparedStatement.setString(2, String.valueOf(champ));
 
             preparedStatement.executeUpdate();
-            return true;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
     }
 
-    public static long getAuthorOfPost(long messageId) {
+    public static synchronized boolean hasInteracted(long userId, long messageId) {
+        int hasInteracted = -1;
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
-                     .prepareStatement("SELECT ChampId FROM Follow WHERE UserId = ?")) {
+                     .prepareStatement("SELECT Interacted FROM HasInteracted WHERE PostId = ? AND UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(messageId));
+            preparedStatement.setString(2, String.valueOf(userId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    hasInteracted = resultSet.getInt("Interacted");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return hasInteracted == 1;
+    }
+
+    public static synchronized void newSpecialPost(long unixTimeOfPost, long channelId, String channelName,
+                                                   long posterId, String posterName, String postContent, int interactionCount) {
+        if (isSpecialPostSaved(unixTimeOfPost)) {
+            return;
+        }
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("INSERT INTO SpecialPosts" +
+                        "(UnixTimePost, ChannelId, ChannelName, PosterId, PosterName, Content, InteractionCount)" +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?);")) {
+            preparedStatement.setString(1, String.valueOf(unixTimeOfPost));
+            preparedStatement.setString(2, String.valueOf(channelId));
+            preparedStatement.setString(3, channelName);
+            preparedStatement.setString(4, String.valueOf(posterId));
+            preparedStatement.setString(5, posterName);
+            preparedStatement.setString(6, postContent);
+            preparedStatement.setString(7, String.valueOf(interactionCount));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static synchronized boolean isSpecialPostSaved(long unixTimePost) {
+        int hasInteracted = -1;
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT InteractionCount FROM SpecialPosts WHERE UnixTimePost = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(unixTimePost));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    hasInteracted = resultSet.getInt("InteractionCount");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return hasInteracted != -1;
+    }
+
+    public static synchronized void newInteractedUser(long messageId, long userId) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("INSERT INTO HasInteracted" +
+                        "(UserId, PostId)" +
+                        "VALUES (?, ?);")) {
+            preparedStatement.setString(1, String.valueOf(userId));
+            preparedStatement.setString(2, String.valueOf(messageId));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static synchronized long getAuthorOfPost(long messageId) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT UserId FROM PostInteractions WHERE PostId = ?")) {
 
             preparedStatement.setString(1, String.valueOf(messageId));
 
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getLong("ChampId");
+                    return resultSet.getLong("UserId");
                 }
             }
         } catch (SQLException e) {
@@ -167,7 +241,42 @@ public class DataUtils {
         return -1;
     }
 
-    public static String getBetTeam(long userId, String gameId) {
+    public static synchronized void addInteraction(long postId) {
+        int incrementInteraction = getInteractionCount(postId) + 1;
+        LOGGER.info("Made a request to add an interaction to the post (" + postId + ").");
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE PostInteractions SET Interaction=? WHERE PostId=?"
+                )) {
+
+            preparedStatement.setString(2, String.valueOf(incrementInteraction));
+            preparedStatement.setString(1, String.valueOf(postId));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static synchronized int getInteractionCount(long postId) {
+        LOGGER.info("Made a request to get the interaction count of the post (" + postId + ").");
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT Interaction FROM PostInteractions WHERE PostId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(postId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("Interaction");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static synchronized String getBetTeam(long userId, String gameId) {
         LOGGER.info("Made a request to get the bet of " + userId + " in the game " + gameId + ".");
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
@@ -187,7 +296,7 @@ public class DataUtils {
         return null;
     }
 
-    public static List<Long> getFollowersOfChamp(long champ) {
+    public static synchronized List<Long> getFollowersOfChamp(long champ) {
         LOGGER.info("Made a request to get the users who followed " + champ + ".");
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
@@ -208,7 +317,7 @@ public class DataUtils {
         return null;
     }
 
-    public static List<Long> getUsers(String gameId) {
+    public static synchronized List<Long> getUsers(String gameId) {
         LOGGER.info("Made a request to get the users who placed a bet in the game " + gameId + ".");
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
@@ -229,7 +338,7 @@ public class DataUtils {
         return null;
     }
 
-    public static boolean verifyAddress(String address) {
+    public static synchronized boolean verifyAddress(String address) {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
