@@ -60,6 +60,11 @@ public class GetGameInfo extends SlashCommand {
                         TimeFormat.RELATIVE.format(game.getGameTime() * 1000) + "\n");
             }
 
+            if (ids.isEmpty()) {
+                event.reply("No games found.").setEphemeral(true).queue();
+                return;
+            }
+
             ButtonPaginator.Builder builder = new ButtonPaginator.Builder(event.getJDA())
                     .setColor(event.getGuild().getSelfMember().getColor())
                     .setTitle("Here are the games available for lookup")
