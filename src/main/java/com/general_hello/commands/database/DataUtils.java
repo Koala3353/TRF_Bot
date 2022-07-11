@@ -1,6 +1,7 @@
 package com.general_hello.commands.database;
 
 import com.general_hello.Bot;
+import com.general_hello.commands.objects.SpecialPost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,6 +167,122 @@ public class DataUtils {
         return hasInteracted == 1;
     }
 
+    public static synchronized List<SpecialPost> getSpecialPosts() {
+        List<SpecialPost> posts = new ArrayList<>();
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT UnixTimePost FROM SpecialPosts")) {
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    long unixTimePost = resultSet.getLong("UnixTimePost");
+                    int interactionCount = getInteractionCountFromTime(unixTimePost);
+                    posts.add(new SpecialPost(unixTimePost, interactionCount));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return posts;
+    }
+
+    public static synchronized String getContent(long unixTime) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT Content FROM SpecialPosts WHERE UnixTimePost = ?")) {
+            preparedStatement.setString(1, String.valueOf(unixTime));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("Content");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
+    public static synchronized String getPoster(long unixTime) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT PosterId FROM SpecialPosts WHERE UnixTimePost = ?")) {
+            preparedStatement.setString(1, String.valueOf(unixTime));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("PosterId");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
+    public static synchronized int getHofCount(long userId) {
+        int count = 0;
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT IsTopPost FROM SpecialPosts WHERE PosterId = ?")) {
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    if (resultSet.getInt("IsTopPost") == 1) {
+                        count++;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return count;
+    }
+
+    public static synchronized int getHighInteractionPosts(long userId) {
+        int count = 0;
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT InteractionCount FROM SpecialPosts WHERE PosterId = ?")) {
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    if (resultSet.getInt("InteractionCount") >= 10) {
+                        count++;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return count;
+    }
+
+    public static synchronized int getInteractionCountFromTime(long unixTime) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT InteractionCount FROM SpecialPosts WHERE UnixTimePost = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(unixTime));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("InteractionCount");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public static synchronized void newSpecialPost(long unixTimeOfPost, long channelId, String channelName,
                                                    long posterId, String posterName, String postContent, int interactionCount) {
         if (isSpecialPostSaved(unixTimeOfPost)) {
@@ -182,6 +299,20 @@ public class DataUtils {
             preparedStatement.setString(5, posterName);
             preparedStatement.setString(6, postContent);
             preparedStatement.setString(7, String.valueOf(interactionCount));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static synchronized void setTopPost(long unixTimePost) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE SpecialPosts SET IsTopPost=? WHERE UnixTimePost=?"
+                )) {
+
+            preparedStatement.setString(2, String.valueOf(unixTimePost));
+            preparedStatement.setString(1, "1");
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -303,6 +434,25 @@ public class DataUtils {
                      .prepareStatement("SELECT UserId FROM Follow WHERE ChampId = ?")) {
 
             preparedStatement.setString(1, String.valueOf(champ));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                List<Long> users = new ArrayList<>();
+                while (resultSet.next()) {
+                    users.add(resultSet.getLong("UserId"));
+                }
+                return users;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static synchronized List<Long> getChamps() {
+        LOGGER.info("Made a request to get the champs");
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT UserId FROM PostInteractions")) {
 
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 List<Long> users = new ArrayList<>();

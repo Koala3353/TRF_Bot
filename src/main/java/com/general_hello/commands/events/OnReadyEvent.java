@@ -105,10 +105,10 @@ public class OnReadyEvent extends ListenerAdapter {
 
             // Make a new SpecialPosts table if it doesn't exist
             try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                    .prepareStatement("CREATE TABLE SpecialPosts (" +
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS SpecialPosts (" +
                             "UnixTimePost INTEGER, ChannelId INTEGER, " +
                             "ChannelName INTEGER, PosterId INTEGER, " +
-                            "PosterName INTEGER, Content TEXT, InteractionCount INTEGER);"
+                            "PosterName INTEGER, Content TEXT, InteractionCount INTEGER, IsTopPost INTEGER DEFAULT -1);"
                     )) {
                 LOGGER.info("Made a new table (SpecialPosts)");
                 preparedStatement.executeUpdate();
@@ -171,6 +171,6 @@ public class OnReadyEvent extends ListenerAdapter {
 
         new OddsGetter.GetOddsTask().run();
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(new OddsGetter.GetOddsTask(),1, 1, TimeUnit.HOURS);
+        scheduler.scheduleAtFixedRate(new OddsGetter.GetOddsTask(),2, 2, TimeUnit.HOURS);
     }
 }

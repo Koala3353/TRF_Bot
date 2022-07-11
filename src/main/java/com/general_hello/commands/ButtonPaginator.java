@@ -1,6 +1,7 @@
 package com.general_hello.commands;
 
 import com.general_hello.commands.utils.EmbedUtil;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -24,7 +25,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 // Button Paginator
-// It simply makes a button paginator and you can build it by setting the data and calling this class
+// It simply makes a button paginator, and you can build it by setting the data and calling this class
 public class ButtonPaginator {
     private static final Button first = Button.secondary("first", Emoji.fromCustom("first", 930264043564961822L, false));
     private static final Button previous = Button.secondary("previous", Emoji.fromCustom("left", 915425233215827968L, false));
@@ -68,6 +69,13 @@ public class ButtonPaginator {
         this.page = page;
         message.editMessage("\u200E").setEmbeds(getEmbed(page)).setActionRows(getButtonLayout(page))
                 .queue(m -> waitForEvent(m.getChannel().getIdLong(), m.getIdLong()));
+    }
+
+    public void paginate(SlashCommandEvent slashCommandEvent, int page)
+    {
+        this.page = page;
+        slashCommandEvent.replyEmbeds(getEmbed(page)).addActionRows(getButtonLayout(page))
+                .queue(m -> waitForEvent(slashCommandEvent.getTextChannel().getIdLong(), m.retrieveOriginal().complete().getIdLong()));
     }
 
     public void paginate(TextChannel textChannel, int page)

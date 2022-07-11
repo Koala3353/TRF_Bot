@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 import java.time.OffsetDateTime;
 
 public class DashboardCommand extends Command {
-    public static LastUsed LAST_USED = new LastUsed(-1, -1, -1);
+    public static LastUsed LAST_USED = new LastUsed(-1, -1, -1, -1, -1);
     private static long messageId = -1;
     public DashboardCommand() {
         this.name = "dashboard";
@@ -39,6 +39,8 @@ public class DashboardCommand extends Command {
                 > [Set result](https://discord.com) - `Sets the result of a game`
                 > [Shutdown](https://discord.com) - `Shuts the bot down`
                 > [Reload data](https://discord.com) - `Reloads all the games data`
+                > [Extract champ data](https://discord.com) - `Extracts the champ data from the database to a json file`
+                > [Send Hall of Fame](https://discord.com) - `Sends the Hall of Fame`
                 """);
         if (LAST_USED.hasData) {
             dashboard.appendDescription("\n\n[**Last used:**](https://discord.com)\n");
@@ -54,6 +56,14 @@ public class DashboardCommand extends Command {
             if (LAST_USED.getReloadData() != -1) {
                 dashboard.appendDescription("**Reload Data:** " + formatTime(LAST_USED.getReloadData()) + "\n");
             }
+
+            if (LAST_USED.getExtractData() != -1) {
+                dashboard.appendDescription("**Extract Champ Data:** " + formatTime(LAST_USED.getExtractData()) + "\n");
+            }
+
+            if (LAST_USED.getHof() != -1) {
+                dashboard.appendDescription("**Send Hall of Fame:** " + formatTime(LAST_USED.getHof()) + "\n");
+            }
         }
 
         SelectMenu menu = SelectMenu.create("menu:dashboard")
@@ -62,6 +72,8 @@ public class DashboardCommand extends Command {
                 .addOption("Set result", "setresult", "Sets the result of a game")
                 .addOption("Shutdown", "shutdown", "Shuts the bot down")
                 .addOption("Reload data", "reloaddata", "Reloads all the games data")
+                .addOption("Extract Champ data", "extractdata", "Extract all the champs data to a json file")
+                .addOption("Send Hall of Fame", "hof", "Gets the top post and sends it to the channel")
                 .build();
 
         if (messageId == -1) {
@@ -78,12 +90,16 @@ public class DashboardCommand extends Command {
         private long setResult;
         private long shutdown;
         private long reloadData;
+        private long extractData;
+        private long hof;
         private boolean hasData;
 
-        public LastUsed(long setResult, long shutdown, long reloadData) {
+        public LastUsed(long setResult, long shutdown, long reloadData, long extractData, long hof) {
             this.setResult = setResult;
             this.shutdown = shutdown;
             this.reloadData = reloadData;
+            this.extractData = extractData;
+            this.hof = hof;
             this.hasData = false;
         }
 
@@ -93,6 +109,26 @@ public class DashboardCommand extends Command {
 
         public LastUsed setSetResult(long setResult) {
             this.setResult = setResult;
+            this.hasData = true;
+            return this;
+        }
+
+        public long getExtractData() {
+            return extractData;
+        }
+
+        public LastUsed setExtractData(long extractData) {
+            this.extractData = extractData;
+            this.hasData = true;
+            return this;
+        }
+
+        public long getHof() {
+            return hof;
+        }
+
+        public LastUsed setHof(long hof) {
+            this.hof = hof;
             this.hasData = true;
             return this;
         }

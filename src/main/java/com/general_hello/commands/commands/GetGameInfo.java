@@ -1,5 +1,7 @@
 package com.general_hello.commands.commands;
 
+import com.general_hello.Bot;
+import com.general_hello.commands.ButtonPaginator;
 import com.general_hello.commands.database.DataUtils;
 import com.general_hello.commands.objects.Game;
 import com.general_hello.commands.utils.JsonUtils;
@@ -15,7 +17,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 public class GetGameInfo extends SlashCommand {
     public GetGameInfo() {
@@ -48,15 +52,24 @@ public class GetGameInfo extends SlashCommand {
             return;
         }
         if (event.getOption("id") == null) {
-            StringBuilder ids = new StringBuilder();
+            ArrayList<String> ids = new ArrayList<>();
             for (String id : OddsGetter.gameIdToGame.keySet()) {
                 Game game = OddsGetter.gameIdToGame.get(id);
-                ids.append("**").append(id).append("** - ").append(game.getHomeTeam())
-                        .append(" vs ").append(game.getAwayTeam()).append(" ")
-                        .append(TimeFormat.RELATIVE.format(game.getGameTime() * 1000)).append("\n");
+                ids.add("**" + id + "** - " + game.getHomeTeam() + " vs " +
+                                game.getAwayTeam() + " " +
+                        TimeFormat.RELATIVE.format(game.getGameTime() * 1000) + "\n");
             }
 
-            event.reply("**Here are the list of ids:**\n" + ids).setEphemeral(true).queue();
+            ButtonPaginator.Builder builder = new ButtonPaginator.Builder(event.getJDA())
+                    .setColor(event.getGuild().getSelfMember().getColor())
+                    .setTitle("Here are the games available for lookup")
+                    .setItems(ids)
+                    .setItemsPerPage(5)
+                    .setFooter("Do /info <id> to get the info of a game")
+                    .setTimeout(120, TimeUnit.SECONDS)
+                    .setEventWaiter(Bot.getBot().getEventWaiter())
+                    .addAllowedUsers(author.getIdLong());
+            builder.build().paginate(event, 1);
             return;
         }
         String id = event.getOption("id").getAsString();
