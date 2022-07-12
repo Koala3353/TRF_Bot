@@ -1,5 +1,6 @@
 package com.general_hello.commands.events;
 
+import com.general_hello.Config;
 import com.general_hello.commands.commands.DashboardCommand;
 import com.general_hello.commands.database.DataUtils;
 import com.general_hello.commands.objects.GlobalVariables;
@@ -8,6 +9,7 @@ import com.general_hello.commands.utils.JsonUtils;
 import com.general_hello.commands.utils.OddsGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -28,6 +30,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class OnButtonClick extends ListenerAdapter {
     private static Logger LOGGER = LoggerFactory.getLogger(OnButtonClick.class);
@@ -103,6 +106,7 @@ public class OnButtonClick extends ListenerAdapter {
             case "shutdown":
                 DashboardCommand.LAST_USED.setShutdown(Instant.now().getEpochSecond() * 1000);
                 DashboardCommand.buildAndSend(event.getTextChannel());
+                DashboardCommand.deleteDashboard(event.getTextChannel());
                 event.reply("Shutting down... Goodbye!").setEphemeral(true).queue();
                 event.getJDA().shutdown();
                 LOGGER.info("Bot shut down by " + event.getUser().getAsTag());
@@ -123,6 +127,7 @@ public class OnButtonClick extends ListenerAdapter {
                 break;
             case "hof":
                 DashboardCommand.LAST_USED.setHof(Instant.now().getEpochSecond() * 1000);
+                DashboardCommand.buildAndSend(event.getTextChannel());
                 List<SpecialPost> specialPosts = DataUtils.getSpecialPosts();
                 Collections.sort(specialPosts);
                 if (specialPosts.isEmpty()) {
@@ -138,14 +143,23 @@ public class OnButtonClick extends ListenerAdapter {
                 embedBuilder.setAuthor(userById.getName(), null, userById.getEffectiveAvatarUrl());
                 embedBuilder.setDescription(DataUtils.getContent(topPost.getUnixTime()));
                 event.getGuild().getTextChannelById(GlobalVariables.HALL_OF_FAME).sendMessageEmbeds(embedBuilder.build()).queue();
+                event.reply("Successfully sent the Hall of Fame post").setEphemeral(true).queue();
                 break;
             case "extractdata":
                 DashboardCommand.LAST_USED.setExtractData(Instant.now().getEpochSecond() * 1000);
+                DashboardCommand.buildAndSend(event.getTextChannel());
                 JSONArray finalArray = new JSONArray();
                 List<Long> champs = DataUtils.getChamps();
                 if (champs != null) {
                     for (long champ : champs) {
                         User champUser = event.getJDA().getUserById(champ);
+                        long champTimeWeeks = DataUtils.getChampTime(champ);
+                        String champTime;
+                        if (champTimeWeeks == -1) {
+                            champTime = "Bot wasn't online when the champ was assigned";
+                        } else {
+                            champTime = String.format("%d week(s)", ((int) ((Instant.now().getEpochSecond() * 1000) - champTimeWeeks) / 604800));
+                        }
                         JSONObject champObject = new JSONObject();
                         champObject.put("champName", champUser.getAsTag());
                         champObject.put("userId", champ);
@@ -153,6 +167,7 @@ public class OnButtonClick extends ListenerAdapter {
                         champObject.put("hofCount", DataUtils.getHofCount(champ));
                         champObject.put("highInteractionPosts", DataUtils.getHighInteractionPosts(champ));
                         champObject.put("followerCount", DataUtils.getFollowersOfChamp(champ).size());
+                        champObject.put("champWeeks", champTime);
                         finalArray.put(champObject);
                     }
 
@@ -173,6 +188,25 @@ public class OnButtonClick extends ListenerAdapter {
                     event.reply("No champs found").setEphemeral(true).queue();
                 }
                 break;
+        }
+    }
+
+    @Override
+    public void onGuildMemberRoleAdd(@NotNull GuildMemberRoleAddEvent event) {
+        if (event.getGuild().getIdLong() != Config.getLong("guild")) {
+            return;
+        }
+
+        AtomicBoolean isNewChamp = new AtomicBoolean(false);
+        event.getRoles().forEach((role -> {
+            if (role.getName().contains(Config.get("champ_prefix"))) {
+                isNewChamp.set(true);
+            }
+        }));
+
+        if (isNewChamp.get()) {
+            DataUtils.newChampTime(System.currentTimeMillis(), event.getUser().getIdLong());
+            LOGGER.info("New champ " + event.getUser().getAsTag() + " added to the database");
         }
     }
 }

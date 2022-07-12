@@ -72,20 +72,36 @@ public class DashboardCommand extends Command {
                 .addOption("Set result", "setresult", "Sets the result of a game")
                 .addOption("Shutdown", "shutdown", "Shuts the bot down")
                 .addOption("Reload data", "reloaddata", "Reloads all the games data")
-                .addOption("Extract Champ data", "extractdata", "Extract all the champs data to a json file")
+                .addOption("Extract Champ data", "extractdata", "Extract all the champs to a json file")
                 .addOption("Send Hall of Fame", "hof", "Gets the top post and sends it to the channel")
                 .build();
 
         if (messageId == -1) {
-            messageId = textChannel.getLatestMessageIdLong();
+            textChannel.sendMessageEmbeds(dashboard.build()).setActionRow(menu).queue((message -> {
+                messageId = message.getIdLong();
+            }));
+        } else {
+            textChannel.editMessageEmbedsById(messageId, dashboard.build()).setActionRow(menu).queue();
         }
+    }
 
-        textChannel.editMessageEmbedsById(messageId, dashboard.build()).setActionRow(menu).queue();
+    public static boolean deleteDashboard(TextChannel textChannel) {
+        try {
+            if (messageId == -1) {
+                return true;
+            }
+
+            textChannel.deleteMessageById(messageId).queue();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private static String formatTime(long time) {
         return TimeFormat.RELATIVE.format(time) + " (" + TimeFormat.DATE_TIME_SHORT.format(time) + ")";
     }
+
     public static class LastUsed {
         private long setResult;
         private long shutdown;

@@ -354,6 +354,38 @@ public class DataUtils {
         }
     }
 
+    public static synchronized long getChampTime(long userId) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT Time FROM ChampTime WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong("Time");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static synchronized void newChampTime(long timeUnix, long userId) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("INSERT INTO ChampTime" +
+                        "(UserId, Time)" +
+                        "VALUES (?, ?);")) {
+            preparedStatement.setString(1, String.valueOf(userId));
+            preparedStatement.setString(2, String.valueOf(timeUnix));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static synchronized long getAuthorOfPost(long messageId) {
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection

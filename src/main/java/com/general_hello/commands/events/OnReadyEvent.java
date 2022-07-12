@@ -69,6 +69,17 @@ public class OnReadyEvent extends ListenerAdapter {
                 e.printStackTrace();
             }
 
+            // Make a new ChampTime table if it doesn't exist
+            try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS ChampTime ( UserId INTEGER NOT NULL, " +
+                            "Time INTEGER NOT NULL);"
+                    )) {
+                LOGGER.info("Made a new table (ChampTime)");
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
             // Make a new Betting table if it doesn't exist
             try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
                     .prepareStatement("CREATE TABLE IF NOT EXISTS Betting ( UserId INTEGER NOT NULL, " +
