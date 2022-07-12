@@ -47,6 +47,11 @@ public class GetGameInfo extends SlashCommand {
             return;
         }
 
+        if (event.isFromGuild()) {
+            event.reply("This command is only available in DMs").setEphemeral(true).queue();
+            return;
+        }
+
         if (DataUtils.isBanned(author.getIdLong())) {
             event.reply("You are banned from using the bot.").setEphemeral(true).queue();
             return;

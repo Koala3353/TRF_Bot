@@ -74,8 +74,10 @@ public class ButtonPaginator {
     public void paginate(SlashCommandEvent slashCommandEvent, int page)
     {
         this.page = page;
-        slashCommandEvent.replyEmbeds(getEmbed(page)).addActionRows(getButtonLayout(page)).setEphemeral(true)
-                .queue(m -> waitForEvent(slashCommandEvent.getTextChannel().getIdLong(), m.retrieveOriginal().complete().getIdLong()));
+        slashCommandEvent.replyEmbeds(getEmbed(page)).addActionRows(getButtonLayout(page))
+                .queue(m -> m.retrieveOriginal().queue((message -> {
+                    waitForEvent(slashCommandEvent.getTextChannel().getIdLong(), message.getIdLong());
+                })));
     }
 
     public void paginate(TextChannel textChannel, int page)
