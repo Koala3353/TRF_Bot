@@ -106,7 +106,11 @@ public class OnButtonClick extends ListenerAdapter {
             case "shutdown":
                 DashboardCommand.LAST_USED.setShutdown(Instant.now().getEpochSecond() * 1000);
                 DashboardCommand.buildAndSend(event.getTextChannel());
-                DashboardCommand.deleteDashboard(event.getTextChannel());
+                if (DashboardCommand.deleteDashboard(event.getTextChannel())) {
+                    LOGGER.info("Deleted the dashboard successfully.");
+                } else {
+                    LOGGER.warn("Failure to delete the dashboard.");
+                }
                 event.reply("Shutting down... Goodbye!").setEphemeral(true).queue();
                 event.getJDA().shutdown();
                 LOGGER.info("Bot shut down by " + event.getUser().getAsTag());
