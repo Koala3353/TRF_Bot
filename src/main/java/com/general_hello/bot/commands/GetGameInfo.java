@@ -4,6 +4,7 @@ import com.general_hello.Bot;
 import com.general_hello.bot.ButtonPaginator;
 import com.general_hello.bot.database.DataUtils;
 import com.general_hello.bot.objects.Game;
+import com.general_hello.bot.objects.GlobalVariables;
 import com.general_hello.bot.utils.JsonUtils;
 import com.general_hello.bot.utils.OddsGetter;
 import com.jagrosh.jdautilities.command.SlashCommand;
@@ -61,8 +62,8 @@ public class GetGameInfo extends SlashCommand {
             ArrayList<String> ids = new ArrayList<>();
             for (String id : OddsGetter.gameIdToGame.keySet()) {
                 Game game = OddsGetter.gameIdToGame.get(id);
-                ids.add(game.getHomeTeam() + " **vs** " +
-                                game.getAwayTeam() + " " +
+                ids.add("[" + game.getHomeTeam() + "](" + GlobalVariables.LINK + ") **vs** [" +
+                                game.getAwayTeam() + "](" + GlobalVariables.LINK + ") " +
                         TimeFormat.RELATIVE.format(game.getGameTime() * 1000) + "\n");
             }
 
