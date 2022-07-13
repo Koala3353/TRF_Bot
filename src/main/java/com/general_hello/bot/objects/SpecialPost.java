@@ -1,4 +1,4 @@
-package com.general_hello.commands.objects;
+package com.general_hello.bot.objects;
 
 import org.jetbrains.annotations.NotNull;
 

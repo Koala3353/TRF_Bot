@@ -1,4 +1,4 @@
-package com.general_hello.commands.utils;
+package com.general_hello.bot.utils;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;

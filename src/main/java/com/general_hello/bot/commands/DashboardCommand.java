@@ -1,4 +1,4 @@
-package com.general_hello.commands.commands;
+package com.general_hello.bot.commands;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;

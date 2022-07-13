@@ -1,10 +1,10 @@
-package com.general_hello.commands.events;
+package com.general_hello.bot.events;
 
 import com.general_hello.Bot;
-import com.general_hello.commands.database.SQLiteDataSource;
-import com.general_hello.commands.objects.GlobalVariables;
-import com.general_hello.commands.utils.JsonUtils;
-import com.general_hello.commands.utils.OddsGetter;
+import com.general_hello.bot.database.SQLiteDataSource;
+import com.general_hello.bot.objects.GlobalVariables;
+import com.general_hello.bot.utils.JsonUtils;
+import com.general_hello.bot.utils.OddsGetter;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;

@@ -1,8 +1,8 @@
-package com.general_hello.commands.commands;
+package com.general_hello.bot.commands;
 
 import com.general_hello.Config;
-import com.general_hello.commands.database.DataUtils;
-import com.general_hello.commands.objects.GlobalVariables;
+import com.general_hello.bot.database.DataUtils;
+import com.general_hello.bot.objects.GlobalVariables;
 import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
 import net.dv8tion.jda.api.entities.Message;

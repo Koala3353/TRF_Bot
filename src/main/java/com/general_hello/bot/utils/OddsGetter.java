@@ -1,9 +1,9 @@
-package com.general_hello.commands.utils;
+package com.general_hello.bot.utils;
 
 import com.general_hello.Bot;
-import com.general_hello.commands.objects.Game;
-import com.general_hello.commands.objects.GlobalVariables;
-import com.general_hello.commands.objects.SportType;
+import com.general_hello.bot.objects.Game;
+import com.general_hello.bot.objects.GlobalVariables;
+import com.general_hello.bot.objects.SportType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -30,6 +30,7 @@ public class OddsGetter {
     public static Map<String, String> KEY_OF_SPORT = new HashMap<>();
     public static Map<String, Game> gameIdToGame = new HashMap<>();
     public static List<Game> games = new ArrayList<>();
+    public static List<String> gameNames = new ArrayList<>();
     public static Map<String, Long> gameIdToMessageId = new HashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(OddsGetter.class);
 
@@ -140,6 +141,7 @@ public class OddsGetter {
         }
         games.add(game);
         gameIdToGame.put(game.getId(), game);
+        gameNames.add(game.getHomeTeam() + " vs " + game.getAwayTeam());
     }
 
     public static Result getOdds(String sportKey, String gameId) {
@@ -194,6 +196,7 @@ public class OddsGetter {
                     LOGGER.info("Starting the general get odds task");
                     games = new ArrayList<>();
                     gameIdToGame = new HashMap<>();
+                    gameNames = new ArrayList<>();
                     getOddsAndSave();
                     LOGGER.info("Done running the general odds retrieving task. " + games.size() + " games were retrieved");
                 } catch (Exception ex) {
@@ -204,6 +207,7 @@ public class OddsGetter {
                     if (!gameIdToGame.containsKey(game.getId())) {
                         Game newGame = new Game(game.getSportType(), game.getGameTime(), game.getHomeTeam(), game.getAwayTeam(), game.getId(), game.getSportKey(), game.getHomePrice(), game.getAwayPrice());
                         games.add(newGame);
+                        gameNames.add(game.getHomeTeam() + " vs " + game.getAwayTeam());
                         gameIdToGame.put(newGame.getId(), newGame);
                     }
                 });
@@ -284,10 +288,9 @@ public class OddsGetter {
         embed.setTimestamp(Instant.now());
         embed.addField(game.getHomeTeam(), String.format("%.2f", game.getHomePrice()), true);
         embed.addField(game.getAwayTeam(), String.format("%.2f", game.getAwayPrice()), true);
-        embed.setDescription("Game ID: **" + game.getId() + "**\n" +
+        embed.setDescription("Sport: **" + game.getSportType().getName() + " - " + game.getSport() + "**\n" +
                 (lastCall ? "Game started " : "Game starts ") + TimeFormat.RELATIVE.format(game.getGameTime()*1000) +
-                " (" + TimeFormat.DATE_TIME_SHORT.format(game.getGameTime()*1000)+ ")\n" +
-                "Sport: " + game.getSport() + " (" + game.getSportType().getName() + ")");
+                " (" + TimeFormat.DATE_TIME_SHORT.format(game.getGameTime()*1000)+ ")");
         return embed;
     }
 
@@ -302,10 +305,9 @@ public class OddsGetter {
         embed.setTimestamp(Instant.now());
         embed.addField(game.getHomeTeam(), String.format("%.2f", game.getHomePrice()), true);
         embed.addField(game.getAwayTeam(), String.format("%.2f", game.getAwayPrice()), true);
-        embed.setDescription("Game ID: **" + game.getId() + "**\n" +
+        embed.setDescription("Sport: **" + game.getSportType().getName() + " - " + game.getSport() + "**\n" +
                 "Game starts " + TimeFormat.RELATIVE.format(game.getGameTime()*1000) +
-                " (" + TimeFormat.DATE_TIME_SHORT.format(game.getGameTime()*1000)+ ")\n" +
-                "Sport: " + game.getSport() + " (" + game.getSportType().getName() + ")");
+                " (" + TimeFormat.DATE_TIME_SHORT.format(game.getGameTime()*1000)+ ")");
         return embed;
     }
 

@@ -1,8 +1,8 @@
-package com.general_hello.commands.events;
+package com.general_hello.bot.events;
 
 import com.general_hello.Config;
-import com.general_hello.commands.database.DataUtils;
-import com.general_hello.commands.objects.GlobalVariables;
+import com.general_hello.bot.database.DataUtils;
+import com.general_hello.bot.objects.GlobalVariables;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;

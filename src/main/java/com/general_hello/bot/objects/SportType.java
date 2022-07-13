@@ -1,4 +1,4 @@
-package com.general_hello.commands.objects;
+package com.general_hello.bot.objects;
 
 import com.general_hello.Config;
 import me.xdrop.fuzzywuzzy.FuzzySearch;

@@ -1,6 +1,6 @@
-package com.general_hello.commands.utils;
+package com.general_hello.bot.utils;
 
-import com.general_hello.commands.objects.SportType;
+import com.general_hello.bot.objects.SportType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;

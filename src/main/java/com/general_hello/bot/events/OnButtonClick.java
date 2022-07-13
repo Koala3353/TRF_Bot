@@ -1,12 +1,12 @@
-package com.general_hello.commands.events;
+package com.general_hello.bot.events;
 
 import com.general_hello.Config;
-import com.general_hello.commands.commands.DashboardCommand;
-import com.general_hello.commands.database.DataUtils;
-import com.general_hello.commands.objects.GlobalVariables;
-import com.general_hello.commands.objects.SpecialPost;
-import com.general_hello.commands.utils.JsonUtils;
-import com.general_hello.commands.utils.OddsGetter;
+import com.general_hello.bot.commands.DashboardCommand;
+import com.general_hello.bot.database.DataUtils;
+import com.general_hello.bot.objects.GlobalVariables;
+import com.general_hello.bot.objects.SpecialPost;
+import com.general_hello.bot.utils.JsonUtils;
+import com.general_hello.bot.utils.OddsGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;

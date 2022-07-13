@@ -1,4 +1,4 @@
-package com.general_hello.commands.objects;
+package com.general_hello.bot.objects;
 
 import com.general_hello.Config;
 
@@ -27,5 +27,5 @@ public class GlobalVariables {
     public static String BOOKMAKERS = Config.get("bookmakers");
     public static String CHAMPS = Config.get("champ_prefix").toLowerCase();
     public static String HALL_OF_FAME = Config.get("hall_of_fame");
-    public static String VERSION = "2.3.0";
+    public static String VERSION = "2.3.2";
 }

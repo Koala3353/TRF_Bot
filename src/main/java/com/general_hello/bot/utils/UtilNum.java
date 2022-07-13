@@ -1,4 +1,4 @@
-package com.general_hello.commands.utils;
+package com.general_hello.bot.utils;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

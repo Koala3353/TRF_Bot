@@ -1,6 +1,6 @@
-package com.general_hello.commands.commands;
+package com.general_hello.bot.commands;
 
-import com.general_hello.commands.database.DataUtils;
+import com.general_hello.bot.database.DataUtils;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;

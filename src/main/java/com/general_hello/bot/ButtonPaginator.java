@@ -1,6 +1,6 @@
-package com.general_hello.commands;
+package com.general_hello.bot;
 
-import com.general_hello.commands.utils.EmbedUtil;
+import com.general_hello.bot.utils.EmbedUtil;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -76,7 +76,7 @@ public class ButtonPaginator {
         this.page = page;
         slashCommandEvent.replyEmbeds(getEmbed(page)).addActionRows(getButtonLayout(page))
                 .queue(m -> m.retrieveOriginal().queue((message -> {
-                    waitForEvent(slashCommandEvent.getTextChannel().getIdLong(), message.getIdLong());
+                    waitForEvent(slashCommandEvent.getPrivateChannel().getIdLong(), message.getIdLong());
                 })));
     }
 

@@ -1,4 +1,4 @@
-package com.general_hello.commands.database;
+package com.general_hello.bot.database;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

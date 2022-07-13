@@ -1,11 +1,11 @@
 package com.general_hello;
 
-import com.general_hello.commands.commands.*;
-import com.general_hello.commands.events.OnButtonClick;
-import com.general_hello.commands.events.ChampsEvents;
-import com.general_hello.commands.events.OnModalEvent;
-import com.general_hello.commands.events.OnReadyEvent;
-import com.general_hello.commands.objects.GlobalVariables;
+import com.general_hello.bot.commands.*;
+import com.general_hello.bot.events.OnButtonClick;
+import com.general_hello.bot.events.ChampsEvents;
+import com.general_hello.bot.events.OnModalEvent;
+import com.general_hello.bot.events.OnReadyEvent;
+import com.general_hello.bot.objects.GlobalVariables;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;

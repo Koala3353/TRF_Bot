@@ -1,6 +1,6 @@
-package com.general_hello.commands.objects;
+package com.general_hello.bot.objects;
 
-import com.general_hello.commands.utils.OddsGetter;
+import com.general_hello.bot.utils.OddsGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package com.general_hello.commands.utils;
+package com.general_hello.bot.utils;
 
 import com.general_hello.Bot;
 import com.general_hello.Config;

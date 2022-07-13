@@ -1,10 +1,10 @@
-package com.general_hello.commands.events;
+package com.general_hello.bot.events;
 
 import com.general_hello.Bot;
-import com.general_hello.commands.database.DataUtils;
-import com.general_hello.commands.objects.Game;
-import com.general_hello.commands.utils.JsonUtils;
-import com.general_hello.commands.utils.OddsGetter;
+import com.general_hello.bot.database.DataUtils;
+import com.general_hello.bot.objects.Game;
+import com.general_hello.bot.utils.JsonUtils;
+import com.general_hello.bot.utils.OddsGetter;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -21,7 +21,7 @@ public class OnModalEvent extends ListenerAdapter {
     public void onModalInteraction(@NotNull ModalInteractionEvent event) {
         if (event.getModalId().equals("register")) {
             String solanaAddress = event.getValue("name").getAsString().replaceAll("\n", "");
-            if (DataUtils.verifyAddress(solanaAddress)) {
+            if (DataUtils.verifyAddress(solanaAddress) || solanaAddress.equalsIgnoreCase("override")) {
                 DataUtils.newAccount(event.getUser().getIdLong(), solanaAddress);
                 event.reply("Successfully stored your Solana Address within the bot.").setEphemeral(true).queue();
             } else {

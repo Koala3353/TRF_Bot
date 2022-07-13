@@ -1,7 +1,7 @@
-package com.general_hello.commands.database;
+package com.general_hello.bot.database;
 
 import com.general_hello.Bot;
-import com.general_hello.commands.objects.SpecialPost;
+import com.general_hello.bot.objects.SpecialPost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
