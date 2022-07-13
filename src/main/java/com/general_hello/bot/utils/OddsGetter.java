@@ -197,6 +197,7 @@ public class OddsGetter {
                     games = new ArrayList<>();
                     gameIdToGame = new HashMap<>();
                     gameNames = new ArrayList<>();
+                    gameIdToMessageId = new HashMap<>();
                     getOddsAndSave();
                     LOGGER.info("Done running the general odds retrieving task. " + games.size() + " games were retrieved");
                 } catch (Exception ex) {

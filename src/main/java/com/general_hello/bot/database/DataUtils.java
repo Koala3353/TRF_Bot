@@ -131,6 +131,19 @@ public class DataUtils {
         }
     }
 
+    public static synchronized void removeFollower(long userId, long champ) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("DELETE FROM Follow WHERE UserId=? AND ChampId=?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+            preparedStatement.setString(2, String.valueOf(champ));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static synchronized void newChampMessage(long messageId, long champ) {
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
                 .prepareStatement("INSERT INTO PostInteractions" +

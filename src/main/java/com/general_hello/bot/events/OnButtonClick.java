@@ -3,6 +3,7 @@ package com.general_hello.bot.events;
 import com.general_hello.Config;
 import com.general_hello.bot.commands.DashboardCommand;
 import com.general_hello.bot.database.DataUtils;
+import com.general_hello.bot.objects.Game;
 import com.general_hello.bot.objects.GlobalVariables;
 import com.general_hello.bot.objects.SpecialPost;
 import com.general_hello.bot.utils.JsonUtils;
@@ -106,12 +107,31 @@ public class OnButtonClick extends ListenerAdapter {
             case "shutdown":
                 DashboardCommand.LAST_USED.setShutdown(Instant.now().getEpochSecond() * 1000);
                 DashboardCommand.buildAndSend(event.getTextChannel());
+                for (Game game : OddsGetter.games) {
+                    try {
+                        long channelId = game.getSportType().getChannelId();
+                        long messageId = OddsGetter.gameIdToMessageId.get(game.getId());
+                        event.getJDA().getTextChannelById(channelId).deleteMessageById(messageId).queue();
+                        LOGGER.info("Deleted an unfinished game message in channel " + channelId + " with message id " + messageId);
+                    } catch (Exception ignored) {}
+                }
                 if (DashboardCommand.deleteDashboard(event.getTextChannel())) {
                     LOGGER.info("Deleted the dashboard successfully.");
                 } else {
                     LOGGER.warn("Failure to delete the dashboard.");
                 }
-                event.reply("Shutting down... Goodbye!").setEphemeral(true).queue();
+                event.reply("""
+                        **Warning:**
+                        :warning: Games that hasn't been finished may cause unexpected issues.
+                        :warning: Dashboard won't work due to it being deleted.
+                        :warning: Bot will shut down in 5 seconds.
+                        
+                        **Shut down successfully!**""").setEphemeral(true).queue();
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 event.getJDA().shutdown();
                 LOGGER.info("Bot shut down by " + event.getUser().getAsTag());
                 try {

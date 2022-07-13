@@ -56,7 +56,7 @@ public class Bot {
         client.setPrefix(Config.get("prefix"));
         client.setStatus(OnlineStatus.IDLE);
         client.setActivity(Activity.listening("Whatever you want to place here, let me know."));
-        client.addContextMenus(new AddRemoveBanMenu(), new FollowMenu());
+        client.addContextMenus(new AddRemoveBanMenu(), new FollowMenu(), new UnfollowMenu());
         addCommands(client);
         eventWaiter = new EventWaiter();
         // Finalize the command client
@@ -92,7 +92,7 @@ public class Bot {
 
     private static void addCommands(CommandClientBuilder clientBuilder) {
         // Initialize the commands of the bot
-        clientBuilder.addSlashCommands(new RegisterCommand(), new GetGameInfo());
+        clientBuilder.addSlashCommands(new RegisterCommand(), new GetGameInfo(), new HelpCommand());
         clientBuilder.addCommands(new DashboardCommand());
         LOGGER.info("Added the slash commands");
     }

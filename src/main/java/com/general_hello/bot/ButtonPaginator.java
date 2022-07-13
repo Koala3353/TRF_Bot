@@ -179,6 +179,7 @@ public class ButtonPaginator {
                     if (channel == null) return;
                     channel.retrieveMessageById(messageId)
                             .flatMap(m -> m.editMessageComponents(Collections.emptyList()))
+                            .flatMap(Message::delete)
                             .queue(s -> {}, e -> {});
                 }
         );

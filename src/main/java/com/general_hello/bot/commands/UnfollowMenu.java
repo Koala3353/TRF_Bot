@@ -7,9 +7,9 @@ import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
 import net.dv8tion.jda.api.entities.Message;
 
-public class FollowMenu extends MessageContextMenu {
-    public FollowMenu() {
-        this.name = "Follow Champ";
+public class UnfollowMenu extends MessageContextMenu {
+    public UnfollowMenu() {
+        this.name = "Unfollow Champ";
         this.cooldown = 60;
     }
 
@@ -37,7 +37,7 @@ public class FollowMenu extends MessageContextMenu {
 
         Message message = event.getTarget();
         long authorId = DataUtils.getAuthorOfPost(message.getIdLong());
-        DataUtils.newFollower(event.getUser().getIdLong(), authorId);
-        event.reply("You are now following " + event.getJDA().getUserById(authorId).getAsMention() + ". You will now receive a DM once the champ posts a new message.").setEphemeral(true).queue();
+        DataUtils.removeFollower(event.getUser().getIdLong(), authorId);
+        event.reply("You successfully unfollowed " + event.getJDA().getUserById(authorId).getAsMention() + ". You will not receive a DM anymore once the champ posts a new message.").setEphemeral(true).queue();
     }
 }
