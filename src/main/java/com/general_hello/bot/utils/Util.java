@@ -18,7 +18,7 @@ import java.security.CodeSource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ThreadFactory;
-
+@SuppressWarnings("ConstantConditions")
 public class Util
 {
 

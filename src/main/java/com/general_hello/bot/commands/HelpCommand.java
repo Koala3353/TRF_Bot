@@ -5,15 +5,22 @@ import com.general_hello.bot.ButtonPaginator;
 import com.general_hello.bot.database.DataUtils;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import net.dv8tion.jda.api.Permission;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("ConstantConditions")
 public class HelpCommand extends SlashCommand {
     private static final ArrayList<String> pages = new ArrayList<>();
     public HelpCommand() {
         this.name = "help";
         this.help = "Shows all the commands of the bot";
+        this.ownerCommand = true;
+        this.userPermissions = new Permission[]{
+                Permission.MANAGE_SERVER,
+                Permission.MESSAGE_MANAGE
+        };
         this.cooldown = 60;
     }
 
@@ -71,10 +78,9 @@ public class HelpCommand extends SlashCommand {
         builder.setColor(event.getGuild().getSelfMember().getColor());
         builder.setItemsPerPage(1);
         builder.setFooter("Press the buttons below to navigate between the pages");
-        builder.addAllowedUsers(event.getUser().getIdLong());
         builder.setEventWaiter(Bot.getBot().getEventWaiter());
         builder.setTitle("Help");
-        builder.setTimeout(2, TimeUnit.MINUTES);
+        builder.setTimeout(365, TimeUnit.DAYS);
         builder.setItems(pages);
         builder.useNumberedItems(false);
         builder.build().paginate(event.getTextChannel(), 1);

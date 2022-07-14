@@ -7,6 +7,7 @@ import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
 import net.dv8tion.jda.api.entities.Message;
 
+@SuppressWarnings("ConstantConditions")
 public class FollowMenu extends MessageContextMenu {
     public FollowMenu() {
         this.name = "Follow Champ";

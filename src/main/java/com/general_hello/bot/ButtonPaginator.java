@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 // Button Paginator
 // It simply makes a button paginator, and you can build it by setting the data and calling this class
+@SuppressWarnings("unused")
 public class ButtonPaginator {
     private static final Button first = Button.secondary("first", Emoji.fromCustom("first", 930264043564961822L, false));
     private static final Button previous = Button.secondary("previous", Emoji.fromCustom("left", 915425233215827968L, false));
@@ -75,9 +76,7 @@ public class ButtonPaginator {
     {
         this.page = page;
         slashCommandEvent.replyEmbeds(getEmbed(page)).addActionRows(getButtonLayout(page))
-                .queue(m -> m.retrieveOriginal().queue((message -> {
-                    waitForEvent(slashCommandEvent.getPrivateChannel().getIdLong(), message.getIdLong());
-                })));
+                .queue(m -> m.retrieveOriginal().queue((message -> waitForEvent(slashCommandEvent.getPrivateChannel().getIdLong(), message.getIdLong()))));
     }
 
     public void paginate(TextChannel textChannel, int page)
@@ -108,13 +107,11 @@ public class ButtonPaginator {
                     page <= 1 ? first.asDisabled() : first,
                     page <= 1 ? previous.asDisabled() : previous,
                     page >= pages ? next.asDisabled() : next,
-                    page >= pages ? last.asDisabled() : last,
-                    delete);
+                    page >= pages ? last.asDisabled() : last);
         else
             return ActionRow.of(
                     page <= 1 ? previous.asDisabled() : previous,
-                    page >= pages ? next.asDisabled() : next,
-                    delete);
+                    page >= pages ? next.asDisabled() : next);
     }
 
     private void waitForEvent(long channelId, long messageId)
@@ -204,6 +201,7 @@ public class ButtonPaginator {
         return builder.build();
     }
 
+    @SuppressWarnings("unused")
     public static class Builder
     {
         private final JDA jda;
@@ -279,10 +277,9 @@ public class ButtonPaginator {
             return this;
         }
 
-        public Builder useNumberedItems(boolean b)
+        public void useNumberedItems(boolean b)
         {
             this.numberItems = b;
-            return this;
         }
 
         public Builder setTitle(String title)

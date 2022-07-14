@@ -1,8 +1,10 @@
 package com.general_hello.bot.commands;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.general_hello.bot.objects.GlobalVariables;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
@@ -10,19 +12,22 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.time.OffsetDateTime;
 
-public class DashboardCommand extends Command {
-    public static LastUsed LAST_USED = new LastUsed(-1, -1, -1, -1, -1);
+public class DashboardCommand extends SlashCommand {
+    public static final LastUsed LAST_USED = new LastUsed(-1, -1, -1, -1);
     private static long messageId = -1;
     public DashboardCommand() {
         this.name = "dashboard";
         this.help = "Sends the dashboard to manage the bot";
         this.ownerCommand = true;
+        this.userPermissions = new Permission[]{
+                Permission.MANAGE_SERVER,
+                Permission.MESSAGE_MANAGE
+        };
     }
 
     @Override
-    protected void execute(CommandEvent event) {
-        event.getMessage().delete().queue();
-
+    protected void execute(SlashCommandEvent event) {
+        event.reply("Sending the dashboard...").setEphemeral(true).queue();
         buildAndSend(event.getTextChannel());
     }
 
@@ -36,18 +41,13 @@ public class DashboardCommand extends Command {
                 > This is the **dashboard** of the bot. To use the command, use the selection menu below.
                 
                 **Commands:**
-                > [Set result](https://discord.com) - `Sets the result of a game`
                 > [Shutdown](https://discord.com) - `Shuts the bot down`
                 > [Reload data](https://discord.com) - `Reloads all the games data`
                 > [Extract champ data](https://discord.com) - `Extracts the champ data from the database to a json file`
                 > [Send Hall of Fame](https://discord.com) - `Sends the Hall of Fame`
                 """);
         if (LAST_USED.hasData) {
-            dashboard.appendDescription("\n\n[**Last used:**](https://discord.com)\n");
-
-            if (LAST_USED.getSetResult() != -1) {
-                dashboard.appendDescription("**Set Result:** " + formatTime(LAST_USED.getSetResult()) + "\n");
-            }
+            dashboard.appendDescription("\n\n[**Last used:**](" + GlobalVariables.LINK + ")\n");
 
             if (LAST_USED.getShutdown() != -1) {
                 dashboard.appendDescription("**Shutdown:** " + formatTime(LAST_USED.getShutdown()) + "\n");
@@ -69,7 +69,6 @@ public class DashboardCommand extends Command {
         SelectMenu menu = SelectMenu.create("menu:dashboard")
                 .setPlaceholder("Choose your command") // shows the placeholder indicating what this menu is for
                 .setRequiredRange(1, 1) // only one can be selected
-                .addOption("Set result", "setresult", "Sets the result of a game")
                 .addOption("Shutdown", "shutdown", "Shuts the bot down")
                 .addOption("Reload data", "reloaddata", "Reloads all the games data")
                 .addOption("Extract Champ data", "extractdata", "Extract all the champs to a json file")
@@ -77,9 +76,8 @@ public class DashboardCommand extends Command {
                 .build();
 
         if (messageId == -1) {
-            textChannel.sendMessageEmbeds(dashboard.build()).setActionRow(menu).queue((message -> {
-                messageId = message.getIdLong();
-            }));
+            textChannel.sendMessageEmbeds(dashboard.build()).setActionRow(menu).queue((message ->
+                    messageId = message.getIdLong()));
         } else {
             textChannel.editMessageEmbedsById(messageId, dashboard.build()).setActionRow(menu).queue();
         }
@@ -103,15 +101,13 @@ public class DashboardCommand extends Command {
     }
 
     public static class LastUsed {
-        private long setResult;
         private long shutdown;
         private long reloadData;
         private long extractData;
         private long hof;
         private boolean hasData;
 
-        public LastUsed(long setResult, long shutdown, long reloadData, long extractData, long hof) {
-            this.setResult = setResult;
+        public LastUsed(long shutdown, long reloadData, long extractData, long hof) {
             this.shutdown = shutdown;
             this.reloadData = reloadData;
             this.extractData = extractData;
@@ -119,54 +115,40 @@ public class DashboardCommand extends Command {
             this.hasData = false;
         }
 
-        public long getSetResult() {
-            return setResult;
-        }
-
-        public LastUsed setSetResult(long setResult) {
-            this.setResult = setResult;
-            this.hasData = true;
-            return this;
-        }
-
         public long getExtractData() {
             return extractData;
         }
 
-        public LastUsed setExtractData(long extractData) {
+        public void setExtractData(long extractData) {
             this.extractData = extractData;
             this.hasData = true;
-            return this;
         }
 
         public long getHof() {
             return hof;
         }
 
-        public LastUsed setHof(long hof) {
+        public void setHof(long hof) {
             this.hof = hof;
             this.hasData = true;
-            return this;
         }
 
         public long getShutdown() {
             return shutdown;
         }
 
-        public LastUsed setShutdown(long shutdown) {
+        public void setShutdown(long shutdown) {
             this.shutdown = shutdown;
             this.hasData = true;
-            return this;
         }
 
         public long getReloadData() {
             return reloadData;
         }
 
-        public LastUsed setReloadData(long reloadData) {
+        public void setReloadData(long reloadData) {
             this.reloadData = reloadData;
             this.hasData = true;
-            return this;
         }
     }
 }

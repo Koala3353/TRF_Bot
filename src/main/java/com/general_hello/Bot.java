@@ -26,7 +26,7 @@ public class Bot {
     private static JDA jda;
     private static Bot bot;
     private final EventWaiter eventWaiter;
-    // The logger of the bot
+    // The (logger) of the bot
     private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 
     public static Bot getBot() {
@@ -56,7 +56,7 @@ public class Bot {
         client.setPrefix(Config.get("prefix"));
         client.setStatus(OnlineStatus.IDLE);
         client.setActivity(Activity.listening("Whatever you want to place here, let me know."));
-        client.addContextMenus(new AddRemoveBanMenu(), new FollowMenu(), new UnfollowMenu());
+        client.addContextMenus(new AddRemoveBanMenu(), new FollowMenu(), new UnfollowMenu(), new SetResultMenu());
         addCommands(client);
         eventWaiter = new EventWaiter();
         // Finalize the command client
@@ -92,8 +92,7 @@ public class Bot {
 
     private static void addCommands(CommandClientBuilder clientBuilder) {
         // Initialize the commands of the bot
-        clientBuilder.addSlashCommands(new RegisterCommand(), new GetGameInfo(), new HelpCommand());
-        clientBuilder.addCommands(new DashboardCommand());
+        clientBuilder.addSlashCommands(new RegisterCommand(), new GetGameInfo(), new HelpCommand(), new DashboardCommand());
         LOGGER.info("Added the slash commands");
     }
 }

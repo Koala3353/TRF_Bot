@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.*;
 
+@SuppressWarnings("ALL")
 public class EmbedUtil
 {
     /**
@@ -12,7 +13,6 @@ public class EmbedUtil
      *
      * <p>This class is used to make embeds
      *
-     * @author General Rain
      */
 
     // If you want to change the color and emojis simply edit the ones below

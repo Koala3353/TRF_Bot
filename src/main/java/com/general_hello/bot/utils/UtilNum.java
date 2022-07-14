@@ -9,9 +9,6 @@ public class UtilNum {
 
     /**
      * Generate a number between start and end
-     * @param start
-     * @param end
-     * @return
      */
     public static int randomNum(int start, int end) {
 
@@ -26,9 +23,6 @@ public class UtilNum {
 
     /**
      * Generate a number between start and end
-     * @param start
-     * @param end
-     * @return
      */
     public static Long randomNum(Long start, Long end) {
 
@@ -54,8 +48,7 @@ public class UtilNum {
 
     /**
      * Check if a String is an integer
-     * @param s the String to be check
-     * @return
+     * @param s the String to be checked
      */
     public static boolean isInteger(String s) {
         try {

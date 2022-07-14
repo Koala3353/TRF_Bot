@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("ConstantConditions")
 public class GetGameInfo extends SlashCommand {
     public GetGameInfo() {
         this.name = "info";
@@ -99,9 +100,7 @@ public class GetGameInfo extends SlashCommand {
             }
             Game finalGame = game;
             event.replyEmbeds(OddsGetter.getEmbedPersonal(finalGame).build())
-                    .queue((message) -> {
-                        JsonUtils.incrementInteraction(finalGame.getSportType().getName(), author.getId());
-                    }, new ErrorHandler()
+                    .queue((message) -> JsonUtils.incrementInteraction(finalGame.getSportType().getName(), author.getId()), new ErrorHandler()
                             .ignore(ErrorResponse.CANNOT_SEND_TO_USER));
 
         } else {

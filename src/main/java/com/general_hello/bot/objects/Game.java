@@ -83,18 +83,16 @@ public class Game {
         return awayPrice;
     }
 
-    public Game setHomePrice(double homePrice) {
+    public void setHomePrice(double homePrice) {
         this.homePrice = homePrice;
-        return this;
     }
 
     public int getEditCount() {
         return editCount;
     }
 
-    public Game addEditCount() {
+    public void addEditCount() {
         this.editCount++;
-        return this;
     }
 
     public Game setAwayPrice(double awayPrice) {

@@ -23,11 +23,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.*;
 
+@SuppressWarnings("ConstantConditions")
 public class OddsGetter {
     /**
      * <b>Sport name</b> as value, then <b>sport key</b> as key
      */
-    public static Map<String, String> KEY_OF_SPORT = new HashMap<>();
+    public static final Map<String, String> KEY_OF_SPORT = new HashMap<>();
     public static Map<String, Game> gameIdToGame = new HashMap<>();
     public static List<Game> games = new ArrayList<>();
     public static List<String> gameNames = new ArrayList<>();
@@ -238,14 +239,12 @@ public class OddsGetter {
                 if (gameIdToMessageId.containsKey(gameId)) {
                     long messageId = gameIdToMessageId.get(gameId);
                     LOGGER.info("Updating the message with id " + messageId);
-                    channel.retrieveMessageById(messageId).queue((message) -> {
-                        message.editMessageEmbeds(embed.build())
-                                .setActionRow(Button.secondary(
-                                                "0000:bet:" + newGame.getHomeTeam() + ":" + newGame.getId(),
-                                                newGame.getHomeTeam()).withDisabled(lock),
-                                        Button.secondary("0000:bet:" + newGame.getAwayTeam() + ":" + newGame.getId(),
-                                                newGame.getAwayTeam()).withDisabled(lock)).queue();
-                    });
+                    channel.retrieveMessageById(messageId).queue((message) -> message.editMessageEmbeds(embed.build())
+                            .setActionRow(Button.secondary(
+                                            "0000:bet:" + newGame.getHomeTeam() + ":" + newGame.getId(),
+                                            newGame.getHomeTeam()).withDisabled(lock),
+                                    Button.secondary("0000:bet:" + newGame.getAwayTeam() + ":" + newGame.getId(),
+                                            newGame.getAwayTeam()).withDisabled(lock)).queue());
                 } else {
                     LOGGER.info("Creating a new message");
                     channel.sendMessageEmbeds(embed.build())
@@ -254,9 +253,7 @@ public class OddsGetter {
                                             newGame.getHomeTeam()).withDisabled(lock),
                                     Button.secondary("0000:bet:" + newGame.getAwayTeam() + ":" + newGame.getId(),
                                             newGame.getAwayTeam()).withDisabled(lock))
-                            .queue((message) -> {
-                                gameIdToMessageId.put(gameId, message.getIdLong());
-                            });
+                            .queue((message) -> gameIdToMessageId.put(gameId, message.getIdLong()));
                 }
             } catch (Exception ex) {
                 System.out.println("error running thread " + ex.getMessage());

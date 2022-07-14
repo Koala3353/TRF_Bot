@@ -2,6 +2,7 @@ package com.general_hello;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
+@SuppressWarnings("ConstantConditions")
 public class Config {
     // Simple Config getter (.env file)
     private static final Dotenv dotenv = Dotenv.load();

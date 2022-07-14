@@ -1,5 +1,6 @@
 package com.general_hello.bot.events;
 
+import com.general_hello.Bot;
 import com.general_hello.Config;
 import com.general_hello.bot.commands.DashboardCommand;
 import com.general_hello.bot.database.DataUtils;
@@ -8,16 +9,15 @@ import com.general_hello.bot.objects.GlobalVariables;
 import com.general_hello.bot.objects.SpecialPost;
 import com.general_hello.bot.utils.JsonUtils;
 import com.general_hello.bot.utils.OddsGetter;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Modal;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,12 +29,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@SuppressWarnings("ConstantConditions")
 public class OnButtonClick extends ListenerAdapter {
-    private static Logger LOGGER = LoggerFactory.getLogger(OnButtonClick.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OnButtonClick.class);
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         // users can spoof this id so be careful what you do with this
@@ -64,16 +67,14 @@ public class OnButtonClick extends ListenerAdapter {
             return;
         }
 
-        switch (type) {
-            case "bet" -> {
-                String teamName = id[2];
-                String gameId = id[3];
-                if (DataUtils.newBet(event.getUser().getIdLong(), teamName, gameId)) {
-                    JsonUtils.incrementInteraction(OddsGetter.gameIdToGame.get(gameId).getSportType().getName(), author.getId());
-                    event.reply("You have placed a bet on " + teamName + " in game " + gameId).setEphemeral(true).queue();
-                } else {
-                    event.reply("You have already placed a bet on " + teamName + " in game " + gameId).setEphemeral(true).queue();
-                }
+        if ("bet".equals(type)) {
+            String teamName = id[2];
+            String gameId = id[3];
+            if (DataUtils.newBet(event.getUser().getIdLong(), teamName, gameId)) {
+                JsonUtils.incrementInteraction(OddsGetter.gameIdToGame.get(gameId).getSportType().getName(), author.getId());
+                event.reply("You have predicted " + teamName + " will win the game.").setEphemeral(true).queue();
+            } else {
+                event.reply("You have already placed a prediction on " + teamName + ".").setEphemeral(true).queue();
             }
         }
     }
@@ -83,27 +84,6 @@ public class OnButtonClick extends ListenerAdapter {
         String value = event.getSelectedOptions().get(0).getValue();
 
         switch (value) {
-            case "setresult":
-                DashboardCommand.LAST_USED.setSetResult(Instant.now().getEpochSecond() * 1000);
-                DashboardCommand.buildAndSend(event.getTextChannel());
-                TextInput gameID = TextInput.create("gameid", "Game ID", TextInputStyle.SHORT)
-                        .setPlaceholder("The ID of the game")
-                        .setMinLength(30)
-                        .setMaxLength(35)
-                        .build();
-
-                TextInput body = TextInput.create("teamname", "Winner", TextInputStyle.SHORT)
-                        .setPlaceholder("The name of the winner's team")
-                        .setMinLength(5)
-                        .setMaxLength(100)
-                        .build();
-
-                Modal modal = Modal.create("setresult", "Set Result")
-                        .addActionRows(ActionRow.of(gameID), ActionRow.of(body))
-                        .build();
-
-                event.replyModal(modal).queue();
-                break;
             case "shutdown":
                 DashboardCommand.LAST_USED.setShutdown(Instant.now().getEpochSecond() * 1000);
                 DashboardCommand.buildAndSend(event.getTextChannel());
@@ -212,6 +192,42 @@ public class OnButtonClick extends ListenerAdapter {
                     event.reply("No champs found").setEphemeral(true).queue();
                 }
                 break;
+        }
+
+        if (event.getSelectMenu().getId().equals("menu:winning")) {
+            String[] split = event.getSelectedOptions().get(0).getValue().split(":");
+            String gameId = split[0];
+            String teamName = split[1];
+            if (!OddsGetter.gameIdToGame.containsKey(gameId)) {
+                event.reply("Invalid game id.").setEphemeral(true).queue();
+                return;
+            }
+            Game game = OddsGetter.gameIdToGame.get(gameId);
+            ArrayList<String> teams = new ArrayList<>(Arrays.asList(game.getHomeTeam(), game.getAwayTeam()));
+            teamName = FuzzySearch.extractAll(teamName, teams).get(0).getString();
+            String finalTeamName = teamName;
+            DataUtils.getUsers(gameId).forEach(userID -> {
+                String betTeam = DataUtils.getBetTeam(userID, gameId);
+                if (betTeam.equals(finalTeamName)) {
+                    JsonUtils.incrementCorrectPred(game.getSportType().getName(), userID);
+                } else {
+                    JsonUtils.incrementWrongPred(game.getSportType().getName(), userID);
+                }
+            });
+
+            EmbedBuilder embed = OddsGetter.getEmbedPersonal(game);
+            teams.remove(teamName);
+            long textChannelId = game.getSportType().getChannelId();
+            MessageChannel channel = Bot.getJda().getTextChannelById(textChannelId);
+            long messageId = OddsGetter.gameIdToMessageId.get(gameId);
+            channel.retrieveMessageById(messageId).queue((message) -> message.editMessageEmbeds(embed.build())
+                    .setActionRow(net.dv8tion.jda.api.interactions.components.buttons.Button.success("winner", finalTeamName).asDisabled(),
+                            Button.danger("loser", teams.get(0)).asDisabled()).queue());
+
+            event.reply("Successfully set the result of the game.").setEphemeral(true).queue();
+            OddsGetter.gameIdToGame.remove(gameId);
+            OddsGetter.games.remove(game);
+            OddsGetter.gameIdToMessageId.remove(gameId);
         }
     }
 

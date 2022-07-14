@@ -22,8 +22,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@SuppressWarnings("ConstantConditions")
 public class ChampsEvents extends ListenerAdapter {
-    private static Logger LOGGER = LoggerFactory.getLogger(ChampsEvents.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChampsEvents.class);
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (!event.isFromGuild()) return;
@@ -73,9 +74,7 @@ public class ChampsEvents extends ListenerAdapter {
                 }
             } catch (Exception e) {
                 event.getTextChannel().sendMessage("Check if your message exceeded 4096 characters. " + member.getAsMention())
-                        .queue((message1 -> {
-                            message1.delete().queueAfter(10, TimeUnit.SECONDS);
-                        }));
+                        .queue((message1 -> message1.delete().queueAfter(10, TimeUnit.SECONDS)));
                 e.printStackTrace();
             }
         }
