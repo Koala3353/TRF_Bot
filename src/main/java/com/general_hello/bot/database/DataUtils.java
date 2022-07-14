@@ -497,7 +497,7 @@ public class DataUtils {
         LOGGER.info("Made a request to get the champs");
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
-                     .prepareStatement("SELECT UserId FROM PostInteractions")) {
+                     .prepareStatement("SELECT UserId FROM ChampTime")) {
 
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 List<Long> users = new ArrayList<>();
