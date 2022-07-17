@@ -86,7 +86,7 @@ public class OnButtonClick extends ListenerAdapter {
         switch (value) {
             case "shutdown":
                 DashboardCommand.LAST_USED.setShutdown(Instant.now().getEpochSecond() * 1000);
-                DashboardCommand.buildAndSend(event.getTextChannel());
+                DashboardCommand.buildAndSend(event.getChannel().asTextChannel());
                 for (Game game : OddsGetter.games) {
                     try {
                         long channelId = game.getSportType().getChannelId();
@@ -95,7 +95,7 @@ public class OnButtonClick extends ListenerAdapter {
                         LOGGER.info("Deleted an unfinished game message in channel " + channelId + " with message id " + messageId);
                     } catch (Exception ignored) {}
                 }
-                if (DashboardCommand.deleteDashboard(event.getTextChannel())) {
+                if (DashboardCommand.deleteDashboard(event.getChannel().asTextChannel())) {
                     LOGGER.info("Deleted the dashboard successfully.");
                 } else {
                     LOGGER.warn("Failure to delete the dashboard.");
@@ -124,14 +124,14 @@ public class OnButtonClick extends ListenerAdapter {
             case "reloaddata":
                 try {
                     DashboardCommand.LAST_USED.setReloadData(Instant.now().getEpochSecond() * 1000);
-                    DashboardCommand.buildAndSend(event.getTextChannel());
+                    DashboardCommand.buildAndSend(event.getChannel().asTextChannel());
                     event.reply("Reloading the data... Check the logs for more details").setEphemeral(true).queue();
                     new OddsGetter.GetOddsTask().run();
                 }  catch (Exception ignored) {}
                 break;
             case "hof":
                 DashboardCommand.LAST_USED.setHof(Instant.now().getEpochSecond() * 1000);
-                DashboardCommand.buildAndSend(event.getTextChannel());
+                DashboardCommand.buildAndSend(event.getChannel().asTextChannel());
                 List<SpecialPost> specialPosts = DataUtils.getSpecialPosts();
                 Collections.sort(specialPosts);
                 if (specialPosts.isEmpty()) {
@@ -151,7 +151,7 @@ public class OnButtonClick extends ListenerAdapter {
                 break;
             case "extractdata":
                 DashboardCommand.LAST_USED.setExtractData(Instant.now().getEpochSecond() * 1000);
-                DashboardCommand.buildAndSend(event.getTextChannel());
+                DashboardCommand.buildAndSend(event.getChannel().asTextChannel());
                 JSONArray finalArray = new JSONArray();
                 List<Long> champs = DataUtils.getChamps();
                 if (champs != null) {

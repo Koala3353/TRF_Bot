@@ -40,7 +40,7 @@ public class ChampsEvents extends ListenerAdapter {
             }
         });
 
-        if (!event.getTextChannel().getName().contains(GlobalVariables.CHAMPS)) {
+        if (!event.getChannel().asTextChannel().getName().contains(GlobalVariables.CHAMPS)) {
             return;
         }
 
@@ -55,7 +55,7 @@ public class ChampsEvents extends ListenerAdapter {
                 embedBuilder.setTimestamp(OffsetDateTime.now());
                 embedBuilder.setAuthor(member.getEffectiveName(), null, member.getEffectiveAvatarUrl());
                 embedBuilder.setDescription(contentRaw);
-                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue((post -> {
+                event.getChannel().asTextChannel().sendMessageEmbeds(embedBuilder.build()).queue((post -> {
                     DataUtils.newChampMessage(post.getIdLong(), member.getIdLong());
                     embedBuilder.setAuthor(member.getEffectiveName(), post.getJumpUrl(), member.getEffectiveAvatarUrl());
                 }));
@@ -73,7 +73,7 @@ public class ChampsEvents extends ListenerAdapter {
                     }
                 }
             } catch (Exception e) {
-                event.getTextChannel().sendMessage("Check if your message exceeded 4096 characters. " + member.getAsMention())
+                event.getChannel().asTextChannel().sendMessage("Check if your message exceeded 4096 characters. " + member.getAsMention())
                         .queue((message1 -> message1.delete().queueAfter(10, TimeUnit.SECONDS)));
                 e.printStackTrace();
             }
@@ -86,7 +86,7 @@ public class ChampsEvents extends ListenerAdapter {
         if (event.getGuild().getIdLong() != Config.getLong("guild")) {
             return;
         }
-        if (!event.getTextChannel().getName().contains(GlobalVariables.CHAMPS)) {
+        if (!event.getChannel().asTextChannel().getName().contains(GlobalVariables.CHAMPS)) {
             return;
         }
         Member reactor = event.getMember();
@@ -101,7 +101,7 @@ public class ChampsEvents extends ListenerAdapter {
         if (interactionCount >= 10) {
             long authorOfPost = DataUtils.getAuthorOfPost(messageIdLong);
             String authorTag = event.getJDA().getUserById(authorOfPost).getAsTag();
-            TextChannel textChannel = event.getTextChannel();
+            TextChannel textChannel = event.getChannel().asTextChannel();
 
             event.retrieveMessage().queue((message -> {
                 long timeCreated = message.getTimeCreated().toEpochSecond();

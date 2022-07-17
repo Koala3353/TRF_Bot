@@ -70,7 +70,8 @@ public class Bot {
                 GatewayIntent.DIRECT_MESSAGE_TYPING,
                 GatewayIntent.GUILD_PRESENCES,
                 GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
-                GatewayIntent.DIRECT_MESSAGES)
+                GatewayIntent.DIRECT_MESSAGES,
+                GatewayIntent.MESSAGE_CONTENT)
                 .addEventListeners(eventWaiter, commandClient, new OnModalEvent(), new OnReadyEvent(),
                         new OnButtonClick(), new ChampsEvents())
                 .setStatus(OnlineStatus.IDLE)

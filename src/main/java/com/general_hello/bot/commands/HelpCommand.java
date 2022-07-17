@@ -83,6 +83,6 @@ public class HelpCommand extends SlashCommand {
         builder.setTimeout(365, TimeUnit.DAYS);
         builder.setItems(pages);
         builder.useNumberedItems(false);
-        builder.build().paginate(event.getTextChannel(), 1);
+        builder.build().paginate(event.getChannel().asTextChannel(), 1);
     }
 }

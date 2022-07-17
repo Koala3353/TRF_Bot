@@ -28,7 +28,7 @@ public class DashboardCommand extends SlashCommand {
     @Override
     protected void execute(SlashCommandEvent event) {
         event.reply("Sending the dashboard...").setEphemeral(true).queue();
-        buildAndSend(event.getTextChannel());
+        buildAndSend(event.getChannel().asTextChannel());
     }
 
     public static void buildAndSend(TextChannel textChannel) {

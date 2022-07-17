@@ -21,7 +21,7 @@ public class UnfollowMenu extends MessageContextMenu {
             return;
         }
 
-        if (!event.getTextChannel().getName().startsWith(GlobalVariables.CHAMPS)) {
+        if (!event.getChannel().asTextChannel().getName().startsWith(GlobalVariables.CHAMPS)) {
             event.reply("This command is only available in the champs channel.").setEphemeral(true).queue();
             return;
         }
