@@ -66,15 +66,11 @@ public class Bot {
                 GatewayIntent.GUILD_MEMBERS,
                 GatewayIntent.GUILD_MESSAGES,
                 GatewayIntent.GUILD_MESSAGE_REACTIONS,
-                GatewayIntent.GUILD_VOICE_STATES,
-                GatewayIntent.DIRECT_MESSAGE_TYPING,
-                GatewayIntent.GUILD_PRESENCES,
-                GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                 GatewayIntent.DIRECT_MESSAGES,
                 GatewayIntent.MESSAGE_CONTENT)
                 .addEventListeners(eventWaiter, commandClient, new OnModalEvent(), new OnReadyEvent(),
                         new OnButtonClick(), new ChampsEvents())
-                .setStatus(OnlineStatus.IDLE)
+                .setStatus(OnlineStatus.DO_NOT_DISTURB)
                 .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(CacheFlag.ACTIVITY)
