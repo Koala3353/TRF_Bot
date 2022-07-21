@@ -92,6 +92,19 @@ public class OnReadyEvent extends ListenerAdapter {
                 e.printStackTrace();
             }
 
+            // Make a new Prediction table if it doesn't exist
+            try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS Prediction ( UserId INTEGER NOT NULL, " +
+                            "Win INTEGER DEFAULT 0, " +
+                            "Loss INTEGER DEFAULT 0, " +
+                            "Streak TEXT DEFAULT '');"
+                    )) {
+                LOGGER.info("Made a new table (Prediction)");
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
             // Make a new Follow table if it doesn't exist
             try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
                     .prepareStatement("CREATE TABLE IF NOT EXISTS Follow ( UserId INTEGER NOT NULL, " +

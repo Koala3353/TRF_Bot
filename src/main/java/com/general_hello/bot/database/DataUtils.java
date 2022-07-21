@@ -182,6 +182,7 @@ public class DataUtils {
 
     public static synchronized List<SpecialPost> getSpecialPosts() {
         List<SpecialPost> posts = new ArrayList<>();
+        List<Long> time = new ArrayList<>();
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
                      .prepareStatement("SELECT UnixTimePost FROM SpecialPosts")) {
@@ -189,14 +190,17 @@ public class DataUtils {
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     long unixTimePost = resultSet.getLong("UnixTimePost");
-                    int interactionCount = getInteractionCountFromTime(unixTimePost);
-                    posts.add(new SpecialPost(unixTimePost, interactionCount));
+                    time.add(unixTimePost);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+        for (Long unixTime : time) {
+            int interactionCountFromTime = getInteractionCountFromTime(unixTime);
+            posts.add(new SpecialPost(unixTime, interactionCountFromTime));
+        }
         return posts;
     }
 
@@ -397,6 +401,159 @@ public class DataUtils {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static synchronized void addWin(long userId) {
+        int count = getWinCount(userId);
+        if (count == -1) {
+            newPredictionUser(userId);
+            count = 0;
+        }
+        int wins = count + 1;
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE Prediction SET Win=? WHERE UserId=?"
+                )) {
+
+            preparedStatement.setString(2, String.valueOf(userId));
+            preparedStatement.setString(1, String.valueOf(wins));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static synchronized void addLose(long userId) {
+        int count = getLoseCount(userId);
+        if (count == -1) {
+            newPredictionUser(userId);
+            count = 0;
+        }
+        int loss = count + 1;
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE Prediction SET Loss=? WHERE UserId=?"
+                )) {
+
+            preparedStatement.setString(2, String.valueOf(userId));
+            preparedStatement.setString(1, String.valueOf(loss));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static synchronized void newPredictionUser(long userId) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("INSERT INTO Prediction" +
+                        "(UserId)" +
+                        "VALUES (?);")) {
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static synchronized int getWinCount(long userId) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT Win FROM Prediction WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("Win");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static synchronized String getLastResults(long userId) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT Streak FROM Prediction WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("Streak");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static synchronized int addResult(long userId, String text) {
+        String[] split = getLastResults(userId).split("");
+        int length = split.length;
+        int retrieved = 0;
+        StringBuilder lastResults = new StringBuilder();
+        while (length > 0) {
+            length--;
+            lastResults.append(split[retrieved + 1]);
+            retrieved++;
+            if (retrieved == 4) break;
+        }
+
+        lastResults.append(text);
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("UPDATE Prediction SET Streak=? WHERE UserId=?"
+                )) {
+
+            preparedStatement.setString(2, String.valueOf(userId));
+            preparedStatement.setString(1, lastResults.toString());
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static synchronized List<Long> getPredictionUsers() {
+        LOGGER.info("Made a request to get the users who have predicted");
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT UserId FROM Prediction")) {
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                List<Long> users = new ArrayList<>();
+                while (resultSet.next()) {
+                    users.add(resultSet.getLong("UserId"));
+                }
+                return users;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static synchronized int getLoseCount(long userId) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT Loss FROM Prediction WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("Loss");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     public static synchronized long getAuthorOfPost(long messageId) {

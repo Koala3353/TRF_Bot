@@ -63,17 +63,19 @@ public class Bot {
         CommandClient commandClient = client.build();
 
         jda = JDABuilder.createDefault(Config.get("token"),
-                GatewayIntent.GUILD_MEMBERS,
-                GatewayIntent.GUILD_MESSAGES,
-                GatewayIntent.GUILD_MESSAGE_REACTIONS,
-                GatewayIntent.DIRECT_MESSAGES,
-                GatewayIntent.MESSAGE_CONTENT)
+                    GatewayIntent.GUILD_MEMBERS,
+                    GatewayIntent.GUILD_MESSAGES,
+                    GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                    GatewayIntent.DIRECT_MESSAGES,
+                    GatewayIntent.MESSAGE_CONTENT,
+                    GatewayIntent.GUILD_PRESENCES,
+                    GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
+                        GatewayIntent.GUILD_VOICE_STATES)
                 .addEventListeners(eventWaiter, commandClient, new OnModalEvent(), new OnReadyEvent(),
                         new OnButtonClick(), new ChampsEvents())
                 .setStatus(OnlineStatus.DO_NOT_DISTURB)
                 .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .enableCache(CacheFlag.ACTIVITY)
                 .enableCache(CacheFlag.ONLINE_STATUS)
                 .build().awaitReady();
     }
@@ -89,7 +91,8 @@ public class Bot {
 
     private static void addCommands(CommandClientBuilder clientBuilder) {
         // Initialize the commands of the bot
-        clientBuilder.addSlashCommands(new RegisterCommand(), new GetGameInfo(), new HelpCommand(), new DashboardCommand());
+        clientBuilder.addSlashCommands(new RegisterCommand(), new GetGameInfo(), new HelpCommand(), new DashboardCommand(),
+                new LeaderboardCommand());
         LOGGER.info("Added the slash commands");
     }
 }

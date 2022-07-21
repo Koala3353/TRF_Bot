@@ -13,14 +13,6 @@ public record SpecialPost(long unixTime, int interactionCount) implements Compar
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof SpecialPost other) {
-            return this.unixTime == other.unixTime && this.interactionCount == other.interactionCount;
-        }
-        return false;
-    }
-
-    @Override
     public int compareTo(@NotNull SpecialPost o) {
         return this.getInteractionCount() - o.getInteractionCount();
     }

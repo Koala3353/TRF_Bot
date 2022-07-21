@@ -16,7 +16,6 @@ public class HelpCommand extends SlashCommand {
     public HelpCommand() {
         this.name = "help";
         this.help = "Shows all the commands of the bot";
-        this.ownerCommand = true;
         this.userPermissions = new Permission[]{
                 Permission.MANAGE_SERVER,
                 Permission.MESSAGE_MANAGE

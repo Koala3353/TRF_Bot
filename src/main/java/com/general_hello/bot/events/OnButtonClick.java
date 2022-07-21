@@ -134,6 +134,7 @@ public class OnButtonClick extends ListenerAdapter {
                 DashboardCommand.buildAndSend(event.getChannel().asTextChannel());
                 List<SpecialPost> specialPosts = DataUtils.getSpecialPosts();
                 Collections.sort(specialPosts);
+                Collections.reverse(specialPosts);
                 if (specialPosts.isEmpty()) {
                     event.reply("No special posts yet").setEphemeral(true).queue();
                     return;
@@ -210,8 +211,12 @@ public class OnButtonClick extends ListenerAdapter {
                 String betTeam = DataUtils.getBetTeam(userID, gameId);
                 if (betTeam.equals(finalTeamName)) {
                     JsonUtils.incrementCorrectPred(game.getSportType().getName(), userID);
+                    DataUtils.addWin(userID);
+                    DataUtils.addResult(userID, "W");
                 } else {
                     JsonUtils.incrementWrongPred(game.getSportType().getName(), userID);
+                    DataUtils.addLose(userID);
+                    DataUtils.addResult(userID, "L");
                 }
             });
 
