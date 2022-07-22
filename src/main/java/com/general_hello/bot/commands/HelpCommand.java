@@ -6,6 +6,7 @@ import com.general_hello.bot.database.DataUtils;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +32,7 @@ public class HelpCommand extends SlashCommand {
                 
                 **How to use:**
                 >>> To use a slash command you need to use the prefix `/` followed by the command name.
-                Another way is that you can simply press the command name above, such as </help:996577180442173441>.
+                Another way is that you can simply press the command name above, such as </register:988971535731666964>.
                 """);
 
         pages.add("""
@@ -73,7 +74,12 @@ public class HelpCommand extends SlashCommand {
         }
         event.reply("Please wait while I prepare the help page.").setEphemeral(true).queue();
 
-        ButtonPaginator.Builder builder = new ButtonPaginator.Builder(event.getJDA());
+        ButtonPaginator.Builder builder = new ButtonPaginator.Builder(event.getJDA()) {
+            @Override
+            protected ArrayList<String> refresh(ButtonInteractionEvent event) {
+                return pages;
+            }
+        };
         builder.setColor(event.getGuild().getSelfMember().getColor());
         builder.setItemsPerPage(1);
         builder.setFooter("Press the buttons below to navigate between the pages");

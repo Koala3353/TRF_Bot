@@ -32,26 +32,26 @@ public class ButtonPaginator {
     private static final Button previous = Button.secondary("previous", Emoji.fromCustom("left", 915425233215827968L, false));
     private static final Button next = Button.secondary("next", Emoji.fromCustom("right", 915425310592356382L, false));
     private static final Button last = Button.secondary("last", Emoji.fromCustom("last", 930264202331975701L, false));
-    private static final Button delete = Button.danger("stop", Emoji.fromUnicode("\uD83D\uDDD1"));
+    private static final Button refresh = Button.secondary("refresh", Emoji.fromUnicode("🔄"));
 
     private final EventWaiter waiter;
     private final int itemsPerPage;
     private final int pages;
     private final long timeout;
-    private final String[] items;
+    private String[] items;
     private final JDA jda;
     private final Set<Long> allowedUsers;
     private final boolean numbered;
     private final String title;
     private final Color color;
     private final String footer;
-
+    private final ButtonPaginator.Builder builder;
     private int page = 1;
     private boolean interactionStopped = false;
 
     private ButtonPaginator(EventWaiter waiter, long timeout, String[] items, JDA jda,
-                            Set<Long> allowedUsers, int itemsPerPage, boolean numberedItems, String title, Color color, String footer)
-    {
+                            Set<Long> allowedUsers, int itemsPerPage, boolean numberedItems,
+                            String title, Color color, String footer, ButtonPaginator.Builder builder) {
         this.waiter = waiter;
         this.timeout = timeout;
         this.items = items;
@@ -63,6 +63,7 @@ public class ButtonPaginator {
         this.color = color;
         this.footer = footer;
         this.pages = (int) Math.ceil((double) items.length / itemsPerPage);
+        this.builder = builder;
     }
 
     public void paginate(Message message, int page)
@@ -107,11 +108,11 @@ public class ButtonPaginator {
                     page <= 1 ? first.asDisabled() : first,
                     page <= 1 ? previous.asDisabled() : previous,
                     page >= pages ? next.asDisabled() : next,
-                    page >= pages ? last.asDisabled() : last);
+                    page >= pages ? last.asDisabled() : last, refresh);
         else
             return ActionRow.of(
                     page <= 1 ? previous.asDisabled() : previous,
-                    page >= pages ? next.asDisabled() : next);
+                    page >= pages ? next.asDisabled() : next, refresh);
     }
 
     private void waitForEvent(long channelId, long messageId)
@@ -165,6 +166,19 @@ public class ButtonPaginator {
                             event.editMessageEmbeds(getEmbed(this.page)).setActionRows(getButtonLayout(page)).queue();
                             waitForEvent(event.getChannel().getIdLong(), event.getMessageIdLong());
                         }
+                        case "refresh" -> {
+                            page = 1;
+                            ArrayList<String> refresh = builder.refresh(event);
+                            String[] convertedItems = new String[refresh.size()];
+                            int x = 0;
+                            while (x < refresh.size()) {
+                                convertedItems[x] = refresh.get(x);
+                                x++;
+                            }
+                            this.items = convertedItems;
+                            event.editMessageEmbeds(getEmbed(this.page)).setActionRows(getButtonLayout(page)).queue();
+                            waitForEvent(event.getChannel().getIdLong(), event.getMessageIdLong());
+                        }
                     }
                 },
                 timeout,
@@ -202,7 +216,7 @@ public class ButtonPaginator {
     }
 
     @SuppressWarnings("unused")
-    public static class Builder
+    public static abstract class Builder
     {
         private final JDA jda;
         private EventWaiter waiter;
@@ -300,7 +314,9 @@ public class ButtonPaginator {
             Checks.check(timeout != -1, "You must set a timeout using #setTimeout()!");
             Checks.noneNull(items, "Items");
             Checks.notEmpty(items, "Items");
-            return new ButtonPaginator(waiter, timeout, items, jda, allowedUsers, itemsPerPage, numberItems, title, color == null ? Color.black : color, footer);
+            return new ButtonPaginator(waiter, timeout, items, jda, allowedUsers, itemsPerPage, numberItems, title, color == null ? Color.black : color, footer, this);
         }
+
+        protected abstract ArrayList<String> refresh(ButtonInteractionEvent event);
     }
 }

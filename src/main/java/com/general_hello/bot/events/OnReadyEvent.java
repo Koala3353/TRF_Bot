@@ -97,7 +97,7 @@ public class OnReadyEvent extends ListenerAdapter {
                     .prepareStatement("CREATE TABLE IF NOT EXISTS Prediction ( UserId INTEGER NOT NULL, " +
                             "Win INTEGER DEFAULT 0, " +
                             "Loss INTEGER DEFAULT 0, " +
-                            "Streak TEXT DEFAULT '');"
+                            "Streak TEXT DEFAULT 'XXXXX');"
                     )) {
                 LOGGER.info("Made a new table (Prediction)");
                 preparedStatement.executeUpdate();

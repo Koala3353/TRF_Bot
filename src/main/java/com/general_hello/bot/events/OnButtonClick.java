@@ -3,6 +3,7 @@ package com.general_hello.bot.events;
 import com.general_hello.Bot;
 import com.general_hello.Config;
 import com.general_hello.bot.commands.DashboardCommand;
+import com.general_hello.bot.commands.LeaderboardCommand;
 import com.general_hello.bot.database.DataUtils;
 import com.general_hello.bot.objects.Game;
 import com.general_hello.bot.objects.GlobalVariables;
@@ -212,10 +213,14 @@ public class OnButtonClick extends ListenerAdapter {
                 if (betTeam.equals(finalTeamName)) {
                     JsonUtils.incrementCorrectPred(game.getSportType().getName(), userID);
                     DataUtils.addWin(userID);
+                    int wins = LeaderboardCommand.wins.getOrDefault(userID, 0);
+                    LeaderboardCommand.wins.put(userID, wins + 1);
                     DataUtils.addResult(userID, "W");
                 } else {
                     JsonUtils.incrementWrongPred(game.getSportType().getName(), userID);
                     DataUtils.addLose(userID);
+                    int loss = LeaderboardCommand.loss.getOrDefault(userID, 0);
+                    LeaderboardCommand.loss.put(userID, loss + 1);
                     DataUtils.addResult(userID, "L");
                 }
             });

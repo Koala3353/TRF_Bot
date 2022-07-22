@@ -12,6 +12,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -73,7 +74,24 @@ public class GetGameInfo extends SlashCommand {
                 return;
             }
 
-            ButtonPaginator.Builder builder = new ButtonPaginator.Builder(event.getJDA())
+            ButtonPaginator.Builder builder = new ButtonPaginator.Builder(event.getJDA()) {
+                @Override
+                protected ArrayList<String> refresh(ButtonInteractionEvent event) {
+                    ArrayList<String> ids = new ArrayList<>();
+                    for (String id : OddsGetter.gameIdToGame.keySet()) {
+                        Game game = OddsGetter.gameIdToGame.get(id);
+                        ids.add("[" + game.getHomeTeam() + "](" + GlobalVariables.LINK + ") **vs** [" +
+                                game.getAwayTeam() + "](" + GlobalVariables.LINK + ") " +
+                                TimeFormat.RELATIVE.format(game.getGameTime() * 1000) + "\n");
+                    }
+
+                    if (ids.isEmpty()) {
+                        event.reply("No games found.").setEphemeral(true).queue();
+                        ids.add("No games found.");
+                    }
+                    return ids;
+                }
+            }
                     .setTitle("Here are the games available for lookup")
                     .setItems(ids)
                     .setItemsPerPage(5)

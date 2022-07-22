@@ -55,7 +55,7 @@ public class Bot {
         client.setCoOwnerIds(Config.get("owner_id_partner"));
         client.setPrefix(Config.get("prefix"));
         client.setStatus(OnlineStatus.IDLE);
-        client.setActivity(Activity.listening("Whatever you want to place here, let me know."));
+        client.setActivity(Activity.listening("A B C D E F G..."));
         client.addContextMenus(new AddRemoveBanMenu(), new FollowMenu(), new UnfollowMenu(), new SetResultMenu());
         addCommands(client);
         eventWaiter = new EventWaiter();
@@ -73,7 +73,6 @@ public class Bot {
                         GatewayIntent.GUILD_VOICE_STATES)
                 .addEventListeners(eventWaiter, commandClient, new OnModalEvent(), new OnReadyEvent(),
                         new OnButtonClick(), new ChampsEvents())
-                .setStatus(OnlineStatus.DO_NOT_DISTURB)
                 .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(CacheFlag.ONLINE_STATUS)
