@@ -1,6 +1,7 @@
 package com.general_hello.bot.events;
 
 import com.general_hello.Bot;
+import com.general_hello.bot.commands.LeaderboardCommand;
 import com.general_hello.bot.database.SQLiteDataSource;
 import com.general_hello.bot.objects.GlobalVariables;
 import com.general_hello.bot.utils.JsonUtils;
@@ -22,12 +23,14 @@ import java.net.http.HttpResponse;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class OnReadyEvent extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(OnReadyEvent.class);
+    public static ScheduledExecutorService dailyLbTask = Executors.newScheduledThreadPool(1);
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
@@ -171,6 +174,7 @@ public class OnReadyEvent extends ListenerAdapter {
                 String sportName = jsonObject.getString("title");
                 OddsGetter.KEY_OF_SPORT.put(sportName, sportKey);
                 OddsGetter.KEY_OF_SPORT.put(sportKey, sportKey);
+                OddsGetter.KEY_OF_SPORT.put("100" + sportKey, sportName);
                 LOGGER.debug("Sport name = " + sportName + ", Sport key = " + sportKey);
             }
             LOGGER.info("Successfully retrieved the sport keys! (Enable debug mode to see more details)");
@@ -196,5 +200,11 @@ public class OnReadyEvent extends ListenerAdapter {
         new OddsGetter.GetOddsTask().run();
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(new OddsGetter.GetOddsTask(),2, 2, TimeUnit.HOURS);
+
+        dailyLbTask.scheduleAtFixedRate(() -> {
+            LeaderboardCommand.wins = new HashMap<>();
+            LeaderboardCommand.loss = new HashMap<>();
+            LOGGER.info("Successfully cleared the leaderboard daily data.");
+        }, 1, 1, TimeUnit.DAYS);
     }
 }

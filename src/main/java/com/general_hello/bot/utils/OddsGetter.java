@@ -286,7 +286,7 @@ public class OddsGetter {
         embed.setTimestamp(Instant.now());
         embed.addField(game.getHomeTeam(), String.format("%.2f", game.getHomePrice()), true);
         embed.addField(game.getAwayTeam(), String.format("%.2f", game.getAwayPrice()), true);
-        embed.setDescription("Sport: **" + game.getSportType().getName() + " - " + game.getSport() + "**\n" +
+        embed.setDescription("Sport: **" + game.getSportType().getName() + " - " + KEY_OF_SPORT.get("100" + game.getSportKey()) + "**\n" +
                 (lastCall ? "Game started " : "Game starts ") + TimeFormat.RELATIVE.format(game.getGameTime()*1000) +
                 " (" + TimeFormat.DATE_TIME_SHORT.format(game.getGameTime()*1000)+ ")");
         return embed;
@@ -303,7 +303,7 @@ public class OddsGetter {
         embed.setTimestamp(Instant.now());
         embed.addField(game.getHomeTeam(), String.format("%.2f", game.getHomePrice()), true);
         embed.addField(game.getAwayTeam(), String.format("%.2f", game.getAwayPrice()), true);
-        embed.setDescription("Sport: **" + game.getSportType().getName() + " - " + game.getSport() + "**\n" +
+        embed.setDescription("Sport: **" + game.getSportType().getName() + " - " + KEY_OF_SPORT.get("100" + game.getSportKey()) + "**\n" +
                 "Game starts " + TimeFormat.RELATIVE.format(game.getGameTime()*1000) +
                 " (" + TimeFormat.DATE_TIME_SHORT.format(game.getGameTime()*1000)+ ")");
         return embed;

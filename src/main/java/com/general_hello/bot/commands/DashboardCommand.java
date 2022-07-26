@@ -45,6 +45,7 @@ public class DashboardCommand extends SlashCommand {
                 > [Reload data](https://discord.com) - `Reloads all the games data`
                 > [Extract champ data](https://discord.com) - `Extracts the champ data from the database to a json file`
                 > [Send Hall of Fame](https://discord.com) - `Sends the Hall of Fame`
+                > [Restart Daily Leaderboard](https://discord.com) - `Restarts the daily leaderboard task`
                 """);
         if (LAST_USED.hasData) {
             dashboard.appendDescription("\n\n[**Last used:**](" + GlobalVariables.LINK + ")\n");
@@ -73,6 +74,7 @@ public class DashboardCommand extends SlashCommand {
                 .addOption("Reload data", "reloaddata", "Reloads all the games data")
                 .addOption("Extract Champ data", "extractdata", "Extract all the champs to a json file")
                 .addOption("Send Hall of Fame", "hof", "Gets the top post and sends it to the channel")
+                .addOption("Restart Daily Leaderboard", "restartlb", "Restarts the daily leaderboard task")
                 .build();
 
         if (messageId == -1) {

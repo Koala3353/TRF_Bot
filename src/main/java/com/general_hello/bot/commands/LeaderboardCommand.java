@@ -100,18 +100,23 @@ public class LeaderboardCommand extends SlashCommand {
             builder.build().paginate(event.getChannel().asTextChannel(), 1);
         } else if (leaderboardType.getAsString().equals("plb-daily")) {
             Set<Long> userIds = wins.keySet();
-            if (userIds.isEmpty()) {
+            Set<Long> test = loss.keySet();
+            if (userIds.isEmpty() && test.isEmpty()) {
                 event.reply("No users have predicted yet!").setEphemeral(true).queue();
                 return;
             } else {
                 event.reply("Loading the leaderboard...").setEphemeral(true).queue();
             }
 
+            if (userIds.isEmpty()) {
+                userIds = test;
+            }
+
             ArrayList<String> pages = new ArrayList<>();
             List<Predictor> predictors = new ArrayList<>();
             for (long userId : userIds) {
-                int winCount = wins.get(userId);
-                int loseCount = loss.get(userId);
+                int winCount = wins.getOrDefault(userId, 0);
+                int loseCount = loss.getOrDefault(userId, 0);
                 predictors.add(new Predictor(event.getJDA().getUserById(userId).getAsTag(), winCount, loseCount, userId));
             }
 
@@ -133,8 +138,8 @@ public class LeaderboardCommand extends SlashCommand {
                     ArrayList<String> pages = new ArrayList<>();
                     List<Predictor> predictors = new ArrayList<>();
                     for (long userId : userIds) {
-                        int winCount = wins.get(userId);
-                        int loseCount = loss.get(userId);
+                        int winCount = wins.getOrDefault(userId, 0);
+                        int loseCount = loss.getOrDefault(userId, 0);
                         predictors.add(new Predictor(event.getJDA().getUserById(userId).getAsTag(), winCount, loseCount, userId));
                     }
 

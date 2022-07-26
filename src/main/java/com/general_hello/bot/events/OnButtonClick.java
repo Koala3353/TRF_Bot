@@ -10,7 +10,6 @@ import com.general_hello.bot.objects.GlobalVariables;
 import com.general_hello.bot.objects.SpecialPost;
 import com.general_hello.bot.utils.JsonUtils;
 import com.general_hello.bot.utils.OddsGetter;
-import me.xdrop.fuzzywuzzy.FuzzySearch;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -30,10 +29,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings("ConstantConditions")
@@ -194,6 +193,15 @@ public class OnButtonClick extends ListenerAdapter {
                     event.reply("No champs found").setEphemeral(true).queue();
                 }
                 break;
+            case "restartlb":
+                OnReadyEvent.dailyLbTask.shutdownNow();
+                OnReadyEvent.dailyLbTask = Executors.newScheduledThreadPool(1);
+                OnReadyEvent.dailyLbTask.scheduleAtFixedRate(() -> {
+                    LeaderboardCommand.wins = new HashMap<>();
+                    LeaderboardCommand.loss = new HashMap<>();
+                    LOGGER.info("Successfully cleared the leaderboard daily data.");
+                }, 0, 1, TimeUnit.DAYS);
+                break;
         }
 
         if (event.getSelectMenu().getId().equals("menu:winning")) {
@@ -206,11 +214,9 @@ public class OnButtonClick extends ListenerAdapter {
             }
             Game game = OddsGetter.gameIdToGame.get(gameId);
             ArrayList<String> teams = new ArrayList<>(Arrays.asList(game.getHomeTeam(), game.getAwayTeam()));
-            teamName = FuzzySearch.extractAll(teamName, teams).get(0).getString();
-            String finalTeamName = teamName;
             DataUtils.getUsers(gameId).forEach(userID -> {
                 String betTeam = DataUtils.getBetTeam(userID, gameId);
-                if (betTeam.equals(finalTeamName)) {
+                if (betTeam.equals(teamName)) {
                     JsonUtils.incrementCorrectPred(game.getSportType().getName(), userID);
                     DataUtils.addWin(userID);
                     int wins = LeaderboardCommand.wins.getOrDefault(userID, 0);
@@ -231,7 +237,7 @@ public class OnButtonClick extends ListenerAdapter {
             MessageChannel channel = Bot.getJda().getTextChannelById(textChannelId);
             long messageId = OddsGetter.gameIdToMessageId.get(gameId);
             channel.retrieveMessageById(messageId).queue((message) -> message.editMessageEmbeds(embed.build())
-                    .setActionRow(net.dv8tion.jda.api.interactions.components.buttons.Button.success("winner", finalTeamName).asDisabled(),
+                    .setActionRow(net.dv8tion.jda.api.interactions.components.buttons.Button.success("winner", teamName).asDisabled(),
                             Button.danger("loser", teams.get(0)).asDisabled()).queue());
 
             event.reply("Successfully set the result of the game.").setEphemeral(true).queue();

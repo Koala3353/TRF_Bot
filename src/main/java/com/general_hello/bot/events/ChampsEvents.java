@@ -66,7 +66,8 @@ public class ChampsEvents extends ListenerAdapter {
                         User target = event.getJDA().getUserById(follower);
                         if (target != null) {
                             target.openPrivateChannel().flatMap(channel ->
-                                        channel.sendMessageEmbeds(embedBuilder.build()))
+                                        channel.sendMessage(member.getAsMention() + " made a new post in " + event.getChannel().getAsMention())
+                                                .setEmbeds(embedBuilder.build()))
                                 .queue(null, new ErrorHandler()
                                         .ignore(ErrorResponse.UNKNOWN_USER, ErrorResponse.CANNOT_SEND_TO_USER, ErrorResponse.UNKNOWN_CHANNEL));
                         }
