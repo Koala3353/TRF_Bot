@@ -73,6 +73,10 @@ public class ChampsEvents extends ListenerAdapter {
                         }
                     }
                 }
+
+                if (DataUtils.getChampTime(member.getIdLong()) == -1) {
+                    DataUtils.newChampTime(-1, member.getIdLong());
+                }
             } catch (Exception e) {
                 event.getChannel().asTextChannel().sendMessage("Check if your message exceeded 4096 characters. " + member.getAsMention())
                         .queue((message1 -> message1.delete().queueAfter(10, TimeUnit.SECONDS)));
@@ -99,7 +103,7 @@ public class ChampsEvents extends ListenerAdapter {
         DataUtils.addInteraction(messageIdLong);
         LOGGER.info("New interaction added");
         int interactionCount = DataUtils.getInteractionCount(messageIdLong);
-        if (interactionCount >= 10) {
+        if (interactionCount >= 1) {
             long authorOfPost = DataUtils.getAuthorOfPost(messageIdLong);
             String authorTag = event.getJDA().getUserById(authorOfPost).getAsTag();
             TextChannel textChannel = event.getChannel().asTextChannel();
@@ -107,10 +111,12 @@ public class ChampsEvents extends ListenerAdapter {
             event.retrieveMessage().queue((message -> {
                 long timeCreated = message.getTimeCreated().toEpochSecond();
                 DataUtils.newSpecialPost(timeCreated, textChannel.getIdLong(), textChannel.getName(),
-                        authorOfPost, authorTag, message.getContentRaw(), interactionCount);
+                        authorOfPost, authorTag, message.getEmbeds().get(0).getDescription(), interactionCount);
             }));
 
             LOGGER.info("New special post added");
+        } else {
+            LOGGER.info("Post wasn't added to special posts due to the interaction count only at " + interactionCount);
         }
     }
 }

@@ -201,6 +201,7 @@ public class OnButtonClick extends ListenerAdapter {
                     LeaderboardCommand.loss = new HashMap<>();
                     LOGGER.info("Successfully cleared the leaderboard daily data.");
                 }, 0, 1, TimeUnit.DAYS);
+                event.reply("Done resetting the task").setEphemeral(true).queue();
                 break;
         }
 
@@ -261,7 +262,7 @@ public class OnButtonClick extends ListenerAdapter {
         }));
 
         if (isNewChamp.get()) {
-            DataUtils.newChampTime(System.currentTimeMillis(), event.getUser().getIdLong());
+            DataUtils.newChampTime(System.currentTimeMillis() / 1000L, event.getUser().getIdLong());
             LOGGER.info("New champ " + event.getUser().getAsTag() + " added to the database");
         }
     }

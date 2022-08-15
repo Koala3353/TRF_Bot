@@ -303,6 +303,17 @@ public class DataUtils {
     public static synchronized void newSpecialPost(long unixTimeOfPost, long channelId, String channelName,
                                                    long posterId, String posterName, String postContent, int interactionCount) {
         if (isSpecialPostSaved(unixTimeOfPost)) {
+            try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                    .prepareStatement("UPDATE SpecialPosts SET InteractionCount=? WHERE UnixTimePost=?"
+                    )) {
+
+                preparedStatement.setString(2, String.valueOf(unixTimeOfPost));
+                preparedStatement.setString(1, String.valueOf(interactionCount));
+
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             return;
         }
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
@@ -492,7 +503,7 @@ public class DataUtils {
         return null;
     }
 
-    public static synchronized int addResult(long userId, String text) {
+    public static synchronized void addResult(long userId, String text) {
         String[] split = getLastResults(userId).split("");
         int length = split.length;
         int retrieved = 0;
@@ -516,7 +527,6 @@ public class DataUtils {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return -1;
     }
 
     public static synchronized List<Long> getPredictionUsers() {
@@ -576,13 +586,13 @@ public class DataUtils {
 
     public static synchronized void addInteraction(long postId) {
         int incrementInteraction = getInteractionCount(postId) + 1;
-        LOGGER.info("Made a request to add an interaction to the post (" + postId + ").");
+        LOGGER.info("Made a request to add an interaction to the total of " + incrementInteraction + " for the post (" + postId + ").");
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
                 .prepareStatement("UPDATE PostInteractions SET Interaction=? WHERE PostId=?"
                 )) {
 
-            preparedStatement.setString(2, String.valueOf(incrementInteraction));
-            preparedStatement.setString(1, String.valueOf(postId));
+            preparedStatement.setString(1, String.valueOf(incrementInteraction));
+            preparedStatement.setString(2, String.valueOf(postId));
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -606,7 +616,9 @@ public class DataUtils {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return -1;
+
+        LOGGER.info("No interaction found for the post (" + postId + ").");
+        return 0;
     }
 
     public static synchronized String getBetTeam(long userId, String gameId) {
@@ -707,9 +719,9 @@ public class DataUtils {
                 return true;
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to make a request", e);
+            LOGGER.warn("Failed to make a request. The API could be down. Address automatically verified. Manual check will be required. (" + address + ")", e);
+            return true;
         }
-
         return false;
     }
 }
