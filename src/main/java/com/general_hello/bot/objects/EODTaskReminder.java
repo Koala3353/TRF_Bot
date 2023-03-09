@@ -30,7 +30,7 @@ public class EODTaskReminder extends TimerTask {
         System.out.println("Members: " + members);
 
         for (Member member : members) {
-            if (member.getUser().isBot()) return;
+            if (member.getUser().isBot()) continue;
 
             if (Boolean.FALSE.equals(DataUtils.getBooleanFromInt(DataUtils.didAnswer(member.getIdLong())))) {
                 // global time

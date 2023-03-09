@@ -29,7 +29,7 @@ public class EODTask extends TimerTask {
         for (Member member : members) {
             if (member.getUser().isBot()) {
                 Util.logInfo("Skipping bot " + member.getUser().getAsTag(), EODTask.class);
-                return;
+                continue;
             }
             if (Boolean.FALSE.equals(DataUtils.getBooleanFromInt(DataUtils.didAnswer(member.getIdLong())))) {
                 DataUtils.setReportStreak(member.getIdLong(), 0);
