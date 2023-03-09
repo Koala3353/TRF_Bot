@@ -44,12 +44,6 @@ import com.general_hello.Config;
     HALL_OF_FAME=[CHANNEL ID]
  */
 public class GlobalVariables {
-    public static final String API_KEY = Config.get("key");
     public static final String LINK = Config.get("link");
-    public static final String BOOKMAKERS = Config.get("bookmakers");
-    public static final String CHAMPS = Config.get("champ_prefix").toLowerCase();
-    public static final String HALL_OF_FAME = Config.get("hall_of_fame");
-    public static final String VERSION = "2.6.0";
-    public static final String WIN_EMOJI = Config.get("win");
-    public static final String LOSE_EMOJI = Config.get("lose");
+    public static final String VERSION = "1.0.1";
 }

@@ -1,38 +1,35 @@
 package com.general_hello.bot.events;
 
-import com.general_hello.Bot;
 import com.general_hello.Config;
-import com.general_hello.bot.commands.DashboardCommand;
-import com.general_hello.bot.commands.LeaderboardCommand;
 import com.general_hello.bot.database.DataUtils;
-import com.general_hello.bot.objects.Game;
-import com.general_hello.bot.objects.GlobalVariables;
-import com.general_hello.bot.objects.SpecialPost;
-import com.general_hello.bot.utils.JsonUtils;
-import com.general_hello.bot.utils.OddsGetter;
+import com.general_hello.bot.objects.*;
+import com.general_hello.bot.utils.EODUtil;
+import com.general_hello.bot.utils.Util;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.*;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings("ConstantConditions")
@@ -57,213 +54,424 @@ public class OnButtonClick extends ListenerAdapter {
         }
 
         User author = event.getUser();
-        if (!DataUtils.hasAccount(author.getIdLong())) {
-            event.reply("Kindly make an account first by using `/register`").setEphemeral(true).queue();
-            return;
-        }
-
-        if (DataUtils.isBanned(author.getIdLong())) {
-            event.reply("You are banned from using the bot.").setEphemeral(true).queue();
-            return;
-        }
-
-        if ("bet".equals(type)) {
-            String teamName = id[2];
-            String gameId = id[3];
-            if (DataUtils.newBet(event.getUser().getIdLong(), teamName, gameId)) {
-                JsonUtils.incrementInteraction(OddsGetter.gameIdToGame.get(gameId).getSportType().getName(), author.getId());
-                event.reply("You have predicted " + teamName + " will win the game.").setEphemeral(true).queue();
-            } else {
-                event.reply("You have already placed a prediction on " + teamName + ".").setEphemeral(true).queue();
-            }
-        }
-    }
-
-    @Override
-    public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
-        String value = event.getSelectedOptions().get(0).getValue();
-
-        switch (value) {
-            case "shutdown":
-                DashboardCommand.LAST_USED.setShutdown(Instant.now().getEpochSecond() * 1000);
-                DashboardCommand.buildAndSend(event.getChannel().asTextChannel());
-                for (Game game : OddsGetter.games) {
-                    try {
-                        long channelId = game.getSportType().getChannelId();
-                        long messageId = OddsGetter.gameIdToMessageId.get(game.getId());
-                        event.getJDA().getTextChannelById(channelId).deleteMessageById(messageId).queue();
-                        LOGGER.info("Deleted an unfinished game message in channel " + channelId + " with message id " + messageId);
-                    } catch (Exception ignored) {}
-                }
-                if (DashboardCommand.deleteDashboard(event.getChannel().asTextChannel())) {
-                    LOGGER.info("Deleted the dashboard successfully.");
-                } else {
-                    LOGGER.warn("Failure to delete the dashboard.");
-                }
-                event.reply("""
-                        **Warning:**
-                        :warning: Games that hasn't been finished may cause unexpected issues.
-                        :warning: Dashboard won't work due to it being deleted.
-                        :warning: Bot will shut down in 5 seconds.
-                        
-                        **Shut down successfully!**""").setEphemeral(true).queue();
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                event.getJDA().shutdown();
-                LOGGER.info("Bot shut down by " + event.getUser().getAsTag());
-                try {
-                    Thread.sleep(10_000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.exit(0);
-                break;
-            case "reloaddata":
-                try {
-                    DashboardCommand.LAST_USED.setReloadData(Instant.now().getEpochSecond() * 1000);
-                    DashboardCommand.buildAndSend(event.getChannel().asTextChannel());
-                    event.reply("Reloading the data... Check the logs for more details").setEphemeral(true).queue();
-                    new OddsGetter.GetOddsTask().run();
-                }  catch (Exception ignored) {}
-                break;
-            case "hof":
-                DashboardCommand.LAST_USED.setHof(Instant.now().getEpochSecond() * 1000);
-                DashboardCommand.buildAndSend(event.getChannel().asTextChannel());
-                List<SpecialPost> specialPosts = DataUtils.getSpecialPosts();
-                Collections.sort(specialPosts);
-                Collections.reverse(specialPosts);
-                if (specialPosts.isEmpty()) {
-                    event.reply("No special posts yet").setEphemeral(true).queue();
+        Member member = event.getUser().getMutualGuilds().get(0).getMember(author);
+        EmbedBuilder eodReportEmbed;
+        switch (type) {
+            case "B1roleVerification":
+                if (event.getMember().getRoles().contains(event.getGuild().getRoleById("1065330260947771553"))) {
+                    event.reply("You have already verified yourself.").setEphemeral(true).queue();
                     return;
                 }
-                SpecialPost topPost = specialPosts.get(0);
-                DataUtils.setTopPost(topPost.getUnixTime());
-                EmbedBuilder embedBuilder = new EmbedBuilder();
-                embedBuilder.setColor(Color.orange);
-                String posterId = DataUtils.getPoster(topPost.getUnixTime());
-                User userById = event.getJDA().getUserById(posterId);
-                embedBuilder.setAuthor(userById.getName(), null, userById.getEffectiveAvatarUrl());
-                embedBuilder.setDescription(DataUtils.getContent(topPost.getUnixTime()));
-                event.getGuild().getTextChannelById(GlobalVariables.HALL_OF_FAME).sendMessageEmbeds(embedBuilder.build()).queue();
-                event.reply("Successfully sent the Hall of Fame post").setEphemeral(true).queue();
+                event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById("1065330260947771553")).queue();
+                event.reply("You have been verified!").setEphemeral(true).queue();
                 break;
-            case "extractdata":
-                DashboardCommand.LAST_USED.setExtractData(Instant.now().getEpochSecond() * 1000);
-                DashboardCommand.buildAndSend(event.getChannel().asTextChannel());
-                JSONArray finalArray = new JSONArray();
-                List<Long> champs = DataUtils.getChamps();
-                if (champs != null) {
-                    for (long champ : champs) {
-                        User champUser = event.getJDA().getUserById(champ);
-                        long champTimeWeeks = DataUtils.getChampTime(champ);
-                        String champTime;
-                        if (champTimeWeeks == -1) {
-                            champTime = "Bot wasn't online when the champ was assigned";
+            case "customQuestionAnswer":
+                int questionNum = Integer.parseInt(id[2]);
+                List<String> list = CustomQuestion.userToAnswers.getOrDefault(event.getUser().getIdLong(), new ArrayList<>());
+                list.add(id[4]);
+                CustomQuestion.userToAnswers.put(event.getUser().getIdLong(), list);
+                long idLong = event.getUser().getIdLong();
+                member = event.getUser().getMutualGuilds().get(0).getMember(event.getUser());
+                List<String> questions = DataUtils.getQuestionsList(idLong);
+                if (questions.size() == questionNum-3) {
+                    // END OF EOD REPORT
+                    event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, 99, id[3]).build())
+                            .setComponents()
+                            .queue();
+                    author = event.getUser();
+                    DataUtils.setLastAnsweredTime(author.getIdLong(), id[3]);
+                    if (!EODUtil.newUsers.contains(member.getIdLong())) {
+                        EmbedBuilder eodSummary;
+                        eodSummary = EODUtil.getEODReportEmbed(member, 100, id[3]);
+                        Util.getChannelFromRole(member).sendMessage(member.getAsMention()).addEmbeds(eodSummary.build()).queue();
+                    }
+                    Timer timer = new Timer(true);
+                    EODCleanupTask eodTask = new EODCleanupTask(member, String.valueOf(DataUtils.getUrge(event.getUser().getIdLong())), event, author, id);
+                    timer.schedule(eodTask, 10);
+                    return;
+                }
+                event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, questionNum+1, id[3]).build())
+                        .setComponents(EODUtil.getActionRow(questionNum+1, id[3]))
+                        .queue();
+                break;
+            case "eodReport":
+                // EOD Report
+                switch (id[2]) {
+                    // For first question
+                    case "RelapseYes":
+                        eodReportEmbed = EODUtil.getEODReportEmbed(member, 2, id[3]);
+                        event.editMessageEmbeds(eodReportEmbed.build()).setComponents(
+                                EODUtil.getActionRow(2, id[3])
+                        ).queue();
+                        DataUtils.setRelapse(author.getIdLong(), true);
+                        DataUtils.incrementRelapseCount(author.getIdLong());
+                        break;
+                    case "RelapseNo":
+                        eodReportEmbed = EODUtil.getEODReportEmbed(member, 2, id[3]);
+                        event.editMessageEmbeds(eodReportEmbed.build()).setComponents(
+                                EODUtil.getActionRow(2, id[3])
+                        ).queue();
+                        DataUtils.setRelapse(author.getIdLong(), false);
+                        break;
+                    // For second question
+                    case "ColorGreen":
+                        eodReportEmbed = EODUtil.getEODReportEmbed(member, 3, id[3]);
+                        event.editMessageEmbeds(eodReportEmbed.build()).setComponents(
+                                EODUtil.getActionRow(3, id[3])
+                        ).queue();
+
+                        DataUtils.setColor(author.getIdLong(), "Green");
+                        break;
+                    case "ColorYellow":
+                        eodReportEmbed = EODUtil.getEODReportEmbed(member, 3, id[3]);
+                        event.editMessageEmbeds(eodReportEmbed.build()).setComponents(
+                                EODUtil.getActionRow(3, id[3])
+                        ).queue();
+
+                        DataUtils.setColor(author.getIdLong(), "Yellow");
+                        break;
+                    case "ColorRed":
+                        eodReportEmbed = EODUtil.getEODReportEmbed(member, 3, id[3]);
+                        event.editMessageEmbeds(eodReportEmbed.build()).setComponents(
+                                EODUtil.getActionRow(3, id[3])
+                        ).queue();
+
+                        DataUtils.setColor(author.getIdLong(), "Red");
+                        break;
+                }
+                break;
+            case "takequiz":
+                long channelId = Long.parseLong(id[2]);
+                //QuizSetup
+                String roleId = DataUtils.getQuizQuestionContent(channelId, QuizSetup.REQUIRED_ROLE_ID, 1);
+                // check if the user has the required role
+                if (roleId != null) {
+                    Guild guild = event.getUser().getMutualGuilds().get(0);
+                    Role role = guild.getRoleById(roleId);
+                    if (!guild.getMember(event.getUser()).getRoles().contains(role)) {
+                        event.reply("You don't have the required role to take this quiz.").setEphemeral(true).queue();
+                        return;
+                    }
+                }
+                roleId = DataUtils.getQuizQuestionContent(channelId, QuizSetup.ROLE_ID, 1);
+                if (roleId != null) {
+                    Guild guild = event.getUser().getMutualGuilds().get(0);
+                    Role role = guild.getRoleById(roleId);
+                    if (guild.getMember(event.getUser()).getRoles().contains(role)) {
+                        event.reply("You already took this quiz.").setEphemeral(true).queue();
+                        return;
+                    }
+                }
+                event.reply("Kindly check your DMs for the quiz. If you didn't receive any kindly allow the bot to message you.").setEphemeral(true).queue();
+                event.getUser().openPrivateChannel().queue((channel) -> {
+                    channel.sendMessageEmbeds(QuizSetup.buildEmbed(1, channelId).build())
+                            .setComponents(QuizSetup.buildActionRow(1, channelId)).queue();
+                });
+                break;
+            case "quizsetup":
+                String setup = id[2];
+                switch (setup) {
+                    case "channel":
+                        TextInput subject = TextInput.create("channel", "Kindly input the channel ID here.", TextInputStyle.SHORT)
+                                .setPlaceholder("Channel ID")
+                                .setMinLength(17)
+                                .setMaxLength(22)
+                                .build();
+                        Modal modal = Modal.create("quizsetup:channel", "Answer")
+                                .addActionRows(ActionRow.of(subject))
+                                .build();
+                        event.replyModal(modal).queue();
+                        break;
+                    case "role":
+                        subject = TextInput.create("role", "Kindly input the role ID here.", TextInputStyle.SHORT)
+                                .setPlaceholder("Role ID")
+                                .setMinLength(17)
+                                .setMaxLength(22)
+                                .build();
+                        modal = Modal.create("quizsetup:role", "Answer")
+                                .addActionRows(ActionRow.of(subject))
+                                .build();
+                        event.replyModal(modal).queue();
+                        break;
+                    case "reqrole":
+                        subject = TextInput.create("role", "Kindly input the role ID here.", TextInputStyle.SHORT)
+                                .setPlaceholder("Role ID")
+                                .setMinLength(17)
+                                .setMaxLength(22)
+                                .build();
+                        modal = Modal.create("quizsetup:reqrole", "Answer")
+                                .addActionRows(ActionRow.of(subject))
+                                .build();
+                        event.replyModal(modal).queue();
+                        break;
+                    case "question1":
+                        subject = TextInput.create("question", "Kindly input the question to ask here.", TextInputStyle.SHORT)
+                                .setPlaceholder("Question")
+                                .build();
+                        TextInput options = TextInput.create("options", "Options here. Separate each with %&", TextInputStyle.SHORT)
+                                .setPlaceholder("Each option needs to be separated by %&")
+                                .build();
+                        TextInput correctAnswer = TextInput.create("correctanswer", "Correct answer here.", TextInputStyle.SHORT)
+                                .setPlaceholder("The correct answer must be within the options")
+                                .build();
+                        modal = Modal.create("quizsetup:question1", "Answer")
+                                .addActionRows(ActionRow.of(subject), ActionRow.of(options), ActionRow.of(correctAnswer))
+                                .build();
+
+                        event.replyModal(modal).queue();
+                        break;
+                    case "newquestion":
+                        subject = TextInput.create("question", "Kindly input the question to ask here.", TextInputStyle.SHORT)
+                                .setPlaceholder("Question")
+                                .build();
+                        options = TextInput.create("options", "Options here. Separate each with %&", TextInputStyle.SHORT)
+                                .setPlaceholder("Each option needs to be separated by %&")
+                                .build();
+                        correctAnswer = TextInput.create("correctanswer", "Correct answer here.", TextInputStyle.SHORT)
+                                .setPlaceholder("The correct answer must be within the options")
+                                .build();
+                        modal = Modal.create("quizsetup:question1", "Answer")
+                                .addActionRows(ActionRow.of(subject), ActionRow.of(options), ActionRow.of(correctAnswer))
+                                .build();
+
+                        event.replyModal(modal).queue();
+                        break;
+                    case "finish":
+                        QuizSetup quizSetup = QuizSetup.getQuizSetup(event.getUser().getIdLong());
+                        if (!quizSetup.finish()) {
+                            Guild guild = event.getUser().getMutualGuilds().get(0);
+                            TextChannel textChannel = guild.getTextChannelById(quizSetup.getChannelId());
+                            EmbedBuilder embedBuilder = new EmbedBuilder();
+                            embedBuilder.setTitle("Quiz");
+                            embedBuilder.setColor(Color.blue);
+                            embedBuilder.setFooter(guild.getName(), guild.getIconUrl());
+                            embedBuilder.setDescription(Config.get("message"));
+                            textChannel.sendMessageEmbeds(embedBuilder.build()).setActionRow(
+                                    Button.primary("0000:takequiz:" + quizSetup.getChannelId(), "Take the quiz!")
+                            ).queue();
+                            event.editMessage("Quiz setup finished!").setActionRow(
+                                    Button.success("smth", "Successfully sent the quiz to the channel").asDisabled()
+                            ).queue();
                         } else {
-                            champTime = String.format("%d week(s)", ((int) ((Instant.now().getEpochSecond() * 1000) - champTimeWeeks) / 604800));
+                            event.editMessage("Quiz setup failed due to a quiz already made in the channel!").setActionRow(
+                                    Button.danger("smth", "Failed to send the quiz to the channel").asDisabled()
+                            ).queue();
                         }
-                        JSONObject champObject = new JSONObject();
-                        champObject.put("champName", champUser.getAsTag());
-                        champObject.put("userId", champ);
-                        champObject.put("champWallet", DataUtils.getSolanaAddress(champ));
-                        champObject.put("hofCount", DataUtils.getHofCount(champ));
-                        champObject.put("highInteractionPosts", DataUtils.getHighInteractionPosts(champ));
-                        champObject.put("followerCount", DataUtils.getFollowersOfChamp(champ).size());
-                        champObject.put("champWeeks", champTime);
-                        finalArray.put(champObject);
-                    }
-
-                    //Write JSON file
-                    long time = System.currentTimeMillis();
-                    try (FileWriter file = new FileWriter("champs-" + time + ".json")) {
-                        //We can write any JSONArray or JSONObject instance to the file
-                        file.write(finalArray.toString());
-                        file.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    File file = new File("champs-" + time + ".json");
-                    event.replyFile(file, "champs-" + time + ".json").setEphemeral(true).queue();
-                    LOGGER.info("Made a new champs-" + time + ".json file");
-                } else {
-                    LOGGER.info("No champs found");
-                    event.reply("No champs found").setEphemeral(true).queue();
+                        quizSetup.delete(event.getUser().getIdLong());
+                        break;
                 }
                 break;
-            case "restartlb":
-                OnReadyEvent.dailyLbTask.shutdownNow();
-                OnReadyEvent.dailyLbTask = Executors.newScheduledThreadPool(1);
-                OnReadyEvent.dailyLbTask.scheduleAtFixedRate(() -> {
-                    LeaderboardCommand.wins = new HashMap<>();
-                    LeaderboardCommand.loss = new HashMap<>();
-                    LOGGER.info("Successfully cleared the leaderboard daily data.");
-                }, 0, 1, TimeUnit.DAYS);
-                event.reply("Done resetting the task").setEphemeral(true).queue();
+            default:
+                LOGGER.warn("Unknown button type: " + type);
+                event.deferEdit().queue();
                 break;
-        }
-
-        if (event.getSelectMenu().getId().equals("menu:winning")) {
-            String[] split = event.getSelectedOptions().get(0).getValue().split(":");
-            String gameId = split[0];
-            String teamName = split[1];
-            if (!OddsGetter.gameIdToGame.containsKey(gameId)) {
-                event.reply("Invalid game id.").setEphemeral(true).queue();
-                return;
-            }
-            Game game = OddsGetter.gameIdToGame.get(gameId);
-            ArrayList<String> teams = new ArrayList<>(Arrays.asList(game.getHomeTeam(), game.getAwayTeam()));
-            DataUtils.getUsers(gameId).forEach(userID -> {
-                String betTeam = DataUtils.getBetTeam(userID, gameId);
-                if (betTeam.equals(teamName)) {
-                    JsonUtils.incrementCorrectPred(game.getSportType().getName(), userID);
-                    DataUtils.addWin(userID);
-                    int wins = LeaderboardCommand.wins.getOrDefault(userID, 0);
-                    LeaderboardCommand.wins.put(userID, wins + 1);
-                    DataUtils.addResult(userID, "W");
-                } else {
-                    JsonUtils.incrementWrongPred(game.getSportType().getName(), userID);
-                    DataUtils.addLose(userID);
-                    int loss = LeaderboardCommand.loss.getOrDefault(userID, 0);
-                    LeaderboardCommand.loss.put(userID, loss + 1);
-                    DataUtils.addResult(userID, "L");
-                }
-            });
-
-            EmbedBuilder embed = OddsGetter.getEmbedPersonal(game);
-            teams.remove(teamName);
-            long textChannelId = game.getSportType().getChannelId();
-            MessageChannel channel = Bot.getJda().getTextChannelById(textChannelId);
-            long messageId = OddsGetter.gameIdToMessageId.get(gameId);
-            channel.retrieveMessageById(messageId).queue((message) -> message.editMessageEmbeds(embed.build())
-                    .setActionRow(net.dv8tion.jda.api.interactions.components.buttons.Button.success("winner", teamName).asDisabled(),
-                            Button.danger("loser", teams.get(0)).asDisabled()).queue());
-
-            event.reply("Successfully set the result of the game.").setEphemeral(true).queue();
-            OddsGetter.gameIdToGame.remove(gameId);
-            OddsGetter.games.remove(game);
-            OddsGetter.gameIdToMessageId.remove(gameId);
         }
     }
 
     @Override
-    public void onGuildMemberRoleAdd(@NotNull GuildMemberRoleAddEvent event) {
-        if (event.getGuild().getIdLong() != Config.getLong("guild")) {
+    public void onModalInteraction(ModalInteractionEvent event) {
+        String[] split = event.getModalId().split(":");
+        if (split[0].equals("quizsetup")) {
+            String setup = split[1];
+            switch (setup) {
+                case "channel" -> {
+                    String channelId = event.getValue("channel").getAsString();
+                    long idLong = Long.parseLong(channelId);
+                    Guild guild = event.getUser().getMutualGuilds().get(0);
+                    TextChannel channel = guild.getTextChannelById(idLong);
+                    if (channel == null) {
+                        event.editMessage("Invalid channel ID. Setup Cancelled").setComponents().queue();
+                        return;
+                    }
+                    new QuizSetup(event.getUser().getIdLong(), idLong);
+                    event.editMessage("Role to give to the user upon getting perfect?")
+                            .setActionRow(Button.primary("0000:quizsetup:role", "Answer")).queue();
+                }
+                case "role" -> {
+                    String roleId = event.getValue("role").getAsString();
+                    long idLong = Long.parseLong(roleId);
+                    Guild guild = event.getUser().getMutualGuilds().get(0);
+                    Role role = guild.getRoleById(idLong);
+                    QuizSetup quizSetup = QuizSetup.getQuizSetup(event.getUser().getIdLong());
+                    if (role == null) {
+                        quizSetup.delete(idLong);
+                        event.editMessage("Invalid role ID. Setup Cancelled").setComponents().queue();
+                        return;
+                    }
+                    quizSetup.setRewardRole(idLong).save(event.getUser().getIdLong());
+                    event.editMessage("What will the required role be?")
+                            .setActionRow(Button.primary("0000:quizsetup:reqrole", "Answer")).queue();
+                }
+                case "reqrole" -> {
+                    String roleId = event.getValue("role").getAsString();
+                    long idLong = Long.parseLong(roleId);
+                    Guild guild = event.getUser().getMutualGuilds().get(0);
+                    Role role = guild.getRoleById(idLong);
+                    QuizSetup quizSetup = QuizSetup.getQuizSetup(event.getUser().getIdLong());
+                    if (role == null) {
+                        quizSetup.delete(idLong);
+                        event.editMessage("Invalid role ID. Setup Cancelled").setComponents().queue();
+                        return;
+                    }
+                    quizSetup.setRequiredRole(idLong).save(event.getUser().getIdLong());
+                    event.editMessage("What will the first question content be?")
+                            .setActionRow(Button.primary("0000:quizsetup:question1", "Answer")).queue();
+                }
+                case "question1" -> {
+                    String question = event.getValue("question").getAsString();
+                    String options = event.getValue("options").getAsString();
+                    String correctAnswer = event.getValue("correctanswer").getAsString();
+                    QuizSetup quizSetup = QuizSetup.getQuizSetup(event.getUser().getIdLong());
+
+                    List<String> choices = Arrays.asList(options.split("%&"));
+                    correctAnswer = FuzzySearch.extractOne(correctAnswer, choices).getString();
+                    quizSetup.newQuestion(question, correctAnswer, choices).save(event.getUser().getIdLong());
+                    event.editMessage("Add question number " + (quizSetup.getQuestionCount() + 1) + "?")
+                            .setActionRow(Button.success("0000:quizsetup:newquestion", "Yes"),
+                                    Button.danger("0000:quizsetup:finish", "No")).queue();
+                }
+            }
+        } else if (split[0].equals("hierarchicalRoles")) {
+            long giveRoleId = Long.parseLong(event.getValue("giveroleid").getAsString());
+            String[] requiredroleids = event.getValue("requiredroleid").getAsString().split(",");
+            HierarchicalRoles hierarchicalRoles = new HierarchicalRoles(giveRoleId);
+
+            for (String requiredRoleId : requiredroleids) {
+                hierarchicalRoles = hierarchicalRoles.addRequiredRole(Long.parseLong(requiredRoleId));
+            }
+            hierarchicalRoles.save();
+
+            event.reply("Saved!").setEphemeral(true).queue();
+        }
+    }
+
+    @Override
+    public void onGenericSelectMenuInteraction(@NotNull GenericSelectMenuInteractionEvent event) {
+        String value = event.getValues().get(0).toString();
+        String id = event.getComponentId();
+
+        String[] ids = id.split(":");
+        String authorId = ids[0];
+
+        if (!authorId.equals("0000") && !authorId.equals(event.getUser().getId())) {
+            event.reply("You can't select this.").setEphemeral(true).queue();
             return;
         }
 
-        AtomicBoolean isNewChamp = new AtomicBoolean(false);
-        event.getRoles().forEach((role -> {
-            if (role.getName().contains(Config.get("champ_prefix"))) {
-                isNewChamp.set(true);
-            }
-        }));
+        User author = event.getUser();
+        Member member = event.getUser().getMutualGuilds().get(0).getMember(author);
 
-        if (isNewChamp.get()) {
-            DataUtils.newChampTime(System.currentTimeMillis() / 1000L, event.getUser().getIdLong());
-            LOGGER.info("New champ " + event.getUser().getAsTag() + " added to the database");
+        switch (ids[1]) {
+            case "selectroles":
+                AtomicBoolean hasRole = new AtomicBoolean(false);
+                member.getRoles().forEach(role -> {
+                    if (role.getName().startsWith("AG")) {
+                        hasRole.set(true);
+                    }
+                });
+
+                if (hasRole.get()) {
+                    event.reply("You already have a group. Please contact a staff member to remove it.").setEphemeral(true).queue();
+                    return;
+                }
+                long roleId = Long.parseLong(value);
+                if (DataUtils.getCount(roleId) >= Integer.parseInt(Config.get("limit"))) {
+                    event.reply("This role is full. Please select another one.").setEphemeral(true).queue();
+                    return;
+                }
+
+                if (EODUtil.newUsers.contains(event.getUser().getIdLong())) {
+                    Timer timer = new Timer(true);
+                    timer.schedule(new NewMemberEODTask(event.getMember()), 900000);
+                }
+
+                event.getGuild().addRoleToMember(member, event.getGuild().getRoleById(roleId)).queue();
+                event.getGuild().addRoleToMember(member, event.getGuild().getRoleById("1065381062668206100")).queue();
+                DataUtils.addSelectRoleCount(roleId);
+                event.reply("Added role " + event.getGuild().getRoleById(Long.parseLong(value)).getName()).setEphemeral(true).queue();
+                int count = DataUtils.getCount(roleId);
+                System.out.println("COUNT: " + count);
+
+                int limit = Integer.parseInt(Config.get("limit"));
+                System.out.println("LIMIT: " + limit);
+                if (count >= limit) {
+                    SelectRole.remove(roleId);
+                    LOGGER.info("Removed role " + event.getGuild().getRoleById(roleId).getName());
+                    Util.sendOwnerDM("Removed role " + event.getGuild().getRoleById(roleId).getName() + ". Kindly delete the menu and resend it.");
+                }
+                break;
+            case "eodReport":
+                int rating = Integer.parseInt(value);
+                int questionNum = 4;
+                DataUtils.setUrge(author.getIdLong(), rating);
+
+                List<String> questionsList = DataUtils.getQuestionsList(event.getUser().getIdLong());
+                if (!questionsList.isEmpty()) {
+                    event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, questionNum, ids[3]).build())
+                            .setComponents(EODUtil.getActionRow(questionNum, ids[3])).queue();
+                } else {
+                    event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, 99, ids[3]).build()).setComponents().queue();
+                    Util.logInfo("EOD Report for " + member.getEffectiveName() + " has been submitted with rating " + rating, OnButtonClick.class);
+                    if (!EODUtil.newUsers.contains(member.getIdLong())) {
+                        EmbedBuilder eodSummary;
+                        eodSummary = EODUtil.getEODReportEmbed(member, 100, ids[3]);
+                        Util.getChannelFromRole(member).sendMessage(member.getAsMention()).addEmbeds(eodSummary.build()).queue();
+                    }
+                    Timer timer = new Timer(true);
+                    EODCleanupTask eodTask = new EODCleanupTask(member, value, event, author, ids);
+                    timer.schedule(eodTask, 10);
+                }
+                break;
+            case "quizoptions":
+                long channelId = Long.parseLong(ids[2]);
+                int questionNumber = Integer.parseInt(ids[3]);
+                User user = event.getUser();
+                long idLong = user.getIdLong();
+                if (questionNumber==1) {
+                    new QuizProgress(channelId, value, idLong);
+                } else {
+                    QuizProgress quizProgress = QuizProgress.getQuizProgress(idLong);
+                    quizProgress.addAnswer(value).save(idLong);
+                }
+
+                if (DataUtils.getQuizQuestionContent(channelId, QuizSetup.QUESTION, questionNumber+1).equals("")) {
+                    // end quiz
+                    QuizProgress quizProgress = QuizProgress.getQuizProgress(idLong);
+                    int correctAnswers = 0;
+                    LinkedList<String> answers = quizProgress.getAnswers();
+                    for (int i = 0; i < answers.size(); i++) {
+                        String answer = answers.get(i);
+                        if (answer.equals(DataUtils.getQuizQuestionContent(channelId, QuizSetup.ANSWERS, i+1))) {
+                            correctAnswers++;
+                        }
+                    }
+
+                    EmbedBuilder embedBuilder = new EmbedBuilder();
+                    embedBuilder.setTitle("Quiz Results");
+                    embedBuilder.setTimestamp(OffsetDateTime.now(ZoneId.of("UTC-6")));
+                    embedBuilder.setFooter("Quiz by " + user.getAsTag(), user.getAvatarUrl());
+                    if (correctAnswers == answers.size()) {
+                        embedBuilder.setDescription("You got all the answers correct!");
+                        roleId = Long.parseLong(DataUtils.getQuizQuestionContent(channelId, QuizSetup.ROLE_ID, 1));
+                        Guild guild = event.getUser().getMutualGuilds().get(0);
+                        Role role = guild.getRoleById(roleId);
+                        guild.addRoleToMember(event.getUser(), role).queue();
+                        embedBuilder.setColor(Color.GREEN);
+                        event.editMessageEmbeds(embedBuilder.build()).setActionRow(
+                                Button.success("blabla", "Congratulations!").asDisabled()
+                        ).queue();
+                    } else {
+                        embedBuilder.setDescription("You got " + correctAnswers + " out of " + answers.size() + " correct. Retry?");
+                        embedBuilder.setColor(Color.RED);
+                        event.editMessageEmbeds(embedBuilder.build()).setActionRow(
+                                Button.success("0000:takequiz:" + channelId, "Retry")
+                        ).queue();
+                    }
+                    return;
+                }
+                EmbedBuilder embedBuilder = QuizSetup.buildEmbed(questionNumber+1, channelId);
+                event.editMessageEmbeds(embedBuilder.build()).setComponents(QuizSetup.buildActionRow(questionNumber+1, channelId)).queue();
+                break;
         }
     }
 }

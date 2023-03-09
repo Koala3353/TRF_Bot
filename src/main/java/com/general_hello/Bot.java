@@ -2,8 +2,7 @@ package com.general_hello;
 
 import com.general_hello.bot.commands.*;
 import com.general_hello.bot.events.OnButtonClick;
-import com.general_hello.bot.events.ChampsEvents;
-import com.general_hello.bot.events.OnModalEvent;
+import com.general_hello.bot.events.OnMemberJoin;
 import com.general_hello.bot.events.OnReadyEvent;
 import com.general_hello.bot.objects.GlobalVariables;
 import com.jagrosh.jdautilities.command.CommandClient;
@@ -54,9 +53,8 @@ public class Bot {
         client.setOwnerId(Config.get("owner_id"));
         client.setCoOwnerIds(Config.get("owner_id_partner"));
         client.setPrefix(Config.get("prefix"));
-        client.setStatus(OnlineStatus.IDLE);
-        client.setActivity(Activity.listening("A B C D E F G..."));
-        client.addContextMenus(new AddRemoveBanMenu(), new FollowMenu(), new UnfollowMenu(), new SetResultMenu());
+        client.setStatus(OnlineStatus.ONLINE);
+        client.setActivity(Activity.listening("God"));
         addCommands(client);
         eventWaiter = new EventWaiter();
         // Finalize the command client
@@ -70,12 +68,13 @@ public class Bot {
                     GatewayIntent.MESSAGE_CONTENT,
                     GatewayIntent.GUILD_PRESENCES,
                     GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
-                        GatewayIntent.GUILD_VOICE_STATES)
-                .addEventListeners(eventWaiter, commandClient, new OnModalEvent(), new OnReadyEvent(),
-                        new OnButtonClick(), new ChampsEvents())
+                    GatewayIntent.SCHEDULED_EVENTS,
+                    GatewayIntent.GUILD_VOICE_STATES)
+                .addEventListeners(eventWaiter, commandClient, new OnReadyEvent(),
+                        new OnButtonClick(), new OnMemberJoin())
                 .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .enableCache(CacheFlag.ONLINE_STATUS)
+                .enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS, CacheFlag.VOICE_STATE)
                 .build().awaitReady();
     }
 
@@ -90,8 +89,10 @@ public class Bot {
 
     private static void addCommands(CommandClientBuilder clientBuilder) {
         // Initialize the commands of the bot
-        clientBuilder.addSlashCommands(new RegisterCommand(), new GetGameInfo(), new HelpCommand(), new DashboardCommand(),
-                new LeaderboardCommand());
+        clientBuilder.addSlashCommands(new LoadCommand(), new AddQuestion(), new NewQuizCommand(), new DeleteQuizCommand(),
+                new NewHierarchicalRolesCommand(), new SendSelectRoleMessage(), new EODCommand(), new GlobalEODCommand());
         LOGGER.info("Added the slash commands");
+        clientBuilder.addContextMenus(new AddChallengeMenu());
+        LOGGER.info("Added the context menus");
     }
 }

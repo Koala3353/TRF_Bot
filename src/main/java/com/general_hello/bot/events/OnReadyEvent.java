@@ -1,32 +1,26 @@
 package com.general_hello.bot.events;
 
 import com.general_hello.Bot;
-import com.general_hello.bot.commands.LeaderboardCommand;
 import com.general_hello.bot.database.SQLiteDataSource;
-import com.general_hello.bot.objects.GlobalVariables;
-import com.general_hello.bot.utils.JsonUtils;
-import com.general_hello.bot.utils.OddsGetter;
-import net.dv8tion.jda.api.events.ReadyEvent;
+import com.general_hello.bot.objects.EODTask;
+import com.general_hello.bot.objects.EODTaskReminder;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.Timer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class OnReadyEvent extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(OnReadyEvent.class);
@@ -60,151 +54,129 @@ public class OnReadyEvent extends ListenerAdapter {
 
             LOGGER.info("Opened database successfully");
 
-            // Make a new UserData table if it doesn't exist
+            // Make a new EODReport table if it doesn't exist
             try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS UserData ( UserId INTEGER NOT NULL, " +
-                            "SolanaAddress TEXT NOT NULL, " +
-                            "Ban INTEGER DEFAULT -1);"
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS EODReport ( UserId INTEGER NOT NULL, " +
+                            "Relapse INTEGER DEFAULT -1, " +
+                            "Color TEXT DEFAULT 'NA'," +
+                            "Urge INTEGER DEFAULT -1, " +
+                            "LastAnsweredTime TEXT DEFAULT '2000-01-01T00:00:01+01:00'," +
+                            "DidAnswer INTEGER DEFAULT 0);"
                     )) {
-                LOGGER.info("Made a new table (UserData)");
+                LOGGER.info("Loaded a table (EODReport)");
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
 
-            // Make a new ChampTime table if it doesn't exist
+            // Make a new EODReportDiscordBot table if it doesn't exist
             try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS ChampTime ( UserId INTEGER NOT NULL, " +
-                            "Time INTEGER NOT NULL);"
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS EODReportDiscordBot ( UserId INTEGER NOT NULL, " +
+                            "ReportStreak INTEGER DEFAULT 0, " +
+                            "RelapseFreeStreak INTEGER DEFAULT 0," +
+                            "IsEODAnswered INTEGER DEFAULT 0, " +
+                            "BestRelapseFreeStreak INTEGER DEFAULT 0," +
+                            "EXPVC INTEGER DEFAULT 0," +
+                            "EXPTEXT INTEGER DEFAULT 0," +
+                            "AccEXP INTEGER DEFAULT 0," +
+                            "BestReportStreak INTEGER DEFAULT 0," +
+                            "MissedDays INTEGER DEFAULT 0," +
+                            "RelapseCount INTEGER DEFAULT 0," +
+                            "TotalUrge INTEGER DEFAULT 0," +
+                            "TotalAnswered INTEGER DEFAULT 0," +
+                            "RedCount INTEGER DEFAULT 0," +
+                            "YellowCount INTEGER DEFAULT 0, " +
+                            "GreenCount INTEGER DEFAULT 0);"
                     )) {
-                LOGGER.info("Made a new table (ChampTime)");
+                LOGGER.info("Loaded a table (EODReportDiscordBot)");
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
 
-            // Make a new Betting table if it doesn't exist
+            // Make a new Questions table if it doesn't exist
             try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS Betting ( UserId INTEGER NOT NULL, " +
-                            "GameId TEXT NOT NULL, " +
-                            "TeamNameBet TEXT NOT NULL);"
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS Questions ( UserId INTEGER NOT NULL, " +
+                            "Question TEXT DEFAULT 'None');"
                     )) {
-                LOGGER.info("Made a new table (Betting)");
+                LOGGER.info("Loaded a table (Questions)");
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
 
-            // Make a new Prediction table if it doesn't exist
             try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS Prediction ( UserId INTEGER NOT NULL, " +
-                            "Win INTEGER DEFAULT 0, " +
-                            "Loss INTEGER DEFAULT 0, " +
-                            "Streak TEXT DEFAULT 'XXXXX');"
-                    )) {
-                LOGGER.info("Made a new table (Prediction)");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS Roles ( " +
+                            "RoleId INTEGER NOT NULL," +
+                            "RequiredRoles TEXT NOT NULL" +
+                            ");")) {
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
 
-            // Make a new Follow table if it doesn't exist
             try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS Follow ( UserId INTEGER NOT NULL, " +
-                            "ChampId INTEGER NOT NULL);"
-                    )) {
-                LOGGER.info("Made a new table (Follow)");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS SelectRoles ( " +
+                            "RoleId INTEGER NOT NULL," +
+                            "Count INTEGER DEFAULT 0" +
+                            ");")) {
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
 
-            // Make a new PostInteractions table if it doesn't exist
             try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS PostInteractions ( UserId INTEGER NOT NULL, " +
-                            "PostId INTEGER NOT NULL, Interaction INTEGER DEFAULT 0);"
-                    )) {
-                LOGGER.info("Made a new table (PostInteractions)");
-                preparedStatement.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            // Make a new SpecialPosts table if it doesn't exist
-            try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS SpecialPosts (" +
-                            "UnixTimePost INTEGER, ChannelId INTEGER, " +
-                            "ChannelName INTEGER, PosterId INTEGER, " +
-                            "PosterName INTEGER, Content TEXT, InteractionCount INTEGER, IsTopPost INTEGER DEFAULT -1);"
-                    )) {
-                LOGGER.info("Made a new table (SpecialPosts)");
-                preparedStatement.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            // Make a new HasInteracted table if it doesn't exist
-            try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS HasInteracted ( UserId INTEGER NOT NULL, " +
-                            "PostId INTEGER NOT NULL, Interacted INTEGER DEFAULT 1);"
-                    )) {
-                LOGGER.info("Made a new table (HasInteracted)");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS AirtableUser ( " +
+                            "UserId INTEGER NOT NULL," +
+                            "RecordId TEXT NOT NULL," +
+                            "OverviewId TEXT DEFAULT 'None'" +
+                            ");")) {
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         } catch (Exception e) {
-            LOGGER.error("An exception was thrown", e);
+            e.printStackTrace();
         }
 
-        LOGGER.info("Retrieving sport keys...");
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://odds.p.rapidapi.com/v4/sports?all=true"))
-                    .header("X-RapidAPI-Key", GlobalVariables.API_KEY)
-                    .header("X-RapidAPI-Host", "odds.p.rapidapi.com")
-                    .method("GET", HttpRequest.BodyPublishers.noBody())
-                    .build();
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            String jsonString = response.body();
-            JSONArray jsonArray = new JSONArray(jsonString);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                String sportKey = jsonObject.getString("key");
-                String sportName = jsonObject.getString("title");
-                OddsGetter.KEY_OF_SPORT.put(sportName, sportKey);
-                OddsGetter.KEY_OF_SPORT.put(sportKey, sportKey);
-                OddsGetter.KEY_OF_SPORT.put("100" + sportKey, sportName);
-                LOGGER.debug("Sport name = " + sportName + ", Sport key = " + sportKey);
-            }
-            LOGGER.info("Successfully retrieved the sport keys! (Enable debug mode to see more details)");
-            LOGGER.info("Bot fully initialized and ready.");
-        } catch (Exception e) {
-            LOGGER.error("Failed to get the data. Shutting the bot down...", e);
-            event.getJDA().shutdown();
-            LOGGER.info("Shutdown process initialized.");
+        // Start the daily EOD report sending
+        Timer timer = new Timer(true);
+        EODTask eodTask = new EODTask(1062100366105268327L);
+
+        // global time
+        OffsetDateTime oneDayLater = OffsetDateTime.now(ZoneId.of("UTC-6")).withHour(0).withMinute(0).withSecond(0);
+        // check if onedaylater is before now
+        if (oneDayLater.isBefore(OffsetDateTime.now(ZoneId.of("UTC-6")))) {
+            oneDayLater = oneDayLater.plusDays(1);
         }
+        timer.scheduleAtFixedRate(eodTask, Date.from(oneDayLater.toInstant()), 86400000);
 
-        File jsonFile = new File("records.json");
-        if (!jsonFile.exists()) {
-            try {
-                if (jsonFile.createNewFile()) {
-                    LOGGER.info("Successfully made a new JSON file");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            JsonUtils.writeJsonTemplate();
+        // 90 min reminder
+        timer = new Timer(true);
+        EODTaskReminder eodTaskReminder = new EODTaskReminder(1062100366105268327L);
+
+        // global time
+        oneDayLater = OffsetDateTime.now(ZoneId.of("UTC-6")).withHour(0).withMinute(0).withSecond(0);
+        // check if onedaylater is before now
+        if (oneDayLater.isBefore(OffsetDateTime.now(ZoneId.of("UTC-6")))) {
+            oneDayLater = oneDayLater.plusDays(1);
         }
+        oneDayLater = oneDayLater.minusHours(1).minusMinutes(30);
+        timer.scheduleAtFixedRate(eodTaskReminder, Date.from(oneDayLater.toInstant()), 86400000);
 
-        new OddsGetter.GetOddsTask().run();
-        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(new OddsGetter.GetOddsTask(),2, 2, TimeUnit.HOURS);
+        // 30 min reminder
+        timer = new Timer(true);
+        eodTaskReminder = new EODTaskReminder(1062100366105268327L);
 
-        dailyLbTask.scheduleAtFixedRate(() -> {
-            LeaderboardCommand.wins = new HashMap<>();
-            LeaderboardCommand.loss = new HashMap<>();
-            LOGGER.info("Successfully cleared the leaderboard daily data.");
-        }, 1, 1, TimeUnit.DAYS);
+        // global time
+        oneDayLater = OffsetDateTime.now(ZoneId.of("UTC-6")).withHour(0).withMinute(0).withSecond(0);
+        // check if onedaylater is before now
+        if (oneDayLater.isBefore(OffsetDateTime.now(ZoneId.of("UTC-6")))) {
+            oneDayLater = oneDayLater.plusDays(1);
+        }
+        oneDayLater = oneDayLater.minusMinutes(30);
+        timer.scheduleAtFixedRate(eodTaskReminder, Date.from(oneDayLater.toInstant()), 86400000);
+
+//        Airtable.smth();
     }
 }
