@@ -17,6 +17,7 @@ public class GlobalEODCommand extends SlashCommand {
     protected void execute(SlashCommandEvent slashCommandEvent) {
         // run EODTask
         EODTask eodTask = new EODTask(slashCommandEvent.getGuild().getIdLong());
-        eodTask.run();
+        slashCommandEvent.reply("EOD reports sending!").queue();
+        new Thread(eodTask).start();
     }
 }
