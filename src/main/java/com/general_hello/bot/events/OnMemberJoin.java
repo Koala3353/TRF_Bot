@@ -5,6 +5,7 @@ import com.general_hello.Config;
 import com.general_hello.bot.database.DataUtils;
 import com.general_hello.bot.objects.AddToEODReportUserTask;
 import com.general_hello.bot.objects.HierarchicalRoles;
+import com.general_hello.bot.objects.ModuleTaskReminder;
 import com.general_hello.bot.utils.EODUtil;
 import com.general_hello.bot.utils.Util;
 import com.general_hello.bot.utils.UtilNum;
@@ -76,6 +77,11 @@ public class OnMemberJoin extends ListenerAdapter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        Timer timer = new Timer(true);
+        ModuleTaskReminder moduleTaskReminder = new ModuleTaskReminder(event.getMember());
+        timer.schedule(moduleTaskReminder, 86400000L);
+
     }
 
     @Override
