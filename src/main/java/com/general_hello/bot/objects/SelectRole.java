@@ -5,6 +5,8 @@ import com.general_hello.bot.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -45,7 +47,9 @@ public class SelectRole {
             embedBuilder.setFooter(guild.getName(), guild.getIconUrl());
             embedBuilder.setColor(Color.YELLOW);
 
-            guild.getTextChannelById(channelId).sendMessageEmbeds(embedBuilder.build()).setActionRow(menu.build()).queue();
+            guild.getTextChannelById(channelId).sendMessageEmbeds(embedBuilder.build()).setComponents(ActionRow.of(menu.build()),
+                    ActionRow.of(Button.secondary("0000:previousroles", "Previous"),
+                            Button.secondary("0000:nextroles", "Next"))).queue();
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }

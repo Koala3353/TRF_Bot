@@ -3,7 +3,6 @@ package com.general_hello.bot.commands;
 import com.general_hello.bot.database.DataUtils;
 import com.general_hello.bot.events.OnMemberJoin;
 import com.general_hello.bot.objects.AddToEODReportUserTask;
-import com.general_hello.bot.utils.EODUtil;
 import com.general_hello.bot.utils.Util;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -39,7 +38,7 @@ public class LoadCommand extends SlashCommand {
         event.reply("Done!").setEphemeral(true).queue();
 
         Member member = event.getOption("user").getAsMember();
-        EODUtil.newUsers.add(member.getUser().getIdLong());
+        DataUtils.newUserJoined(member.getUser().getIdLong());
         String discordTag = member.getUser().getAsTag();
         OffsetDateTime now = member.getTimeJoined();
         OkHttpClient client = new OkHttpClient();

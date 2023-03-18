@@ -6,7 +6,6 @@ import com.general_hello.bot.database.DataUtils;
 import com.general_hello.bot.objects.AddToEODReportUserTask;
 import com.general_hello.bot.objects.HierarchicalRoles;
 import com.general_hello.bot.objects.ModuleTaskReminder;
-import com.general_hello.bot.utils.EODUtil;
 import com.general_hello.bot.utils.Util;
 import com.general_hello.bot.utils.UtilNum;
 import net.dv8tion.jda.api.entities.Member;
@@ -18,6 +17,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -43,13 +43,15 @@ public class OnMemberJoin extends ListenerAdapter {
     private static final HashMap<Long, OffsetDateTime> lastJoinedCoach = new HashMap<>();
     private static final HashMap<Long, Integer> expEarnedCoach = new HashMap<>();
     private static final HashMap<Long, Integer> expEarnedAcc = new HashMap<>();
+
+
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         // Send EOD report
         Util.logInfo("New member joined: " + event.getMember().getUser().getAsTag() + " attempting to message...", OnMemberJoin.class);
         Member member = event.getMember();
         if (member.getUser().isBot()) return;
-        EODUtil.newUsers.add(member.getUser().getIdLong());
+        DataUtils.newUserJoined(member.getUser().getIdLong());
         String discordTag = member.getUser().getAsTag();
         OffsetDateTime now = member.getTimeJoined();
         OkHttpClient client = new OkHttpClient();
@@ -81,7 +83,6 @@ public class OnMemberJoin extends ListenerAdapter {
         Timer timer = new Timer(true);
         ModuleTaskReminder moduleTaskReminder = new ModuleTaskReminder(event.getMember());
         timer.schedule(moduleTaskReminder, 86400000L);
-
     }
 
     @Override
@@ -132,6 +133,32 @@ public class OnMemberJoin extends ListenerAdapter {
         event.getChannel().sendFiles(file)
                 .setEmbeds(embedBuilder.build(), secondEmbed.build())
                 .setActionRow(Button.success("0000:B1roleVerification", Emoji.fromFormatted("✅"))).queue();*/
+    }
+
+    @Override
+    public void onUserUpdateName(UserUpdateNameEvent event) {
+        String newName = event.getUser().getName();
+        String userTag = event.getUser().getAsTag();
+        newName = newName.replace(" ", "");
+
+        OkHttpClient client = new OkHttpClient();
+        MediaType mediaType = MediaType.parse("application/json");
+        String json = "{\"fields\": {\"Discord Username\": \"" + userTag + "\", \"DiscordName\": \"" + newName + "\"}}";
+        System.out.println(json);
+        RequestBody body = RequestBody.create(json, mediaType);
+        String recordId = DataUtils.getRecordId(event.getUser().getIdLong());
+
+        Request request = new Request.Builder()
+                .url("https://api.airtable.com/v0/" + BASE_ID + "/" + TRF_USERS_TABLE_ID + "/" + recordId)
+                .patch(body)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+        try {
+            System.out.println(client.newCall(request).execute().body().string());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -202,6 +229,7 @@ public class OnMemberJoin extends ListenerAdapter {
                         exp = 50 - expEarnedCoachForTheTime;
                         lastJoinedCoach.put(member.getIdLong(), now);
                     }
+                    expEarnedCoach.put(member.getIdLong(), expEarnedCoachForTheTime + exp);
                     DataUtils.addExpBy(member.getIdLong(), exp);
                     timeInVc.remove(member.getIdLong());
                     Util.logInfo("Added " + exp + " exp to " + member.getUser().getAsTag() + " for joining a coaching call.", OnMemberJoin.class);

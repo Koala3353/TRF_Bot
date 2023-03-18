@@ -44,7 +44,7 @@ public class EODTask extends TimerTask {
             Util.logInfo("EOD Report for " + member.getUser().getAsTag() + " has been sent.", EODTask.class);
 
             try {
-                Thread.sleep(3000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

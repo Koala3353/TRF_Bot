@@ -27,7 +27,6 @@ public class EODTaskReminder extends TimerTask {
     private void completeTask(long guildId) {
         Guild guildById = Bot.getJda().getGuildById(guildId);
         List<Member> members = guildById.loadMembers().get();
-        System.out.println("Members: " + members);
 
         for (Member member : members) {
             if (member.getUser().isBot()) continue;

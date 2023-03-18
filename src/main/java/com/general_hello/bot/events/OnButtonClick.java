@@ -67,7 +67,7 @@ public class OnButtonClick extends ListenerAdapter {
                 break;
             case "customQuestionAnswer":
                 int questionNum = Integer.parseInt(id[2]);
-                List<String> list = CustomQuestion.userToAnswers.getOrDefault(event.getUser().getIdLong(), new ArrayList<>());
+                LinkedList<String> list = CustomQuestion.userToAnswers.getOrDefault(event.getUser().getIdLong(), new LinkedList<>());
                 list.add(id[4]);
                 CustomQuestion.userToAnswers.put(event.getUser().getIdLong(), list);
                 long idLong = event.getUser().getIdLong();
@@ -80,11 +80,10 @@ public class OnButtonClick extends ListenerAdapter {
                             .queue();
                     author = event.getUser();
                     DataUtils.setLastAnsweredTime(author.getIdLong(), id[3]);
-                    if (!EODUtil.newUsers.contains(member.getIdLong())) {
-                        EmbedBuilder eodSummary;
-                        eodSummary = EODUtil.getEODReportEmbed(member, 100, id[3]);
-                        Util.getChannelFromRole(member).sendMessage(member.getAsMention()).addEmbeds(eodSummary.build()).queue();
-                    }
+                    EmbedBuilder eodSummary;
+                    eodSummary = EODUtil.getEODReportEmbed(member, 100, id[3]);
+                    Util.getChannelFromRole(member).sendMessage(member.getAsMention()).addEmbeds(eodSummary.build()).queue();
+
                     Timer timer = new Timer(true);
                     EODCleanupTask eodTask = new EODCleanupTask(member, String.valueOf(DataUtils.getUrge(event.getUser().getIdLong())), event, author, id);
                     timer.schedule(eodTask, 10);
@@ -380,7 +379,7 @@ public class OnButtonClick extends ListenerAdapter {
                     return;
                 }
 
-                if (EODUtil.newUsers.contains(event.getUser().getIdLong())) {
+                if (DataUtils.isNewUser(member.getIdLong())) {
                     Timer timer = new Timer(true);
                     timer.schedule(new NewMemberEODTask(event.getMember()), 900000);
                 }
@@ -412,11 +411,10 @@ public class OnButtonClick extends ListenerAdapter {
                 } else {
                     event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, 99, ids[3]).build()).setComponents().queue();
                     Util.logInfo("EOD Report for " + member.getEffectiveName() + " has been submitted with rating " + rating, OnButtonClick.class);
-                    if (!EODUtil.newUsers.contains(member.getIdLong())) {
-                        EmbedBuilder eodSummary;
-                        eodSummary = EODUtil.getEODReportEmbed(member, 100, ids[3]);
-                        Util.getChannelFromRole(member).sendMessage(member.getAsMention()).addEmbeds(eodSummary.build()).queue();
-                    }
+                    EmbedBuilder eodSummary;
+                    eodSummary = EODUtil.getEODReportEmbed(member, 100, ids[3]);
+                    Util.getChannelFromRole(member).sendMessage(member.getAsMention()).addEmbeds(eodSummary.build()).queue();
+
                     Timer timer = new Timer(true);
                     EODCleanupTask eodTask = new EODCleanupTask(member, value, event, author, ids);
                     timer.schedule(eodTask, 10);

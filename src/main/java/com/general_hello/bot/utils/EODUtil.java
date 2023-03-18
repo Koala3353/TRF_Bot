@@ -13,10 +13,10 @@ import java.awt.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class EODUtil {
-    public static ArrayList<Long> newUsers = new ArrayList<>();
     public static ArrayList<Long> secondTimeUsers = new ArrayList<>();
 
     public static void newMemberEODReport(Member newMember) {
@@ -84,6 +84,7 @@ public class EODUtil {
                 break;
             case 1:
                 embedBuilder.setTitle("Daily EOD Report");
+                embedBuilder.setDescription("DO NOT FILL THIS OUT RIGHT AFTER IT IS SENT TO YOU UNLESS IT IS ACTUALLY THE END OF YOUR DAY!");
                 embedBuilder.addField("Question 1", "Did you relapse?", false);
                 break;
             case 2:
@@ -126,7 +127,7 @@ public class EODUtil {
                 embedBuilder.addField("Daily Ranking", String.valueOf(DataUtils.getUrge(idLong)), false);
                 // Set Other questions
                 List<String> questionsList = DataUtils.getQuestionsList(idLong);
-                List<String> answers = CustomQuestion.userToAnswers.get(idLong);
+                LinkedList<String> answers = CustomQuestion.userToAnswers.get(idLong);
                 if (!questionsList.isEmpty()) {
                     for (int i = 0; i < questionsList.size(); i++) {
                         embedBuilder.addField(questionsList.get(i), answers.get(i), false);

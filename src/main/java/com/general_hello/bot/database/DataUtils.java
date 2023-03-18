@@ -1210,6 +1210,34 @@ public class DataUtils {
         }
     }
 
+    public static synchronized void deleteNewUser(long userId) {
+
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("DELETE FROM NewUser WHERE UserId=?"
+                )) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static synchronized void deleteSecondUser(long userId) {
+
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("DELETE FROM SecondUser WHERE UserId=?"
+                )) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static synchronized void addSelectRoleCount(long roleId) {
         // Checks if a database entry has been made
         checkRole(roleId);
@@ -1271,6 +1299,34 @@ public class DataUtils {
         }
     }
 
+    public static synchronized void newUserJoined(long userId) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("INSERT INTO NewUser" +
+                        "(UserId)" +
+                        "VALUES (?);")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    public static synchronized void secodnUserJoined(long userId) {
+        try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                .prepareStatement("INSERT INTO SecondUser" +
+                        "(UserId)" +
+                        "VALUES (?);")) {
+
+            preparedStatement.setString(1, String.valueOf(userId));
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
     public static synchronized int getCount(long roleId) {
         checkRole(roleId);
         try (Connection connection = SQLiteDataSource.getConnection();
@@ -1294,6 +1350,42 @@ public class DataUtils {
         try (Connection connection = SQLiteDataSource.getConnection();
              PreparedStatement preparedStatement = connection
                      .prepareStatement("SELECT Count FROM SelectRoles WHERE RoleId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(roleId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static synchronized boolean isNewUser(long roleId) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT IsNew FROM NewUser WHERE UserId = ?")) {
+
+            preparedStatement.setString(1, String.valueOf(roleId));
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static synchronized boolean isSecondUser(long roleId) {
+        try (Connection connection = SQLiteDataSource.getConnection();
+             PreparedStatement preparedStatement = connection
+                     .prepareStatement("SELECT IsNew FROM SecondUser WHERE UserId = ?")) {
 
             preparedStatement.setString(1, String.valueOf(roleId));
 

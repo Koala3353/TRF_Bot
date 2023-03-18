@@ -2,7 +2,6 @@ package com.general_hello.bot.database.Airtable;
 
 import com.general_hello.Config;
 import com.general_hello.bot.database.DataUtils;
-import com.general_hello.bot.utils.EODUtil;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -293,8 +292,9 @@ public class Airtable {
         int relapse = DataUtils.getRelapse(member.getIdLong());
         boolean didRelapse = Boolean.TRUE.equals(DataUtils.getBooleanFromInt(relapse));
         Guild guild = event.getJDA().getGuildById("1062100366105268327");
+        guild.addRoleToMember(member, guild.getRoleById("1071181482003021954")).queue();
 
-        if (!EODUtil.newUsers.contains(member.getIdLong())) {
+        if (!DataUtils.isNewUser(member.getIdLong())) {
             // Discord database stuff
             DataUtils.setIsEODAnswered(member.getIdLong(), true);
             DataUtils.incrementReportStreak(member.getIdLong());
@@ -324,10 +324,6 @@ public class Airtable {
             System.out.println("Updating airtable");
             Airtable.update(event.getUser(), ids[3]);
 
-            if (reportStreak == 1) {
-                guild.addRoleToMember(member, guild.getRoleById("1071181482003021954")).queue();
-            }
-
             if (reportStreak == 14) {
                 guild.addRoleToMember(member, guild.getRoleById("1071181566103003297")).queue();
             }
@@ -343,23 +339,23 @@ public class Airtable {
 
             DataUtils.setDidAnswer(member.getIdLong(), true);
 
-            if (EODUtil.secondTimeUsers.contains(member.getIdLong())) {
+            if (DataUtils.isSecondUser(member.getIdLong())) {
                 System.out.println("Second time users");
                 if (didRelapse) {
                     guild.addRoleToMember(member, guild.getRoleById(1071182182862823455L)).queue();
                 }
-                EODUtil.secondTimeUsers.remove(member.getIdLong());
+                DataUtils.deleteSecondUser(member.getIdLong());
             }
             return;
         }
 
-        EODUtil.newUsers.remove(member.getIdLong());
+        DataUtils.deleteNewUser(member.getIdLong());
 
         System.out.println("First time users");
         if (didRelapse) {
             System.out.println("First time users did relapse");
             guild.addRoleToMember(member, guild.getRoleById(1071160346640912384L)).queue();
         }
-        EODUtil.secondTimeUsers.add(member.getIdLong());
+        DataUtils.secodnUserJoined(member.getIdLong());
     }
 }

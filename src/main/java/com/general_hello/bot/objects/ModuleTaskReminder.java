@@ -3,6 +3,7 @@ package com.general_hello.bot.objects;
 
 import net.dv8tion.jda.api.entities.Member;
 
+import java.util.Timer;
 import java.util.TimerTask;
 
 public class ModuleTaskReminder extends TimerTask {
@@ -21,5 +22,9 @@ public class ModuleTaskReminder extends TimerTask {
             // send a message to the user
             member.getUser().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("Kindly complete the tutorials, level intro and level promotion quiz!").queue());
         }
+
+        ModuleTaskReminderLeader moduleTaskReminderLeader = new ModuleTaskReminderLeader(member);
+        Timer timer = new Timer(true);
+        timer.schedule(moduleTaskReminderLeader, 86400000L);
     }
 }

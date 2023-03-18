@@ -105,6 +105,27 @@ public class OnReadyEvent extends ListenerAdapter {
                 e.printStackTrace();
             }
 
+            // Make a new NewUser table if it doesn't exist
+            try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS NewUser ( UserId INTEGER NOT NULL, " +
+                            "IsNew INTEGER DEFAULT 1);"
+                    )) {
+                LOGGER.info("Loaded a table (NewUser)");
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS SecondUser ( UserId INTEGER NOT NULL, " +
+                            "IsNew INTEGER DEFAULT 1);"
+                    )) {
+                LOGGER.info("Loaded a table (SecondUser)");
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
             try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
                     .prepareStatement("CREATE TABLE IF NOT EXISTS Roles ( " +
                             "RoleId INTEGER NOT NULL," +
