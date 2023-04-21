@@ -1148,6 +1148,7 @@ public class DataUtils {
                     questions.addAll(Arrays.asList(split));
                     questions.remove("None");
                     questions.remove("null");
+                    questions.remove("");
                     return questions;
                 }
             }
@@ -1155,6 +1156,14 @@ public class DataUtils {
             e.printStackTrace();
         }
         return questions;
+    }
+
+    public static synchronized String getStringFromListOfQuestions(List<String> questions) {
+        StringBuilder sb = new StringBuilder();
+        for (String question : questions) {
+            sb.append(question).append(SPLIT_CHAR);
+        }
+        return sb.toString();
     }
 
     public static synchronized void setQuestions(long userId, String questions) {
@@ -1313,7 +1322,7 @@ public class DataUtils {
         }
     }
 
-    public static synchronized void secodnUserJoined(long userId) {
+    public static synchronized void secondUserJoined(long userId) {
         try (final PreparedStatement preparedStatement = SQLiteDataSource.getConnection()
                 .prepareStatement("INSERT INTO SecondUser" +
                         "(UserId)" +

@@ -1,7 +1,8 @@
-package com.general_hello.bot.database.Airtable;
+package com.general_hello.bot.database.airtable;
 
 import com.general_hello.Config;
 import com.general_hello.bot.database.DataUtils;
+import com.general_hello.bot.objects.CustomQuestion;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -305,7 +306,7 @@ public class Airtable {
                     DataUtils.setBestRelapseFreeStreak(member.getIdLong(), relapseFreeStreak);
                 }
 
-                if (relapseFreeStreak == 1) {
+                if (relapseFreeStreak >= 1) {
                     guild.addRoleToMember(member, guild.getRoleById("1071181504727765103")).queue();
                 }
             } else {
@@ -313,6 +314,7 @@ public class Airtable {
             }
 
             int reportStreak = DataUtils.getReportStreak(member.getIdLong());
+            int reportCount = DataUtils.getTotalAnswered(member.getIdLong());
             if (reportStreak > DataUtils.getBestReportStreak(member.getIdLong())) {
                 DataUtils.setBestReportStreak(member.getIdLong(), reportStreak);
             }
@@ -324,38 +326,57 @@ public class Airtable {
             System.out.println("Updating airtable");
             Airtable.update(event.getUser(), ids[3]);
 
-            if (reportStreak == 14) {
+            if (reportStreak >= 14) {
                 guild.addRoleToMember(member, guild.getRoleById("1071181566103003297")).queue();
             }
 
+            if (reportCount >= 28) {
+                guild.addRoleToMember(member, guild.getRoleById("1071181763046551712")).queue();
+            }
+
+            if (reportCount >= 84) {
+                guild.addRoleToMember(member, guild.getRoleById("1071181879413309460")).queue();
+            }
+
             int relapseFreeStreak = DataUtils.getRelapseFreeStreak(member.getIdLong());
-            if (relapseFreeStreak == 1) {
+            if (relapseFreeStreak >= 1) {
                 guild.addRoleToMember(member, guild.getRoleById("1071181504727765103")).queue();
             }
 
-            if (relapseFreeStreak == 14) {
+            if (relapseFreeStreak >= 14) {
                 guild.addRoleToMember(member, guild.getRoleById("1071181601419038850")).queue();
             }
 
-            DataUtils.setDidAnswer(member.getIdLong(), true);
+            if (relapseFreeStreak >= 30) {
+                guild.addRoleToMember(member, guild.getRoleById("1071181804419174430")).queue();
+            }
 
-            if (DataUtils.isSecondUser(member.getIdLong())) {
+            if (relapseFreeStreak >= 90) {
+                guild.addRoleToMember(member, guild.getRoleById("1071181904835006615")).queue();
+            }
+
+            if (relapseFreeStreak >= 180) {
+                guild.addRoleToMember(member, guild.getRoleById("1071182822796185730")).queue();
+            }
+
+            DataUtils.setDidAnswer(member.getIdLong(), true);
+            CustomQuestion.userToAnswers.remove(member.getIdLong());
+
+            if (DataUtils.getRelapseCount(member.getIdLong()) >= 1) {
                 System.out.println("Second time users");
                 if (didRelapse) {
                     guild.addRoleToMember(member, guild.getRoleById(1071182182862823455L)).queue();
                 }
                 DataUtils.deleteSecondUser(member.getIdLong());
             }
+
+            if (didRelapse) {
+                guild.addRoleToMember(member, guild.getRoleById(1071160346640912384L)).queue();
+            }
             return;
         }
 
         DataUtils.deleteNewUser(member.getIdLong());
-
-        System.out.println("First time users");
-        if (didRelapse) {
-            System.out.println("First time users did relapse");
-            guild.addRoleToMember(member, guild.getRoleById(1071160346640912384L)).queue();
-        }
-        DataUtils.secodnUserJoined(member.getIdLong());
+        DataUtils.secondUserJoined(member.getIdLong());
     }
 }

@@ -1,7 +1,7 @@
-package com.general_hello.bot.objects;
+package com.general_hello.bot.objects.tasks.eod;
 
 
-import com.general_hello.bot.database.Airtable.Airtable;
+import com.general_hello.bot.database.airtable.Airtable;
 import com.general_hello.bot.database.DataUtils;
 import net.dv8tion.jda.api.entities.Member;
 import okhttp3.*;
@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.TimerTask;
 
-import static com.general_hello.bot.database.Airtable.Airtable.*;
+import static com.general_hello.bot.database.airtable.Airtable.*;
 
 public class AddToEODReportUserTask extends TimerTask {
     private OkHttpClient client;

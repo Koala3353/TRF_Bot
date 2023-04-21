@@ -18,11 +18,14 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.security.CodeSource;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
@@ -175,6 +178,16 @@ public class Util
     {
         Logger CUSTOM_LOGGER = LoggerFactory.getLogger(clazz);
         CUSTOM_LOGGER.info(message);
+
+        try {
+            String filename= "log.txt";
+            FileWriter fw = new FileWriter(filename,true); //the true will append the new data
+            // format time
+            fw.write(OffsetDateTime.now().format(DateTimeFormatter.ofPattern("MM/dd HH:mm:ss")) + " - " + message + "\n");//appends the string to the file
+            fw.close();
+        } catch(IOException ioe) {
+            System.err.println("IOException: " + ioe.getMessage());
+        }
     }
 
     public static void logWarning(String message, Class<?> clazz)

@@ -3,9 +3,9 @@ package com.general_hello.bot.events;
 import com.general_hello.Bot;
 import com.general_hello.Config;
 import com.general_hello.bot.database.DataUtils;
-import com.general_hello.bot.objects.AddToEODReportUserTask;
 import com.general_hello.bot.objects.HierarchicalRoles;
-import com.general_hello.bot.objects.ModuleTaskReminder;
+import com.general_hello.bot.objects.tasks.eod.AddToEODReportUserTask;
+import com.general_hello.bot.objects.tasks.module.ModuleTaskReminder;
 import com.general_hello.bot.utils.Util;
 import com.general_hello.bot.utils.UtilNum;
 import net.dv8tion.jda.api.entities.Member;
@@ -25,6 +25,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -35,7 +39,7 @@ import java.util.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.general_hello.bot.database.Airtable.Airtable.*;
+import static com.general_hello.bot.database.airtable.Airtable.*;
 
 public class OnMemberJoin extends ListenerAdapter {
     private static final HashMap<Long, OffsetDateTime> timeInVc = new HashMap<>();
@@ -57,22 +61,16 @@ public class OnMemberJoin extends ListenerAdapter {
         OkHttpClient client = new OkHttpClient();
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create("{\"fields\": {\"Discord Username\": \"" + discordTag + "\", \"Discord Join Date\": \"" +
-                now.getYear() + "-" + now.getMonthValue() + "-" + now.getDayOfMonth() + "\", \"Level\": \"Brethren\", \"DiscordName\": \"" + event.getUser().getName().replace(" ", "") + "\"}}", mediaType);
+                now.getYear() + "-" + now.getMonthValue() + "-" + now.getDayOfMonth() + "\"}}", mediaType);
         Request request = new Request.Builder()
-                .url("https://api.airtable.com/v0/" + BASE_ID + "/" + TRF_USERS_TABLE_ID)
-                .post(body)
+                .url("https://api.airtable.com/v0/" + BASE_ID + "/" + TRF_USERS_TABLE_ID + "/" + DataUtils.getRecordId(member.getIdLong()))
+                .patch(body)
                 .addHeader("Authorization", "Bearer " + API_KEY)
                 .addHeader("Content-Type", "application/json")
                 .build();
 
         try {
-            Response response = client.newCall(request).execute();
-
-            JSONObject jsonObject = new JSONObject(response.body().string());
-            String recordId = jsonObject.getString("id");
-            DataUtils.newRecordId(member.getIdLong(), recordId);
-            Util.logInfo("Added user to Airtable: " + discordTag, OnMemberJoin.class);
-
+            System.out.println(client.newCall(request).execute().body().string());
             // EOD REPORTS
             Timer timer = new Timer(true);
             timer.schedule(new AddToEODReportUserTask(client, mediaType, body, request, member.getUser().getName().replace(" ", ""), event.getUser().getIdLong(), member), 780000);
@@ -97,6 +95,12 @@ public class OnMemberJoin extends ListenerAdapter {
 
         if (event.getChannel().getId().equals("1062100368235966659")) {
             event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById("1071181441070796871")).queue();
+        }
+
+        if (event.getChannel().getId().equals("1065675704693424248")) {
+            if (!event.getMessage().getAttachments().isEmpty()) {
+                event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById("1071182065447477369")).queue();
+            }
         }
 
         if (event.getChannelType().isThread()) {
@@ -280,6 +284,18 @@ public class OnMemberJoin extends ListenerAdapter {
             if (event.getChannel().getId().equals("1065675704693424248")) {
                 event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById("1071182065447477369")).queue();
             }
+
+            if (event.getChannel().getId().equals("1065672746467594240")) {
+                event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById("1071181828553179147")).queue();
+            }
+
+            if (event.getChannel().getId().equals("1065672226772357211")) {
+                event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById("1071181927941410828")).queue();
+            }
+
+            if (event.getChannel().getId().equals("1065675763082350612")) {
+                event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById("1071181952591339611")).queue();
+            }
         }
     }
 
@@ -448,6 +464,23 @@ public class OnMemberJoin extends ListenerAdapter {
 
         if (event.getMember().getRoles().contains(event.getGuild().getRoleById("1071181566103003297")) && event.getMember().getRoles().contains(event.getGuild().getRoleById("1071181601419038850")) && event.getMember().getRoles().contains(event.getGuild().getRoleById("1071181625590825062")) && event.getMember().getRoles().contains(event.getGuild().getRoleById("1071181655424897115")) && event.getMember().getRoles().contains(event.getGuild().getRoleById("1071181676283170866")) && event.getMember().getRoles().contains(event.getGuild().getRoleById("1071184103162003547"))) {
             event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById("1071181682234888202")).queue();
+        }
+
+        if (event.getMember().getRoles().contains(event.getGuild().getRoleById(1065671698688512090L))) {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.whop.com/api/v2/promo_codes?expand="))
+                    .header("accept", "application/json")
+                    .header("Authorization", Config.get("whop"))
+                    .header("content-type", "application/json")
+                    .method("POST", HttpRequest.BodyPublishers.ofString("{\"new_users_only\":true,\"number_of_intervals\":1,\"amount_off\":100,\"code\":\"" + event.getUser().getId() + "\",\"base_currency\":\"usd\",\"promo_type\":\"percentage\",\"stock\":1000000000}"))
+                    .build();
+            HttpResponse<String> response;
+            try {
+                response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                Util.sendDM(event.getUser().getId(), "Congratulations on reaching Level 3! Here is your personal discount code `" + event.getUser().getId() + "` which is a one time use code that gives any user the first month free. This will be needed to complete the task to get `L3e`.");
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

@@ -2,7 +2,7 @@ package com.general_hello.bot.commands;
 
 import com.general_hello.bot.database.DataUtils;
 import com.general_hello.bot.events.OnMemberJoin;
-import com.general_hello.bot.objects.AddToEODReportUserTask;
+import com.general_hello.bot.objects.tasks.eod.AddToEODReportUserTask;
 import com.general_hello.bot.utils.Util;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
-import static com.general_hello.bot.database.Airtable.Airtable.*;
+import static com.general_hello.bot.database.airtable.Airtable.*;
 
 public class LoadCommand extends SlashCommand {
     public LoadCommand() {

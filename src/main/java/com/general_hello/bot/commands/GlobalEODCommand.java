@@ -1,6 +1,6 @@
 package com.general_hello.bot.commands;
 
-import com.general_hello.bot.objects.EODTask;
+import com.general_hello.bot.objects.tasks.eod.EODTask;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.Permission;

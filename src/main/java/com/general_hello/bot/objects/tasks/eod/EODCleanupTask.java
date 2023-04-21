@@ -1,7 +1,7 @@
-package com.general_hello.bot.objects;
+package com.general_hello.bot.objects.tasks.eod;
 
 
-import com.general_hello.bot.database.Airtable.Airtable;
+import com.general_hello.bot.database.airtable.Airtable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;

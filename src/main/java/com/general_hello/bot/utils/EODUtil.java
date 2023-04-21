@@ -182,6 +182,50 @@ public class EODUtil {
                         embedBuilder.addField(questionsList.get(i), answers.get(i), false);
                     }
                 }
+                break;
+            case 101:
+                idLong = member.getIdLong();
+                // End of EOD report embed
+                oneDayLater = OffsetDateTime.now(ZoneId.of("UTC-6")).withHour(0).withMinute(0).withSecond(0);
+                // check if onedaylater is before now
+                if (oneDayLater.isBefore(OffsetDateTime.now(ZoneId.of("UTC-6")))) {
+                    oneDayLater = oneDayLater.plusDays(1);
+                }
+
+                userAsTag = member.getUser().getAsTag();
+                embedBuilder.setAuthor(userAsTag, null, member.getUser().getAvatarUrl());
+                // Set Color
+                color = DataUtils.getColor(member.getIdLong());
+                colorFromPlainText = DataUtils.getColorFromPlainText(color);
+                embedBuilder.setColor(colorFromPlainText);
+                // Set Relapse
+                didRelapse = Boolean.TRUE.equals(DataUtils.getBooleanFromInt(DataUtils.getRelapse(idLong)));
+                if (didRelapse) {
+                    embedBuilder.addField("Relapse", "Yes", false);
+                } else {
+                    embedBuilder.addField("Relapse", "No", false);
+                }
+                // if date is not today's date
+                if (!date.split("T")[0].equals(OffsetDateTime.now(ZoneId.of("UTC-6")).toString().split("T")[0])) {
+                    embedBuilder.addField("Late EOD Report", date.split("T")[0], false);
+                }
+                // Set Color Text
+                embedBuilder.addField("Color", DataUtils.getColorFancyText(color), false);
+                // Set Daily ranking
+                embedBuilder.addField("Daily Ranking", String.valueOf(DataUtils.getUrge(idLong)), false);
+                // Set Other questions
+                questionsList = DataUtils.getQuestionsList(idLong);
+                answers = CustomQuestion.userToAnswers.get(idLong);
+                if (!questionsList.isEmpty()) {
+                    for (int i = 0; i < questionsList.size(); i++) {
+                        embedBuilder.addField(questionsList.get(i), answers.get(i), false);
+                    }
+                }
+
+                embedBuilder.setTitle("Daily EOD Report Confirmation");
+                embedBuilder.setDescription("Are the following information listed below accurate?");
+                embedBuilder.setColor(Color.GREEN);
+                break;
             default:
                 if (questionNumber <= 13) {
                     embedBuilder.setTitle("Daily EOD Report");

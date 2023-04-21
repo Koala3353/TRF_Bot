@@ -90,7 +90,8 @@ public class Bot {
     private static void addCommands(CommandClientBuilder clientBuilder) {
         // Initialize the commands of the bot
         clientBuilder.addSlashCommands(new LoadCommand(), new AddQuestion(), new NewQuizCommand(), new DeleteQuizCommand(),
-                new NewHierarchicalRolesCommand(), new SendSelectRoleMessage(), new EODCommand(), new GlobalEODCommand());
+                new NewHierarchicalRolesCommand(), new SendSelectRoleMessage(), new EODCommand(), new GlobalEODCommand(),
+                new DeleteQuestionCommand(), new ModifyQuestionCommand());
         LOGGER.info("Added the slash commands");
         clientBuilder.addContextMenus(new AddChallengeMenu());
         LOGGER.info("Added the context menus");

@@ -3,6 +3,8 @@ package com.general_hello.bot.events;
 import com.general_hello.Config;
 import com.general_hello.bot.database.DataUtils;
 import com.general_hello.bot.objects.*;
+import com.general_hello.bot.objects.tasks.eod.EODCleanupTask;
+import com.general_hello.bot.objects.tasks.eod.NewMemberEODTask;
 import com.general_hello.bot.utils.EODUtil;
 import com.general_hello.bot.utils.Util;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
@@ -68,25 +70,17 @@ public class OnButtonClick extends ListenerAdapter {
             case "customQuestionAnswer":
                 int questionNum = Integer.parseInt(id[2]);
                 LinkedList<String> list = CustomQuestion.userToAnswers.getOrDefault(event.getUser().getIdLong(), new LinkedList<>());
-                list.add(id[4]);
+                list.addLast(id[4]);
                 CustomQuestion.userToAnswers.put(event.getUser().getIdLong(), list);
                 long idLong = event.getUser().getIdLong();
                 member = event.getUser().getMutualGuilds().get(0).getMember(event.getUser());
                 List<String> questions = DataUtils.getQuestionsList(idLong);
                 if (questions.size() == questionNum-3) {
                     // END OF EOD REPORT
-                    event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, 99, id[3]).build())
-                            .setComponents()
+                    event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, 101, id[3]).build())
+                            .setActionRow(Button.success("0000:eodReport:ConfirmEOD:" + id[3], "Confirm EOD Report"),
+                                    Button.danger("0000:eodReport:CancelEOD:" + id[3], "Cancel EOD Report"))
                             .queue();
-                    author = event.getUser();
-                    DataUtils.setLastAnsweredTime(author.getIdLong(), id[3]);
-                    EmbedBuilder eodSummary;
-                    eodSummary = EODUtil.getEODReportEmbed(member, 100, id[3]);
-                    Util.getChannelFromRole(member).sendMessage(member.getAsMention()).addEmbeds(eodSummary.build()).queue();
-
-                    Timer timer = new Timer(true);
-                    EODCleanupTask eodTask = new EODCleanupTask(member, String.valueOf(DataUtils.getUrge(event.getUser().getIdLong())), event, author, id);
-                    timer.schedule(eodTask, 10);
                     return;
                 }
                 event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, questionNum+1, id[3]).build())
@@ -97,6 +91,26 @@ public class OnButtonClick extends ListenerAdapter {
                 // EOD Report
                 switch (id[2]) {
                     // For first question
+                    case "ConfirmEOD":
+                        event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, 99, id[3]).build())
+                                .setComponents()
+                                .queue();
+                        author = event.getUser();
+                        DataUtils.setLastAnsweredTime(author.getIdLong(), id[3]);
+                        EmbedBuilder eodSummary;
+                        eodSummary = EODUtil.getEODReportEmbed(member, 100, id[3]);
+                        Util.getChannelFromRole(member).sendMessage(member.getAsMention()).addEmbeds(eodSummary.build()).queue();
+
+                        Timer timer = new Timer(true);
+                        EODCleanupTask eodTask = new EODCleanupTask(member, String.valueOf(DataUtils.getUrge(event.getUser().getIdLong())), event, author, id);
+                        timer.schedule(eodTask, 10);
+                        break;
+                    case "CancelEOD":
+                        CustomQuestion.userToAnswers.remove(member.getIdLong());
+                        event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, 1, id[3]).build())
+                                .setComponents(EODUtil.getActionRow(1, id[3]))
+                                .queue();
+                        break;
                     case "RelapseYes":
                         eodReportEmbed = EODUtil.getEODReportEmbed(member, 2, id[3]);
                         event.editMessageEmbeds(eodReportEmbed.build()).setComponents(
@@ -409,15 +423,11 @@ public class OnButtonClick extends ListenerAdapter {
                     event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, questionNum, ids[3]).build())
                             .setComponents(EODUtil.getActionRow(questionNum, ids[3])).queue();
                 } else {
-                    event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, 99, ids[3]).build()).setComponents().queue();
-                    Util.logInfo("EOD Report for " + member.getEffectiveName() + " has been submitted with rating " + rating, OnButtonClick.class);
-                    EmbedBuilder eodSummary;
-                    eodSummary = EODUtil.getEODReportEmbed(member, 100, ids[3]);
-                    Util.getChannelFromRole(member).sendMessage(member.getAsMention()).addEmbeds(eodSummary.build()).queue();
-
-                    Timer timer = new Timer(true);
-                    EODCleanupTask eodTask = new EODCleanupTask(member, value, event, author, ids);
-                    timer.schedule(eodTask, 10);
+                    // END OF EOD REPORT
+                    event.editMessageEmbeds(EODUtil.getEODReportEmbed(member, 101, ids[3]).build())
+                            .setActionRow(Button.success("0000:eodReport:ConfirmEOD:" + ids[3], "Confirm EOD Report"),
+                                    Button.danger("0000:eodReport:CancelEOD:" + ids[3], "Cancel EOD Report"))
+                            .queue();
                 }
                 break;
             case "quizoptions":

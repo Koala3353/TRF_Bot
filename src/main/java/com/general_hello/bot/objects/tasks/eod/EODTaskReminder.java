@@ -1,4 +1,4 @@
-package com.general_hello.bot.objects;
+package com.general_hello.bot.objects.tasks.eod;
 
 
 import com.general_hello.Bot;
