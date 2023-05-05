@@ -2,10 +2,8 @@ package com.general_hello.bot.events;
 
 import com.general_hello.Bot;
 import com.general_hello.bot.database.SQLiteDataSource;
-import com.general_hello.bot.objects.tasks.whop.CancellingWhopMemberTask;
 import com.general_hello.bot.objects.tasks.eod.EODTask;
 import com.general_hello.bot.objects.tasks.eod.EODTaskReminder;
-import com.general_hello.bot.objects.tasks.whop.NewWhopMemberTask;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -163,17 +161,20 @@ public class OnReadyEvent extends ListenerAdapter {
         }
 
         // Start the newWhopMemberTask task
+        // TODO: Unlock when paid
+        /*
         Timer timer = new Timer(true);
         NewWhopMemberTask newWhopMemberTask = new NewWhopMemberTask();
-        timer.scheduleAtFixedRate(newWhopMemberTask, 0L, 60000);
+        timer.scheduleAtFixedRate(newWhopMemberTask, 0L, 60000);*/
 
         // Start the cancellingWhopMemberTask task
-        timer = new Timer(true);
+        // TODO: Unlock when paid
+        /*timer = new Timer(true);
         CancellingWhopMemberTask cancellingWhopMemberTask = new CancellingWhopMemberTask();
-        timer.scheduleAtFixedRate(cancellingWhopMemberTask, 0L, 60000);
+        timer.scheduleAtFixedRate(cancellingWhopMemberTask, 0L, 60000);*/
 
         // Start the daily EOD report sending
-        timer = new Timer(true);
+        Timer timer = new Timer(true);
         EODTask eodTask = new EODTask(1062100366105268327L);
 
         // global time

@@ -51,8 +51,9 @@ public class OnMemberJoin extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        // TODO: Unlock when paid
         // Send EOD report
-        Util.logInfo("New member joined: " + event.getMember().getUser().getAsTag() + " attempting to message...", OnMemberJoin.class);
+        /*Util.logInfo("New member joined: " + event.getMember().getUser().getAsTag() + " attempting to message...", OnMemberJoin.class);
         Member member = event.getMember();
         if (member.getUser().isBot()) return;
         DataUtils.newUserJoined(member.getUser().getIdLong());
@@ -71,6 +72,43 @@ public class OnMemberJoin extends ListenerAdapter {
 
         try {
             System.out.println(client.newCall(request).execute().body().string());
+            // EOD REPORTS
+            Timer timer = new Timer(true);
+            timer.schedule(new AddToEODReportUserTask(client, mediaType, body, request, member.getUser().getName().replace(" ", ""), event.getUser().getIdLong(), member), 780000);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Timer timer = new Timer(true);
+        ModuleTaskReminder moduleTaskReminder = new ModuleTaskReminder(event.getMember());
+        timer.schedule(moduleTaskReminder, 86400000L);*/
+
+        // Send EOD report
+        Util.logInfo("New member joined: " + event.getMember().getUser().getAsTag() + " attempting to message...", OnMemberJoin.class);
+        Member member = event.getMember();
+        if (member.getUser().isBot()) return;
+        DataUtils.newUserJoined(member.getUser().getIdLong());
+        String discordTag = member.getUser().getAsTag();
+        OffsetDateTime now = member.getTimeJoined();
+        OkHttpClient client = new OkHttpClient();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create("{\"fields\": {\"Discord Username\": \"" + discordTag + "\", \"Discord Join Date\": \"" +
+                now.getYear() + "-" + now.getMonthValue() + "-" + now.getDayOfMonth() + "\", \"Level\": \"Brethren\", \"DiscordName\": \"" + event.getUser().getName().replace(" ", "") + "\"}}", mediaType);
+        Request request = new Request.Builder()
+                .url("https://api.airtable.com/v0/" + BASE_ID + "/" + TRF_USERS_TABLE_ID)
+                .post(body)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            JSONObject jsonObject = new JSONObject(response.body().string());
+            String recordId = jsonObject.getString("id");
+            DataUtils.newRecordId(member.getIdLong(), recordId);
+            Util.logInfo("Added user to Airtable: " + discordTag, OnMemberJoin.class);
+
             // EOD REPORTS
             Timer timer = new Timer(true);
             timer.schedule(new AddToEODReportUserTask(client, mediaType, body, request, member.getUser().getName().replace(" ", ""), event.getUser().getIdLong(), member), 780000);

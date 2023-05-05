@@ -2,11 +2,8 @@ package com.general_hello.bot.objects.tasks.whop;
 
 import com.general_hello.Bot;
 import com.general_hello.Config;
-import com.general_hello.bot.database.DataUtils;
-import com.general_hello.bot.events.OnMemberJoin;
 import com.general_hello.bot.utils.Util;
 import net.dv8tion.jda.api.entities.Guild;
-import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -17,8 +14,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.util.TimerTask;
-
-import static com.general_hello.bot.database.airtable.Airtable.*;
 
 public class NewWhopMemberTask extends TimerTask {
     @Override
@@ -95,7 +90,8 @@ public class NewWhopMemberTask extends TimerTask {
                         Util.sendDM(userId, "Congratulations! " + fullName + " used your code! L3e is now given to you.");
                     }
 
-                    OkHttpClient client = new OkHttpClient();
+                    // TODO: unlock when paid
+                    /*OkHttpClient client = new OkHttpClient();
                     MediaType mediaType = MediaType.parse("application/json");
                     RequestBody body = RequestBody.create("{\"fields\": {\"Discord Username\": \"" + discordTag + "\", \"First Name\": \"" + firstName + "\",  \"Last Name\": \"" + lastName + "\",  \"Phone #\": \"" + phoneNumber + "\",  \"Email\": \"" + email + "\", \"Level\": \"Brethren\", \"DiscordName\": \"" + username.replace(" ", "") + "\"}}", mediaType);
                     Request airtableReq = new Request.Builder()
@@ -110,7 +106,7 @@ public class NewWhopMemberTask extends TimerTask {
                     JSONObject jsonObject = new JSONObject(airtableResponse.body().string());
                     String recordId = jsonObject.getString("id");
                     DataUtils.newRecordId(Long.parseLong(discord.getString("id")), recordId);
-                    Util.logInfo("Added user to Airtable: " + discordTag, OnMemberJoin.class);
+                    Util.logInfo("Added user to Airtable: " + discordTag, OnMemberJoin.class);*/
                 }
             }
         } catch (IOException | InterruptedException e) {
