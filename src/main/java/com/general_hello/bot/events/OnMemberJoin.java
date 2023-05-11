@@ -211,7 +211,7 @@ public class OnMemberJoin extends ListenerAdapter {
             AudioChannelUnion channelJoined = event.getChannelJoined();
             String parentCategoryId = channelJoined.getParentCategoryId();
             if (parentCategoryId == null) return;
-            if (!parentCategoryId.equals("1062100366583410701") && !channelJoined.getId().equals("1062100367942373444")) {
+            if (!parentCategoryId.equals("1062100366583410701") && !parentCategoryId.equals("1080271533534101546")  && !channelJoined.getId().equals("1062100367942373444")) {
                 return;
             }
         }
@@ -231,22 +231,22 @@ public class OnMemberJoin extends ListenerAdapter {
                 if (channelJoined == null) return;
 
                 String parentCategoryId = channelJoined.getParentCategoryId();
-                if (parentCategoryId.equals("1062100366583410701")) {
+                if (parentCategoryId.equals("1062100366583410701") || parentCategoryId.equals("1080271533534101546")) {
                     Integer expEarnedAccForTheTime = expEarnedAcc.getOrDefault(event.getMember().getIdLong(), 0);
                     // check if lastJoinedAccOrDefault is less than a week ago
                     if (lastJoinedAcc.containsKey(event.getMember().getIdLong())) {
-                        if (lastJoinedAcc.get(event.getMember().getIdLong()).isAfter(now.minusWeeks(1))) {
+                        if (lastJoinedAcc.get(event.getMember().getIdLong()).isAfter(now.minusDays(6))) {
                             return;
                         } else {
                             lastJoinedAcc.remove(event.getMember().getIdLong());
                         }
                     }
-                    if (expEarnedAccForTheTime >= 50) {
+                    if (expEarnedAccForTheTime >= 1) {
                         exp = 0;
                         lastJoinedAcc.put(member.getIdLong(), now);
                     }
-                    if (exp + expEarnedAccForTheTime >= 50) {
-                        exp = 50 - expEarnedAccForTheTime;
+                    if (exp + expEarnedAccForTheTime >= 1) {
+                        exp = 1;
                         lastJoinedAcc.put(member.getIdLong(), now);
                     }
                     expEarnedAcc.put(member.getIdLong(), expEarnedAccForTheTime + exp);
@@ -257,18 +257,18 @@ public class OnMemberJoin extends ListenerAdapter {
                     Integer expEarnedCoachForTheTime = expEarnedCoach.getOrDefault(event.getMember().getIdLong(), 0);
                     // check if lastJoinedAccOrDefault is less than a week ago
                     if (lastJoinedCoach.containsKey(event.getMember().getIdLong())) {
-                        if (lastJoinedCoach.get(event.getMember().getIdLong()).isAfter(now.minusDays(1))) {
+                        if (lastJoinedCoach.get(event.getMember().getIdLong()).isAfter(now.minusHours(20))) {
                             return;
                         } else {
                             lastJoinedCoach.remove(event.getMember().getIdLong());
                         }
                     }
-                    if (expEarnedCoachForTheTime >= 50) {
+                    if (expEarnedCoachForTheTime >= 1) {
                         exp = 0;
                         lastJoinedCoach.put(member.getIdLong(), now);
                     }
-                    if (exp + expEarnedCoachForTheTime >= 50) {
-                        exp = 50 - expEarnedCoachForTheTime;
+                    if (exp + expEarnedCoachForTheTime >= 1) {
+                        exp = 1;
                         lastJoinedCoach.put(member.getIdLong(), now);
                     }
                     expEarnedCoach.put(member.getIdLong(), expEarnedCoachForTheTime + exp);
@@ -284,11 +284,11 @@ public class OnMemberJoin extends ListenerAdapter {
             Util.logInfo("Added " + member.getUser().getAsTag() + " to the timeInVc HashMap.", OnMemberJoin.class);
         }
 
-        if (DataUtils.getExp(member.getIdLong()) >= 150) {
+        if (DataUtils.getExp(member.getIdLong()) >= 3) {
             event.getGuild().addRoleToMember(member, event.getGuild().getRoleById("1071181625590825062")).queue();
         }
 
-        if (DataUtils.getAccExp(member.getIdLong()) >= 100) {
+        if (DataUtils.getAccExp(member.getIdLong()) >= 2) {
             event.getGuild().addRoleToMember(member, event.getGuild().getRoleById("1071181655424897115")).queue();
         }
     }
